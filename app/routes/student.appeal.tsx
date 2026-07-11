@@ -52,7 +52,7 @@ export default function StudentAppealRoute() {
           <p className="text-gray-500 mt-2">מטלה 2: מיון מהיר (ציון: 82)</p>
         </header>
 
-        <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 space-y-6">
+        <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-gray-200 p-8 space-y-6">
           
           <div className="bg-blue-50 border border-blue-100 text-blue-800 p-4 rounded-xl text-sm flex gap-3">
             <AlertCircle className="shrink-0 text-blue-500" />

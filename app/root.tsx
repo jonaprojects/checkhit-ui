@@ -19,7 +19,7 @@ export const links: Route.LinksFunction = () => [
   },
   {
     rel: "stylesheet",
-    href: "https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;800&display=swap",
+    href: "https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;800&family=Assistant:wght@400;500;600;700;800&display=swap",
   },
 ];
 
@@ -32,7 +32,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Meta />
         <Links />
       </head>
-      <body className="font-['Heebo'] bg-gray-50 text-gray-800">
+      <body className="font-['Heebo'] bg-gray-50 text-gray-800" suppressHydrationWarning>
         {children}
         <ScrollRestoration />
         <Scripts />

@@ -21,7 +21,7 @@ export default function StudentDashboardRoute() {
       <div className="space-y-8 animate-in fade-in duration-500 max-w-6xl mx-auto pb-12">
         <header className="flex justify-between items-end border-b border-gray-200 pb-6">
           <div>
-            <h1 className="text-4xl font-extrabold text-[#00857e]">שלום, יוסי</h1>
+            <h1 className="text-4xl font-extrabold text-gray-900">שלום, יוסי</h1>
             <p className="text-gray-500 mt-2 text-lg">הנה סקירה של המצב האקדמי שלך להיום</p>
           </div>
         </header>
@@ -29,7 +29,7 @@ export default function StudentDashboardRoute() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           
           {/* Upcoming Assignments */}
-          <div className="md:col-span-2 bg-white rounded-3xl shadow-sm border border-gray-100 p-8 flex flex-col">
+          <div className="md:col-span-2 bg-white rounded-xl border border-gray-200 p-6 flex flex-col">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-extrabold text-gray-900">
                 מטלות קרובות
@@ -39,32 +39,51 @@ export default function StudentDashboardRoute() {
               </Link>
             </div>
             <div className="space-y-4 flex-1">
-              <div className="flex items-center justify-between p-5 rounded-2xl border border-gray-200 bg-white hover:border-teal-200 hover:shadow-md transition-all cursor-pointer">
-                <div className="text-start">
-                  <h3 className="font-extrabold text-gray-900 text-xl mb-1">תרגיל 3 - רקורסיה</h3>
+              <Link to="/student/assignments" className="flex items-center justify-between p-5 rounded-xl border border-gray-200 bg-white hover:border-teal-200 hover:shadow-sm transition-all group">
+                <div className="text-start flex-1">
+                  <div className="flex items-center gap-3 mb-1">
+                    <h3 className="font-extrabold text-gray-900 text-xl group-hover:text-[#00857e] transition-colors">תרגיל 3 - רקורסיה</h3>
+                    <span className="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-md font-bold">טרם הוגש</span>
+                  </div>
                   <p className="text-sm text-gray-500 font-medium">מבוא למדעי המחשב</p>
                 </div>
-                <div className="text-end">
-                  <p className="text-sm text-gray-400 font-bold mb-1">הגשה עד</p>
-                  <p className="font-black text-gray-900">2026-07-14</p>
+                <div className="text-end flex items-center gap-6">
+                  <div className="hidden sm:block">
+                    <p className="text-sm text-gray-400 font-bold mb-1">הגשה עד</p>
+                    <p className="font-black text-gray-900">2026-07-14</p>
+                  </div>
+                  <button className="bg-gray-50 border border-gray-200 text-gray-700 px-4 py-2 rounded-xl font-bold text-sm group-hover:bg-[#00857e] group-hover:border-[#00857e] group-hover:text-white transition-colors flex items-center gap-2">
+                    להגשה <ArrowLeft size={16} />
+                  </button>
                 </div>
-              </div>
-              <div className="flex items-center justify-between p-5 rounded-2xl border border-gray-200 bg-white hover:border-teal-200 hover:shadow-md transition-all cursor-pointer">
-                <div className="text-start">
-                  <h3 className="font-extrabold text-gray-900 text-xl mb-1">תרגיל 4</h3>
+              </Link>
+              
+              <Link to="/student/assignments" className="flex items-center justify-between p-5 rounded-xl border border-gray-200 bg-white hover:border-teal-200 hover:shadow-sm transition-all group">
+                <div className="text-start flex-1">
+                  <div className="flex items-center gap-3 mb-1">
+                    <h3 className="font-extrabold text-gray-900 text-xl group-hover:text-[#00857e] transition-colors">תרגיל 4</h3>
+                    <span className="bg-yellow-100 text-yellow-700 text-xs px-2 py-1 rounded-md font-bold flex items-center gap-1">
+                      <Clock size={12} /> בבדיקת AI
+                    </span>
+                  </div>
                   <p className="text-sm text-gray-500 font-medium">מבני נתונים ואלגוריתמים</p>
                 </div>
-                <div className="text-end">
-                  <p className="text-sm text-gray-400 font-bold mb-1">הגשה עד</p>
-                  <p className="font-black text-gray-900">2026-07-20</p>
+                <div className="text-end flex items-center gap-6">
+                  <div className="hidden sm:block">
+                    <p className="text-sm text-gray-400 font-bold mb-1">הגשה עד</p>
+                    <p className="font-black text-gray-900">2026-07-20</p>
+                  </div>
+                  <button className="bg-gray-50 border border-gray-200 text-gray-700 px-4 py-2 rounded-xl font-bold text-sm group-hover:bg-[#00857e] group-hover:border-[#00857e] group-hover:text-white transition-colors flex items-center gap-2">
+                    צפייה <ArrowLeft size={16} />
+                  </button>
                 </div>
-              </div>
+              </Link>
             </div>
           </div>
 
           <div className="space-y-6">
             {/* Recent Grades */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <div className="bg-white rounded-xl border border-gray-200 p-6">
               <h2 className="text-xl font-extrabold text-gray-900 mb-4 flex items-center gap-2">
                 <CheckCircle className="text-green-500" /> ציונים אחרונים
               </h2>
@@ -88,7 +107,7 @@ export default function StudentDashboardRoute() {
             </div>
 
             {/* Appeal Status */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <div className="bg-white rounded-xl border border-gray-200 p-6">
               <h2 className="text-xl font-extrabold text-gray-900 mb-4 flex items-center gap-2">
                 <AlertCircle className="text-orange-500" /> ערעור בתהליך
               </h2>
@@ -115,8 +134,8 @@ export default function StudentDashboardRoute() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {dashboardCourses.map(course => (
-              <Link key={course.id} to={`/student/courses/${course.id}`} className={`group bg-white rounded-3xl shadow-sm border border-gray-100 p-5 hover:shadow-xl ${course.accent.borderHover} transition-all duration-300 flex items-center gap-4 hover:-translate-y-1`}>
-                <div className={`w-12 h-12 rounded-2xl ${course.accent.bg} ${course.accent.text} flex items-center justify-center ${course.accent.groupHoverBg} group-hover:text-white transition-colors shrink-0 shadow-sm`}>
+              <Link key={course.id} to={`/student/courses/${course.id}`} className={`group bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md ${course.accent.borderHover} transition-all duration-300 flex items-center gap-4 hover:-translate-y-1`}>
+                <div className={`w-12 h-12 rounded-xl ${course.accent.bg} ${course.accent.text} flex items-center justify-center ${course.accent.groupHoverBg} group-hover:text-white transition-colors shrink-0`}>
                   <GraduationCap size={24} />
                 </div>
                 <div className="flex-1 overflow-hidden text-start">

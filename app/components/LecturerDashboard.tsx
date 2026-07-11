@@ -5,10 +5,10 @@ export default function LecturerDashboard() {
   return (
     <div className="space-y-12 animate-in fade-in duration-500 max-w-6xl mx-auto pb-12">
       {/* Welcome Section */}
-      <div className="text-center md:text-start bg-white p-8 rounded-3xl shadow-sm border border-gray-100 relative overflow-hidden">
+      <div className="text-center md:text-start bg-white p-8 rounded-xl border border-gray-200 relative overflow-hidden">
         <div className="absolute top-0 end-0 -mt-10 -me-10 w-40 h-40 bg-teal-50 rounded-full blur-3xl opacity-60"></div>
         <div className="relative z-10">
-          <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-l from-[#00857e] to-teal-900 mb-3">שלום, ד"ר שפירא</h1>
+          <h1 className="text-4xl font-extrabold text-gray-900 mb-3">שלום, ד"ר שפירא</h1>
           <p className="text-gray-600 text-lg">הנה סקירת המצב האקדמי העדכנית שלך להיום.</p>
         </div>
       </div>
@@ -37,7 +37,7 @@ export default function LecturerDashboard() {
       </div>
 
       {/* Activity Feed Section */}
-      <section className="bg-white rounded-3xl shadow-sm border border-gray-100 p-8">
+      <section className="bg-white rounded-xl border border-gray-200 p-8">
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-2xl font-extrabold text-gray-900">פעילות אחרונה</h2>
         </div>
@@ -115,10 +115,10 @@ export default function LecturerDashboard() {
 
 function MetricCard({ icon, title, value, subtitle, badgeIcon = false }: { icon: React.ReactNode, title: string, value: string | number, subtitle: string, badgeIcon?: boolean }) {
   return (
-    <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex flex-col relative transition-all duration-300 hover:shadow-md hover:-translate-y-1 group">
+    <div className="bg-white rounded-xl p-6 border border-gray-200 flex flex-col relative transition-all duration-300 hover:shadow-sm hover:-translate-y-1 group">
       <div className="flex justify-between items-start mb-4">
         <h3 className="text-4xl font-black text-[#00857e]">{value}</h3>
-        <div className="p-4 bg-gray-50/80 shadow-sm border border-gray-100 rounded-2xl relative transition-colors group-hover:bg-gray-100">
+        <div className="p-4 bg-gray-50/80 border border-gray-100 rounded-xl relative transition-colors group-hover:bg-gray-100">
           {icon}
           {badgeIcon && (
             <span className="absolute -top-1.5 -end-1.5 flex h-4 w-4">
@@ -136,7 +136,7 @@ function MetricCard({ icon, title, value, subtitle, badgeIcon = false }: { icon:
 
 function CourseCard({ title, code, semester, students, activeAssignments, accent }) {
   return (
-    <div className={`bg-white rounded-3xl shadow-sm border border-gray-100 hover:shadow-xl ${accent.borderHover} transition-all duration-300 relative group cursor-pointer flex flex-col h-full hover:-translate-y-1 overflow-hidden`}>
+    <div className={`bg-white rounded-xl border border-gray-200 hover:shadow-md ${accent.borderHover} transition-all duration-300 relative group cursor-pointer flex flex-col h-full hover:-translate-y-1 overflow-hidden`}>
       <div className={`h-0 w-full border-t-[6px] ${accent.topBorder} transition-colors`}></div>
       <div className="p-6 flex flex-col flex-1">
         <div className="text-start mb-6">
@@ -165,7 +165,7 @@ function ActivityItem({ iconBg, title, time, description, active, extra }: { ico
       <div className={`absolute start-[12px] top-1 w-4 h-4 rounded-full flex items-center justify-center z-10 ${iconBg} ${active ? 'ring-4 ring-teal-50 shadow-sm' : ''} transition-all duration-300 group-hover:scale-110`}>
         {active && <div className="w-2 h-2 bg-[#00857e] rounded-full animate-pulse"></div>}
       </div>
-      <div className="bg-white border border-transparent group-hover:border-teal-100 group-hover:bg-teal-50/30 group-hover:shadow-sm rounded-3xl p-5 transition-all -mt-4 cursor-pointer">
+      <div className="bg-white border border-transparent group-hover:border-teal-100 group-hover:bg-teal-50/30 rounded-xl p-5 transition-all -mt-4 cursor-pointer">
         <div className="flex justify-between items-baseline mb-2 gap-2">
           <h4 className="text-lg font-bold text-gray-900">{title}</h4>
           <span className="text-xs font-bold text-gray-500 whitespace-nowrap bg-gray-100 px-3 py-1 rounded-full">{time}</span>

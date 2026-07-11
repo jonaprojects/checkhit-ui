@@ -34,14 +34,14 @@ export default function LecturerCourseRoute() {
               <p className="text-gray-500">ניהול מטלות הקורס (120 סטודנטים רשומים)</p>
             </div>
             
-            <Link to={`/lecturer/courses/${courseId}/assignments/new`} className="flex items-center gap-2 px-5 py-2.5 bg-[#00857e] text-white rounded-xl hover:bg-teal-700 transition-colors font-bold shadow-sm">
+            <Link to={`/lecturer/courses/${courseId}/assignments/new`} className="flex items-center gap-2 px-5 py-2.5 bg-[#00857e] text-white rounded-xl hover:bg-teal-700 transition-colors font-bold">
               <Plus size={18} />
               יצירת מטלה חדשה
             </Link>
           </div>
         </header>
 
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
           <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
             <h2 className="font-bold text-gray-800 flex items-center gap-2">
               <FileText size={18} className="text-gray-400" />

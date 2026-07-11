@@ -59,7 +59,7 @@ export default function LecturerAssignmentNewRoute() {
           </div>
         </header>
 
-        <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 space-y-8">
+        <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-gray-200 p-8 space-y-8">
           
           <div className="space-y-6">
             <div>
@@ -117,7 +117,7 @@ export default function LecturerAssignmentNewRoute() {
             <button 
               type="submit" 
               disabled={isSubmitting}
-              className="bg-[#00857e] text-white px-8 py-3 rounded-xl font-bold hover:bg-teal-700 transition-colors disabled:opacity-70 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm"
+              className="bg-[#00857e] text-white px-8 py-3 rounded-xl font-bold hover:bg-teal-700 transition-colors disabled:opacity-70 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {isSubmitting ? (
                 <>שומר מטלה...</>

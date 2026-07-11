@@ -57,28 +57,28 @@ export default function LecturerAssignmentRoute() {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center text-center">
+          <div className="bg-white p-5 rounded-xl border border-gray-200 flex flex-col items-center text-center">
             <div className="w-10 h-10 bg-teal-50 text-[#00857e] rounded-full flex items-center justify-center mb-3">
               <Users size={20} />
             </div>
             <div className="text-3xl font-black text-gray-900">{totalStudents}</div>
             <div className="text-sm text-gray-500 mt-1 font-medium">סה״כ סטודנטים</div>
           </div>
-          <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center text-center">
+          <div className="bg-white p-5 rounded-xl border border-gray-200 flex flex-col items-center text-center">
             <div className="w-10 h-10 bg-green-50 text-green-600 rounded-full flex items-center justify-center mb-3">
               <CheckCircle2 size={20} />
             </div>
             <div className="text-3xl font-black text-gray-900">{submitted}</div>
             <div className="text-sm text-gray-500 mt-1 font-medium">הגישו</div>
           </div>
-          <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center text-center">
+          <div className="bg-white p-5 rounded-xl border border-gray-200 flex flex-col items-center text-center">
             <div className="w-10 h-10 bg-red-50 text-red-500 rounded-full flex items-center justify-center mb-3">
               <XCircle size={20} />
             </div>
             <div className="text-3xl font-black text-gray-900">{missing}</div>
             <div className="text-sm text-gray-500 mt-1 font-medium">טרם הגישו</div>
           </div>
-          <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center text-center">
+          <div className="bg-white p-5 rounded-xl border border-gray-200 flex flex-col items-center text-center">
             <div className="w-10 h-10 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mb-3">
               <Clock size={20} />
             </div>
@@ -88,7 +88,7 @@ export default function LecturerAssignmentRoute() {
         </div>
 
         {/* Progress Bar */}
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+        <div className="bg-white p-6 rounded-xl border border-gray-200">
           <div className="flex justify-between items-end mb-2">
             <span className="font-bold text-gray-700">אחוז הגשה כולל</span>
             <span className="font-black text-2xl text-[#00857e]">{submitPercentage}%</span>
@@ -99,7 +99,7 @@ export default function LecturerAssignmentRoute() {
         </div>
 
         {/* Students Table */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
           <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
             <h2 className="font-bold text-gray-800">רשימת הגשות סטודנטים</h2>
             <div className="relative w-64">

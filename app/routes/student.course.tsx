@@ -58,7 +58,7 @@ export default function StudentCourseRoute() {
               {assignments.map(assignment => {
                 const StatusIcon = statusConfig[assignment.status].icon;
                 return (
-                  <Link key={assignment.id} to={`/student/assignments/${assignment.id}`} className="block bg-white rounded-2xl shadow-sm border border-gray-100 p-5 hover:border-teal-200 hover:shadow-md transition-all group">
+                  <Link key={assignment.id} to={`/student/assignments/${assignment.id}`} className="block bg-white rounded-xl border border-gray-200 p-5 hover:border-teal-200 hover:shadow-sm transition-all group">
                     <div className="flex items-center justify-between mb-3">
                       <h3 className="font-bold text-lg text-gray-900 group-hover:text-[#00857e] transition-colors">{assignment.title}</h3>
                       <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${statusConfig[assignment.status].color}`}>
@@ -88,13 +88,13 @@ export default function StudentCourseRoute() {
               <BookOpen className="text-teal-600" /> חומרי עזר וסיכומים
             </h2>
             
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-4">
+            <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-4">
               <p className="text-sm text-gray-500 mb-2">חומרים שהמרצה העלה לטובת המטלות הקרובות:</p>
               
               {resources.map(resource => (
                 <div key={resource.id} className="flex items-center justify-between p-3 rounded-xl border border-gray-100 bg-gray-50/50 hover:bg-gray-50 transition-colors group cursor-pointer">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-white shadow-sm border border-gray-200 flex items-center justify-center text-gray-500 group-hover:text-[#00857e] transition-colors">
+                    <div className="w-10 h-10 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-500 group-hover:text-[#00857e] transition-colors">
                       {resource.type === 'video' ? <PlayCircle size={18} /> : <FileText size={18} />}
                     </div>
                     <div>

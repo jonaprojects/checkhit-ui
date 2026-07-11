@@ -21,18 +21,18 @@ export default function StudentCoursesRoute() {
     <MainLayout portalName="פורטל סטודנטים" view="student">
       <div className="space-y-8 animate-in fade-in duration-500 max-w-6xl mx-auto pb-12">
         <header className="border-b border-gray-200 pb-6">
-          <h1 className="text-3xl font-extrabold text-[#00857e]">הקורסים שלי</h1>
+          <h1 className="text-3xl font-extrabold text-gray-900">הקורסים שלי</h1>
           <p className="text-gray-500 mt-2">רשימת הקורסים אליהם אתה רשום בסמסטר הנוכחי</p>
         </header>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {courses.map(course => (
-            <Link key={course.id} to={`/student/courses/${course.id}`} className={`group bg-white rounded-3xl shadow-sm border border-gray-100 p-6 hover:shadow-xl ${course.accent.borderHover} transition-all duration-300 flex flex-col h-full hover:-translate-y-1`}>
+            <Link key={course.id} to={`/student/courses/${course.id}`} className={`group bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md ${course.accent.borderHover} transition-all duration-300 flex flex-col h-full hover:-translate-y-1`}>
               <div className="flex items-start justify-between mb-4">
-                <div className={`w-14 h-14 rounded-2xl ${course.accent.bg} ${course.accent.text} flex items-center justify-center ${course.accent.groupHoverBg} group-hover:text-white transition-colors shadow-sm`}>
+                <div className={`w-14 h-14 rounded-xl ${course.accent.bg} ${course.accent.text} flex items-center justify-center ${course.accent.groupHoverBg} group-hover:text-white transition-colors`}>
                   <GraduationCap size={28} />
                 </div>
-                <div className={`${course.accent.bg} ${course.accent.text} px-3 py-1.5 rounded-lg text-xs font-black tracking-widest border border-white/50 shadow-sm`}>
+                <div className={`${course.accent.bg} ${course.accent.text} px-3 py-1.5 rounded-lg text-xs font-black tracking-widest border border-white/50`}>
                   {course.code}
                 </div>
               </div>

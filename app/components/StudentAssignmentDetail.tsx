@@ -1,28 +1,30 @@
-import { useState } from 'react';
-import { UploadCloud, File, AlertCircle, Bot, CheckCircle2, ChevronLeft, ArrowRight, MessageSquare, Download } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { Link } from 'react-router';
+import { UploadCloud, File, AlertCircle, Bot, CheckCircle2, ChevronLeft, ArrowRight, MessageSquare, Download, X } from 'lucide-react';
 
 export default function StudentAssignmentDetail({ initialState = 'not-submitted' }) {
   // 'not-submitted' | 'checking' | 'checked'
   const [submissionState, setSubmissionState] = useState(initialState);
+  const [showDemoControl, setShowDemoControl] = useState(true);
   
   return (
     <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in duration-500">
       {/* Header/Breadcrumb */}
       <div className="flex items-center gap-4 mb-8">
-        <button className="w-10 h-10 flex items-center justify-center bg-white rounded-xl shadow-sm border border-gray-100 text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors">
+        <Link to="/student/assignments" className="w-10 h-10 flex items-center justify-center bg-white rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors">
           <ArrowRight size={20} />
-        </button>
-        <div>
-          <div className="flex items-center text-sm text-gray-500 gap-2 mb-1">
-            <span className="hover:text-gray-700 cursor-pointer">הקורסים שלי</span>
-            <ChevronLeft size={14} />
-            <span className="hover:text-gray-700 cursor-pointer">מבני נתונים ואלגוריתמים</span>
+        </Link>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center text-sm text-gray-500 gap-2 mb-1 w-full max-w-full overflow-hidden">
+            <Link to="/student/courses" className="hover:text-gray-700 cursor-pointer whitespace-nowrap">מבני נתונים ואלגוריתמים</Link>
+            <ChevronLeft size={14} className="shrink-0" />
+            <span className="text-gray-800 font-medium truncate">תרגיל בית 3: עצי חיפוש בינאריים</span>
           </div>
           <h1 className="text-3xl font-extrabold text-gray-900">תרגיל בית 3: עצי חיפוש בינאריים</h1>
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
         {/* Assignment Details */}
         <div className="p-6 md:p-8 border-b border-gray-100">
           <div className="flex justify-between items-start mb-4">
@@ -31,7 +33,7 @@ export default function StudentAssignmentDetail({ initialState = 'not-submitted'
           </div>
           <p className="text-gray-600 leading-relaxed mb-6">
             בתרגיל זה תממשו עץ חיפוש בינארי ב-Java, הכולל פעולות הכנסה, מחיקה, וחיפוש.
-            אנא הקפידו על סיבוכיות זמן הריצה הנדרשת כפי שלמדנו בכיתה. את הקוד יש להגיש בקובץ ZIP יחיד.
+            אנא הקפידו על סיבוכיות זמן הריצה הנדרשת כפי שלמדנו בכיתה. את הקוד יש להגיש בקובץ PDF או Markdown.
           </p>
           <div className="flex flex-wrap gap-4 text-sm">
             <div className="bg-gray-50 text-gray-700 px-4 py-2 rounded-lg font-medium flex items-center gap-2 border border-gray-200">
@@ -58,30 +60,147 @@ export default function StudentAssignmentDetail({ initialState = 'not-submitted'
       </div>
       
       {/* State Switcher for Demo Purposes */}
-      <div className="fixed bottom-4 start-4 bg-white p-4 rounded-xl shadow-lg border border-gray-200 flex gap-2 z-50">
-        <span className="text-xs text-gray-500 font-bold self-center me-2">שליטה על תצוגה (למטרות הדגמה):</span>
-        <button onClick={() => setSubmissionState('not-submitted')} className={`text-xs px-3 py-1.5 rounded-md ${submissionState==='not-submitted' ? 'bg-[#00857e] text-white' : 'bg-gray-100 hover:bg-gray-200'}`}>ללא הגשה</button>
-        <button onClick={() => setSubmissionState('checking')} className={`text-xs px-3 py-1.5 rounded-md ${submissionState==='checking' ? 'bg-[#E8B43F] text-white' : 'bg-gray-100 hover:bg-gray-200'}`}>בבדיקה</button>
-        <button onClick={() => setSubmissionState('checked')} className={`text-xs px-3 py-1.5 rounded-md ${submissionState==='checked' ? 'bg-[#00857e] text-white' : 'bg-gray-100 hover:bg-gray-200'}`}>נבדק</button>
-      </div>
+      {showDemoControl && (
+        <div className="fixed bottom-4 start-4 bg-white p-4 rounded-xl shadow-lg border border-gray-200 flex gap-2 z-50 items-center">
+          <span className="text-xs text-gray-500 font-bold self-center me-2">שליטה על תצוגה (למטרות הדגמה):</span>
+          <button onClick={() => setSubmissionState('not-submitted')} className={`text-xs px-3 py-1.5 rounded-md ${submissionState==='not-submitted' ? 'bg-[#00857e] text-white' : 'bg-gray-100 hover:bg-gray-200'}`}>ללא הגשה</button>
+          <button onClick={() => setSubmissionState('checking')} className={`text-xs px-3 py-1.5 rounded-md ${submissionState==='checking' ? 'bg-[#E8B43F] text-white' : 'bg-gray-100 hover:bg-gray-200'}`}>בבדיקה</button>
+          <button onClick={() => setSubmissionState('checked')} className={`text-xs px-3 py-1.5 rounded-md ${submissionState==='checked' ? 'bg-[#00857e] text-white' : 'bg-gray-100 hover:bg-gray-200'}`}>נבדק</button>
+          <div className="w-px h-6 bg-gray-200 mx-1"></div>
+          <button 
+            onClick={() => setShowDemoControl(false)} 
+            className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-1 rounded-md transition-colors"
+            title="סגור חלונית הדגמה"
+          >
+            <X size={16} />
+          </button>
+        </div>
+      )}
     </div>
   );
 }
 
-function NotSubmittedView({ onUpload }) {
+function NotSubmittedView({ onUpload }: any) {
+  const [isDragging, setIsDragging] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileSelection = (file: any) => {
+    if (file) {
+      setSelectedFile(file);
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!selectedFile) return;
+    
+    setIsUploading(true);
+    
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+    
+    try {
+      const response = await fetch('/exercises', {
+        method: 'POST',
+        body: formData,
+      });
+      
+      if (!response.ok) {
+         console.warn("Dummy endpoint returned an error, proceeding anyway.");
+      }
+      
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      onUpload();
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      onUpload();
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const onDragOver = (e: any) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const onDragLeave = (e: any) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const onDrop = (e: any) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      handleFileSelection(e.dataTransfer.files[0]);
+    }
+  };
+
+  const onFileInputChange = (e: any) => {
+    if (e.target.files && e.target.files.length > 0) {
+      handleFileSelection(e.target.files[0]);
+    }
+  };
+
+  if (selectedFile) {
+    return (
+      <div className="flex flex-col items-center justify-center p-8 border border-gray-200 rounded-xl bg-white shadow-sm max-w-lg mx-auto">
+        <div className="flex items-center gap-4 bg-gray-50 w-full p-4 rounded-lg border border-gray-100 mb-6">
+          <div className="w-12 h-12 bg-teal-50 text-[#00857e] rounded-full flex items-center justify-center shrink-0">
+            <File size={24} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-bold text-gray-800 truncate text-start" dir="ltr">{selectedFile.name}</p>
+            <p className="text-sm text-gray-500 text-start">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</p>
+          </div>
+          <button 
+            onClick={() => setSelectedFile(null)}
+            className="text-sm text-red-500 hover:text-red-700 font-medium px-3 py-1.5 bg-red-50 hover:bg-red-100 rounded-md transition-colors whitespace-nowrap"
+            disabled={isUploading}
+          >
+            הסר קובץ
+          </button>
+        </div>
+        
+        <button 
+          onClick={handleSubmit}
+          className="w-full bg-[#00857e] text-white px-8 py-3 rounded-lg font-bold shadow-sm hover:bg-teal-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+          disabled={isUploading}
+        >
+          {isUploading ? 'מעלה קובץ...' : 'שלח הגשה'}
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div 
-      className="flex flex-col items-center justify-center p-12 border-2 border-dashed border-gray-300 rounded-xl bg-white hover:border-[#00857e] hover:bg-teal-50/50 transition-colors cursor-pointer group" 
-      onClick={onUpload}
+      className={`flex flex-col items-center justify-center p-12 border-2 border-dashed rounded-xl transition-colors cursor-pointer group ${isDragging ? 'border-[#00857e] bg-teal-50/50' : 'border-gray-300 bg-white hover:border-[#00857e] hover:bg-teal-50/50'}`}
+      onClick={() => fileInputRef.current?.click()}
+      onDragOver={onDragOver}
+      onDragLeave={onDragLeave}
+      onDrop={onDrop}
     >
-      <div className="w-16 h-16 bg-gray-50 group-hover:bg-teal-100 text-gray-400 group-hover:text-[#00857e] rounded-full flex items-center justify-center mb-4 transition-colors">
+      <input 
+        type="file" 
+        className="hidden" 
+        ref={fileInputRef} 
+        onChange={onFileInputChange}
+        accept=".pdf,.md"
+      />
+      <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 transition-colors ${isDragging ? 'bg-teal-100 text-[#00857e]' : 'bg-gray-50 group-hover:bg-teal-100 text-gray-400 group-hover:text-[#00857e]'}`}>
         <UploadCloud size={32} />
       </div>
-      <h3 className="text-xl font-bold text-gray-800 mb-2 group-hover:text-[#00857e] transition-colors">גרור קבצים לכאן או לחץ להעלאה</h3>
+      <h3 className={`text-xl font-bold mb-2 transition-colors ${isDragging ? 'text-[#00857e]' : 'text-gray-800 group-hover:text-[#00857e]'}`}>גרור קבצים לכאן או לחץ להעלאה</h3>
       <p className="text-gray-500 text-sm text-center max-w-sm">
-        ניתן להעלות קבצים מסוג ZIP בלבד, עד גודל של 50MB. המערכת תתחיל לסרוק ולבדוק אוטומטית לאחר ההגשה.
+        ניתן להעלות קבצים מסוג PDF או Markdown בלבד, עד גודל של 50MB. המערכת תתחיל לסרוק ולבדוק אוטומטית לאחר ההגשה.
       </p>
-      <button className="mt-8 bg-[#00857e] text-white px-8 py-2.5 rounded-lg font-bold shadow-sm hover:bg-teal-700 transition-colors">
+      <button 
+        className="mt-8 bg-[#00857e] text-white px-8 py-2.5 rounded-lg font-bold shadow-sm hover:bg-teal-700 transition-colors disabled:opacity-50"
+      >
         בחר קובץ להגשה
       </button>
     </div>
@@ -137,7 +256,7 @@ function CheckedView({ onReset }) {
             </p>
           </div>
         </div>
-        <div className="text-center bg-white text-[#00857e] px-8 py-4 rounded-2xl shadow-md relative z-10">
+        <div className="text-center bg-white text-[#00857e] px-8 py-4 rounded-xl shadow-sm relative z-10">
           <span className="block text-sm font-bold text-gray-500 mb-1">ציון סופי</span>
           <span className="text-5xl font-black">95</span>
           <span className="text-xl font-bold text-gray-400">/100</span>

@@ -32,7 +32,7 @@ export default function NewCourseRoute() {
         </div>
 
         {/* Form Container */}
-        <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-8">
+        <div className="bg-white rounded-xl border border-gray-200 p-8">
           <form onSubmit={handleSave} className="space-y-6">
             
             {/* Field: Course Name */}
