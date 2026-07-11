@@ -104,6 +104,7 @@ export default function MainLayout({ children, portalName = "פורטל סטוד
 
           <NavItem to={view === 'lecturer' ? '/lecturer/notifications' : '/student/notifications'} icon={Bell} label="התראות" />
           <NavItem to={view === 'lecturer' ? '/lecturer/settings' : '/student/settings'} icon={Settings} label="הגדרות" />
+          <NavItem to={view === 'lecturer' ? '/lecturer/help' : '/student/help'} icon={HelpCircle} label="עזרה ותמיכה" />
           
         </nav>
 
@@ -143,7 +144,7 @@ export default function MainLayout({ children, portalName = "פורטל סטוד
               <div className="relative" ref={notificationRef}>
                 <button 
                   onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
-                  className={`cursor-pointer text-gray-500 hover:text-gray-800 transition-colors relative p-1 rounded-md ${isNotificationsOpen ? 'bg-gray-100 text-gray-900' : ''}`}
+                  className={`cursor-pointer text-gray-500 hover:text-gray-800 transition-colors relative p-1 rounded-md flex items-center justify-center ${isNotificationsOpen ? 'bg-gray-100 text-gray-900' : ''}`}
                 >
                   <Bell size={22} />
                   {unreadCount > 0 && (
@@ -188,7 +189,7 @@ export default function MainLayout({ children, portalName = "פורטל סטוד
                   </div>
                 )}
               </div>
-              <Link to={view === 'lecturer' ? '/lecturer/help' : '/student/help'} className="text-gray-500 hover:text-gray-800 transition-colors cursor-pointer">
+              <Link to={view === 'lecturer' ? '/lecturer/help' : '/student/help'} className="text-gray-500 hover:text-gray-800 transition-colors cursor-pointer p-1 rounded-md flex items-center justify-center">
                 <HelpCircle size={22} />
               </Link>
             </div>
