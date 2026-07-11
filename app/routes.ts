@@ -22,6 +22,7 @@ export default [
     route("messages", "routes/student.messages.tsx"),
     route("notifications", "routes/student.notifications.tsx"),
     route("settings", "routes/student.settings.tsx"),
+    route("appeals", "routes/student.appeals.tsx"),
     route("assignments/:assignmentId", "routes/student.assignment.tsx"),
     route("assignments/:assignmentId/appeal", "routes/student.appeal.tsx"),
     route("courses", "routes/student.courses.tsx"),

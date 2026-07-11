@@ -11,7 +11,8 @@ import {
   Bell,
   HelpCircle,
   Upload,
-  Home
+  Home,
+  FileWarning
 } from 'lucide-react';
 
 export default function MainLayout({ children, portalName = "פורטל סטודנטים", view }: any) {
@@ -99,6 +100,7 @@ export default function MainLayout({ children, portalName = "פורטל סטוד
               <NavItem to="/student" icon={LayoutDashboard} label="לוח בקרה" />
               <NavItem to="/student/courses" icon={GraduationCap} label="הקורסים שלי" />
               <NavItem to="/student/assignments" icon={FileText} label="מטלות" />
+              <NavItem to="/student/appeals" icon={FileWarning} label="ערעורים" />
             </>
           )}
 
