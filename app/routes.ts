@@ -13,7 +13,9 @@ export default [
     route("assignments/:assignmentId", "routes/lecturer.assignment.tsx"),
     route("notifications", "routes/lecturer.notifications.tsx"),
     route("settings", "routes/lecturer.settings.tsx"),
-    route("help", "routes/lecturer.help.tsx")
+    route("help", "routes/lecturer.help.tsx"),
+    route("appeals", "routes/lecturer.appeals.tsx"),
+    route("appeals/:appealId", "routes/lecturer.appeal.tsx")
   ]),
 
   // Student Routes

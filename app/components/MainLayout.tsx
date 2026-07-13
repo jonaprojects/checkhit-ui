@@ -92,8 +92,7 @@ export default function MainLayout({ children, portalName = "פורטל סטוד
             <>
               <NavItem to="/lecturer" icon={LayoutDashboard} label="לוח בקרה" />
               <NavItem to="/lecturer/courses" icon={GraduationCap} label="הקורסים שלי" />
-              {/* Using a placeholder for appeals as there's no dedicated top-level route right now */}
-              <NavItem to="/lecturer/appeals" icon={FileText} label="ערעורים" />
+              <NavItem to="/lecturer/appeals" icon={FileWarning} label="ערעורים" />
             </>
           ) : (
             <>
