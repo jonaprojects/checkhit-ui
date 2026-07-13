@@ -81,9 +81,9 @@ export default function MainLayout({ children, portalName = "פורטל סטוד
         ${sidebarOpen ? 'translate-x-0' : 'translate-x-[100%] lg:translate-x-0'}
         border-e border-gray-100 shrink-0
       `}>
-        <div className="p-6 flex flex-col items-center justify-center border-b border-gray-100 min-h-[100px]">
+        <div className="h-20 px-6 flex flex-col items-center justify-center border-b border-gray-100 shrink-0">
           <Link to="/" className="w-full flex justify-center">
-            <img src="/logo.png" alt="Check Hit Logo" className="h-10 w-auto object-contain cursor-pointer transition-transform hover:scale-105" />
+            <img src="/logo.png" alt="Check Hit Logo" className="h-8 w-auto object-contain cursor-pointer transition-transform hover:scale-105" />
           </Link>
         </div>
         

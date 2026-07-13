@@ -13,6 +13,13 @@ export function meta({}: Route.MetaArgs) {
 export default function StudentAppealRoute() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setSelectedFile(e.target.files[0]);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,31 +70,64 @@ export default function StudentAppealRoute() {
           </div>
 
           <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">נימוק הערעור (חובה)</label>
+            <label className="block text-sm font-bold text-gray-700 mb-2">קטגוריית ערעור (רשות)</label>
+            <select className="w-full border border-gray-200 rounded-xl p-4 focus:ring-2 focus:ring-[#00857e] focus:outline-none bg-gray-50 hover:bg-white focus:bg-white transition-colors">
+              <option value="">בחר קטגוריה...</option>
+              <option value="grading_error">טעות בבדיקה</option>
+              <option value="misunderstanding">חוסר הבנה של הקוד</option>
+              <option value="technical">בעיה טכנית</option>
+              <option value="other">אחר</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-2">פירוט הערעור (חובה)</label>
             <textarea 
               required
+              minLength={20}
               rows={6}
               className="w-full border border-gray-200 rounded-xl p-4 focus:ring-2 focus:ring-[#00857e] focus:outline-none bg-gray-50 hover:bg-white focus:bg-white transition-colors resize-none"
-              placeholder="הסבר בפירוט מדוע לדעתך יש לשנות את הציון..."
+              placeholder="אנא פרט מדוע אתה מגיש את הערעור... (מינימום 20 תווים)"
             ></textarea>
           </div>
 
           <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">קובץ מצורף (אופציונלי)</label>
-            <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center bg-gray-50 hover:bg-teal-50 hover:border-teal-300 transition-colors cursor-pointer group">
-              <div className="w-16 h-16 rounded-full bg-white shadow-sm flex items-center justify-center mx-auto mb-4 text-gray-400 group-hover:text-[#00857e] transition-colors">
-                <UploadCloud size={28} />
+            <label className="block text-sm font-bold text-gray-700 mb-2">צירוף קבצים תומכים (PDF בלבד)</label>
+            {!selectedFile ? (
+              <div className="relative border-2 border-dashed border-gray-300 rounded-xl p-8 text-center bg-gray-50 hover:bg-teal-50 hover:border-teal-300 transition-colors cursor-pointer group">
+                <input type="file" accept="application/pdf" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onChange={handleFileChange} />
+                <div className="w-16 h-16 rounded-full bg-white shadow-sm flex items-center justify-center mx-auto mb-4 text-gray-400 group-hover:text-[#00857e] transition-colors">
+                  <UploadCloud size={28} />
+                </div>
+                <p className="text-gray-700 font-bold mb-1">גרור קובץ לכאן או לחץ להעלאה</p>
+                <p className="text-sm text-gray-500">ניתן להעלות קבצי PDF בלבד</p>
               </div>
-              <p className="text-gray-700 font-bold mb-1">גרור קובץ לכאן או לחץ להעלאה</p>
-              <p className="text-sm text-gray-500">ניתן להעלות קובצי Markdown או Text בלבד</p>
-            </div>
+            ) : (
+              <div className="flex items-center gap-4 bg-gray-50 w-full p-4 rounded-xl border border-gray-200">
+                <div className="w-12 h-12 bg-teal-50 text-[#00857e] rounded-full flex items-center justify-center shrink-0">
+                  <FileText size={24} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-gray-800 truncate text-start" dir="ltr">{selectedFile.name}</p>
+                  <p className="text-sm text-gray-500 text-start">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</p>
+                </div>
+                <button 
+                  type="button"
+                  onClick={() => setSelectedFile(null)}
+                  className="text-sm text-red-500 hover:text-red-700 font-medium px-3 py-1.5 bg-red-50 hover:bg-red-100 rounded-md transition-colors whitespace-nowrap cursor-pointer"
+                  disabled={isSubmitting}
+                >
+                  הסר קובץ
+                </button>
+              </div>
+            )}
           </div>
 
           <div className="pt-4 flex justify-end">
             <button 
               type="submit" 
               disabled={isSubmitting}
-              className="bg-[#00857e] text-white px-8 py-3 rounded-xl font-bold hover:bg-teal-700 transition-colors disabled:opacity-70 disabled:cursor-not-allowed flex items-center gap-2"
+              className="bg-[#00857e] text-white px-8 py-3 rounded-xl font-bold hover:bg-teal-700 transition-colors cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {isSubmitting ? (
                 <>שולח ערעור...</>

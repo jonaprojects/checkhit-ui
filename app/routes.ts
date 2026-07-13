@@ -12,6 +12,7 @@ export default [
     route("courses/:courseId/assignments/new", "routes/lecturer.assignment.new.tsx"),
     route("assignments/:assignmentId", "routes/lecturer.assignment.tsx"),
     route("notifications", "routes/lecturer.notifications.tsx"),
+    route("settings", "routes/lecturer.settings.tsx"),
     route("help", "routes/lecturer.help.tsx")
   ]),
 

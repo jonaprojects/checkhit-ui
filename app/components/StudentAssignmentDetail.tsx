@@ -310,10 +310,10 @@ function CheckedView({ onReset }) {
              <p className="text-sm text-gray-600 mb-4">
                ניתן להגיש ערעור על הציון והמשוב של ה-AI. מרצה הקורס יעבור על הערעור באופן ידני.
              </p>
-             <button className="w-full bg-white text-[#00857e] border-2 border-[#00857e] hover:bg-teal-50 px-4 py-2.5 rounded-lg font-bold transition-colors shadow-sm flex items-center justify-center gap-2">
+             <Link to="appeal" className="w-full bg-white text-[#00857e] border-2 border-[#00857e] hover:bg-teal-50 px-4 py-2.5 rounded-lg font-bold transition-colors shadow-sm flex items-center justify-center gap-2">
                <MessageSquare size={18} />
                הגש ערעור
-             </button>
+             </Link>
           </div>
           
           <button onClick={onReset} className="w-full text-center text-sm text-gray-400 hover:text-gray-600 py-2 transition-colors">
