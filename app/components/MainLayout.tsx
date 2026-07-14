@@ -105,7 +105,6 @@ export default function MainLayout({ children, portalName = "פורטל סטוד
 
           <NavItem to={view === 'lecturer' ? '/lecturer/notifications' : '/student/notifications'} icon={Bell} label="התראות" />
           <NavItem to={view === 'lecturer' ? '/lecturer/settings' : '/student/settings'} icon={Settings} label="הגדרות" />
-          <NavItem to={view === 'lecturer' ? '/lecturer/help' : '/student/help'} icon={HelpCircle} label="עזרה ותמיכה" />
           
         </nav>
 
