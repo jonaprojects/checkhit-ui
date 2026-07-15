@@ -90,7 +90,7 @@ export default function StudentMessages() {
 
   return (
     <MainLayout portalName="פורטל סטודנטים" view="student">
-      <div className="animate-in fade-in duration-500 max-w-[1400px] mx-auto pb-6 h-[calc(100vh-140px)] flex flex-col">
+      <div className="animate-in fade-in duration-500 max-w-[1400px] mx-auto pb-6 flex flex-col md:h-[calc(100vh-140px)]">
         
         {/* Header */}
         <header className="mb-6">

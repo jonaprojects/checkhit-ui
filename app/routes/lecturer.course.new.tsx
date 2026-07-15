@@ -113,12 +113,12 @@ export default function NewCourseRoute() {
             </div>
 
             {/* Actions */}
-            <div className="pt-6 mt-6 border-t border-gray-100 flex items-center justify-end gap-4">
-              <Link to="/lecturer/courses" className="px-6 py-3 text-gray-500 font-bold rounded-xl hover:bg-gray-100 transition-colors flex items-center gap-2">
+            <div className="pt-6 mt-6 border-t border-gray-100 flex flex-wrap items-center justify-end gap-4">
+              <Link to="/lecturer/courses" className="px-6 py-3 text-gray-500 font-bold rounded-xl hover:bg-gray-100 transition-colors flex items-center gap-2 shrink-0 whitespace-nowrap">
                 <X size={20} />
                 ביטול
               </Link>
-              <button type="submit" className="px-8 py-3 bg-[#00857e] text-white font-bold rounded-xl hover:bg-teal-700 transition-colors shadow-sm flex items-center gap-2">
+              <button type="submit" className="px-8 py-3 bg-[#00857e] text-white font-bold rounded-xl hover:bg-teal-700 transition-colors shadow-sm flex items-center gap-2 shrink-0 whitespace-nowrap">
                 <Save size={20} />
                 שמירת קורס
               </button>

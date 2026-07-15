@@ -109,15 +109,15 @@ export default function LecturerAssignmentNewRoute() {
             </div>
           </div>
 
-          <div className="pt-6 border-t border-gray-100 flex justify-end gap-4">
-            <Link to={`/lecturer/courses/${courseId}`} className="px-6 py-3 rounded-xl font-bold text-gray-600 hover:bg-gray-100 transition-colors flex items-center gap-2">
+          <div className="pt-6 border-t border-gray-100 flex flex-wrap justify-end gap-4">
+            <Link to={`/lecturer/courses/${courseId}`} className="px-6 py-3 rounded-xl font-bold text-gray-600 hover:bg-gray-100 transition-colors flex items-center gap-2 shrink-0 whitespace-nowrap">
               <X size={18} />
               ביטול
             </Link>
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               disabled={isSubmitting}
-              className="bg-[#00857e] text-white px-8 py-3 rounded-xl font-bold hover:bg-teal-700 transition-colors disabled:opacity-70 disabled:cursor-not-allowed flex items-center gap-2"
+              className="bg-[#00857e] text-white px-8 py-3 rounded-xl font-bold hover:bg-teal-700 transition-colors disabled:opacity-70 disabled:cursor-not-allowed flex items-center gap-2 shrink-0 whitespace-nowrap"
             >
               {isSubmitting ? (
                 <>שומר מטלה...</>

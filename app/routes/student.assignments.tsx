@@ -169,7 +169,7 @@ export default function StudentAssignmentsRoute() {
         <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
           {filteredAssignments.length > 0 ? (
             <div className="overflow-x-auto">
-              <table className="w-full text-start">
+              <table className="w-full min-w-[700px] text-start">
                 <thead>
                   <tr className="bg-gray-50/50 border-b border-gray-100 text-gray-500 text-sm">
                     <th className="px-6 py-4 font-medium w-1/3">מטלה</th>

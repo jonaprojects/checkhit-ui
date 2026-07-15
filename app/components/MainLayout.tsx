@@ -156,7 +156,7 @@ export default function MainLayout({ children, portalName = "פורטל סטוד
 
                 {/* Notifications Dropdown */}
                 {isNotificationsOpen && (
-                  <div className="absolute top-full end-[-60px] md:end-0 mt-3 w-80 bg-white rounded-xl border border-gray-200 shadow-xl overflow-hidden z-50 origin-top-right animate-in fade-in zoom-in-95 duration-200">
+                  <div className="fixed inset-x-4 top-20 mt-2 md:absolute md:inset-x-auto md:top-full md:end-0 md:mt-3 w-auto md:w-80 bg-white rounded-xl border border-gray-200 shadow-xl overflow-hidden z-50 origin-top-right animate-in fade-in zoom-in-95 duration-200">
                     <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-gray-50/50">
                       <h3 className="font-bold text-gray-900">התראות מערכת</h3>
                       <button className="text-xs text-[#00857e] hover:underline font-medium">סמן הכל כנקרא</button>

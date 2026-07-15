@@ -61,15 +61,15 @@ export default function StudentAssignmentDetail({ initialState = 'not-submitted'
       
       {/* State Switcher for Demo Purposes */}
       {showDemoControl && (
-        <div className="fixed bottom-4 start-4 bg-white p-4 rounded-xl shadow-lg border border-gray-200 flex gap-2 z-50 items-center">
-          <span className="text-xs text-gray-500 font-bold self-center me-2">שליטה על תצוגה (למטרות הדגמה):</span>
-          <button onClick={() => setSubmissionState('not-submitted')} className={`text-xs px-3 py-1.5 rounded-md ${submissionState==='not-submitted' ? 'bg-[#00857e] text-white' : 'bg-gray-100 hover:bg-gray-200'}`}>ללא הגשה</button>
-          <button onClick={() => setSubmissionState('checking')} className={`text-xs px-3 py-1.5 rounded-md ${submissionState==='checking' ? 'bg-[#E8B43F] text-white' : 'bg-gray-100 hover:bg-gray-200'}`}>בבדיקה</button>
-          <button onClick={() => setSubmissionState('checked')} className={`text-xs px-3 py-1.5 rounded-md ${submissionState==='checked' ? 'bg-[#00857e] text-white' : 'bg-gray-100 hover:bg-gray-200'}`}>נבדק</button>
-          <div className="w-px h-6 bg-gray-200 mx-1"></div>
-          <button 
-            onClick={() => setShowDemoControl(false)} 
-            className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-1 rounded-md transition-colors"
+        <div className="fixed bottom-4 start-4 end-4 sm:end-auto bg-white p-4 rounded-xl shadow-lg border border-gray-200 flex flex-wrap gap-2 z-50 items-center max-w-full sm:max-w-none w-fit">
+          <span className="text-xs text-gray-500 font-bold self-center me-2 whitespace-nowrap">שליטה על תצוגה (למטרות הדגמה):</span>
+          <button onClick={() => setSubmissionState('not-submitted')} className={`text-xs px-3 py-1.5 rounded-md whitespace-nowrap ${submissionState==='not-submitted' ? 'bg-[#00857e] text-white' : 'bg-gray-100 hover:bg-gray-200'}`}>ללא הגשה</button>
+          <button onClick={() => setSubmissionState('checking')} className={`text-xs px-3 py-1.5 rounded-md whitespace-nowrap ${submissionState==='checking' ? 'bg-[#E8B43F] text-white' : 'bg-gray-100 hover:bg-gray-200'}`}>בבדיקה</button>
+          <button onClick={() => setSubmissionState('checked')} className={`text-xs px-3 py-1.5 rounded-md whitespace-nowrap ${submissionState==='checked' ? 'bg-[#00857e] text-white' : 'bg-gray-100 hover:bg-gray-200'}`}>נבדק</button>
+          <div className="w-px h-6 bg-gray-200 mx-1 hidden sm:block"></div>
+          <button
+            onClick={() => setShowDemoControl(false)}
+            className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-1 rounded-md transition-colors shrink-0"
             title="סגור חלונית הדגמה"
           >
             <X size={16} />

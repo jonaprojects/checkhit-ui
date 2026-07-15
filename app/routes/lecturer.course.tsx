@@ -57,7 +57,7 @@ export default function LecturerCourseRoute() {
             </div>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full text-start text-sm">
+            <table className="w-full min-w-[640px] text-start text-sm">
               <thead>
                 <tr className="bg-gray-50/50 border-b border-gray-100 text-gray-500">
                   <th className="px-6 py-4 font-medium w-2/5">שם המטלה</th>
