@@ -2,6 +2,7 @@ import type { Route } from "./+types/lecturer.settings";
 import MainLayout from "../components/MainLayout";
 import { useState } from "react";
 import { Bell, Monitor, Shield, ChevronLeft, Check } from "lucide-react";
+import { useTheme } from "../lib/theme";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -14,12 +15,12 @@ type TabId = 'notifications' | 'display' | 'privacy';
 
 export default function LecturerSettings() {
   const [activeTab, setActiveTab] = useState<TabId>('notifications');
+  const { theme, setTheme } = useTheme();
 
   const [settings, setSettings] = useState({
     notifyAppeals: true,
     notifyAiDone: true,
     notifyLateSubmissions: false,
-    theme: 'system', // 'light', 'dark', 'system'
     language: 'he', // 'he', 'en'
     allowAiAnalysis: true,
     showEmail: false,
@@ -143,41 +144,46 @@ export default function LecturerSettings() {
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-3">ערכת נושא</label>
                     <div className="grid grid-cols-3 gap-3">
-                      {(['light', 'dark', 'system'] as const).map((t) => (
-                        <button
-                          key={t}
-                          onClick={() => setSettings({ ...settings, theme: t })}
-                          className={`py-2 px-4 rounded-xl border font-medium text-sm flex items-center justify-center gap-2 transition-colors ${
-                            settings.theme === t 
-                              ? 'bg-teal-50 border-[#00857e] text-[#00857e]' 
-                              : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
-                          }`}
-                        >
-                          {settings.theme === t && <Check size={16} />}
-                          {t === 'light' ? 'בהיר' : t === 'dark' ? 'כהה' : 'מערכת'}
-                        </button>
-                      ))}
+                      <button
+                        onClick={() => setTheme('light')}
+                        className={`py-3 px-4 rounded-lg border flex flex-col items-center gap-2 transition-all ${theme === 'light' ? 'border-[#00857e] bg-teal-50 text-[#00857e]' : 'border-gray-200 text-gray-600 hover:border-gray-300'}`}
+                      >
+                        <div className="w-8 h-8 rounded-full bg-[#ffffff] border border-[#d1d5db] shadow-sm flex items-center justify-center">
+                          {theme === 'light' && <Check size={16} className="text-[#00857e]" />}
+                        </div>
+                        <span className="font-medium text-sm">בהיר</span>
+                      </button>
+                      <button
+                        onClick={() => setTheme('dark')}
+                        className={`py-3 px-4 rounded-lg border flex flex-col items-center gap-2 transition-all ${theme === 'dark' ? 'border-[#00857e] bg-teal-50 text-[#00857e]' : 'border-gray-200 text-gray-600 hover:border-gray-300'}`}
+                      >
+                        <div className="w-8 h-8 rounded-full bg-[#111827] border border-[#374151] shadow-sm flex items-center justify-center">
+                          {theme === 'dark' && <Check size={16} className="text-white" />}
+                        </div>
+                        <span className="font-medium text-sm">כהה</span>
+                      </button>
+                      <button
+                        onClick={() => setTheme('system')}
+                        className={`py-3 px-4 rounded-lg border flex flex-col items-center gap-2 transition-all ${theme === 'system' ? 'border-[#00857e] bg-teal-50 text-[#00857e]' : 'border-gray-200 text-gray-600 hover:border-gray-300'}`}
+                      >
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#111827] to-[#ffffff] border border-[#d1d5db] shadow-sm flex items-center justify-center">
+                          {theme === 'system' && <Check size={16} className="text-[#6b7280]" />}
+                        </div>
+                        <span className="font-medium text-sm">מערכת</span>
+                      </button>
                     </div>
                   </div>
 
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-3">שפת ממשק</label>
-                    <div className="grid grid-cols-2 gap-3">
-                      {(['he', 'en'] as const).map((l) => (
-                        <button
-                          key={l}
-                          onClick={() => setSettings({ ...settings, language: l })}
-                          className={`py-2 px-4 rounded-xl border font-medium text-sm flex items-center justify-center gap-2 transition-colors ${
-                            settings.language === l 
-                              ? 'bg-teal-50 border-[#00857e] text-[#00857e]' 
-                              : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
-                          }`}
-                        >
-                          {settings.language === l && <Check size={16} />}
-                          {l === 'he' ? 'עברית' : 'English'}
-                        </button>
-                      ))}
-                    </div>
+                    <select
+                      value={settings.language}
+                      onChange={(e) => setSettings({ ...settings, language: e.target.value })}
+                      className="mt-1 block w-full rounded-lg border-gray-200 py-3 px-4 text-gray-900 focus:border-[#00857e] focus:ring-[#00857e] sm:text-sm bg-gray-50 outline-none"
+                    >
+                      <option value="he">עברית (Hebrew)</option>
+                      <option value="en">English (אנגלית)</option>
+                    </select>
                   </div>
                 </div>
               </div>

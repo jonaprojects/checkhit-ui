@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+/* Toggle dark mode by adding/removing `.dark` on <html> (see app/lib/theme.ts),
+   instead of Tailwind's default OS-only `prefers-color-scheme` behavior. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --font-sans: "Heebo", ui-sans-serif, system-ui, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
@@ -22,4 +26,110 @@
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------------------------------------------------------------------
+ * Dark theme
+ *
+ * The app's components consistently reuse Tailwind's default color scale
+ * (bg-gray-50, text-gray-900, bg-teal-50, bg-red-50, border-gray-200, ...)
+ * as their only surface/text/border/status tokens. Redefining those
+ * scales' CSS variables under `.dark` repaints every existing usage —
+ * including opacity variants like bg-gray-50/50 — without touching each
+ * component.
+ *
+ * Only the *light-tint* shades (50/100, and 200/300 where used as
+ * borders) and the *dark-text* shades (700/800/900) of each status color
+ * are remapped — those are the ones that pair up as light-bg/dark-text
+ * badges (e.g. bg-red-50 + text-red-700), which turn into a glaring,
+ * near-white chip once the surrounding card goes dark. The 400/500/600
+ * shades are left untouched: they're used as solid fills (dots, progress
+ * bars, hover buttons) and mid-saturation icon colors that already read
+ * fine on both a light and a dark surface.
+ *
+ * `white` is deliberately NOT remapped this way: `text-white` relies on it
+ * staying pure white for readable text on solid accent buttons. Only the
+ * specific utility classes that use white as a *surface* (bg-white, the
+ * header/sidebar/cards) are overridden below.
+ *
+ * This block is intentionally outside any @layer: unlayered CSS always
+ * wins over Tailwind's layered utilities, so no !important is needed.
+ * ------------------------------------------------------------------- */
+:root.dark {
+  color-scheme: dark;
+
+  --color-gray-50: #0e1514;
+  --color-gray-100: #17211f;
+  --color-gray-200: #263330;
+  --color-gray-300: #34433f;
+  --color-gray-400: #62716c;
+  --color-gray-500: #8b9793;
+  --color-gray-600: #a7b2ae;
+  --color-gray-700: #c0cac6;
+  --color-gray-800: #dbe3e0;
+  --color-gray-900: #f3f7f5;
+
+  --color-teal-50: #123330;
+  --color-teal-100: #164039;
+  --color-teal-200: #1c5049;
+  --color-teal-300: #24645b;
+
+  /* Status/accent badge colors (danger, warning, success, info, extra course tags) */
+  --color-red-50: #2a1512;
+  --color-red-100: #39201b;
+  --color-red-200: #5c332a;
+  --color-red-700: #ff9e8e;
+  --color-red-800: #ffb7ab;
+
+  --color-orange-50: #2c1c0c;
+  --color-orange-100: #3c2712;
+  --color-orange-200: #5c3c1c;
+  --color-orange-700: #ffaf6b;
+  --color-orange-900: #ffcfa3;
+
+  --color-yellow-50: #2a2410;
+  --color-yellow-100: #3a3116;
+  --color-yellow-200: #584a20;
+  --color-yellow-700: #f0d968;
+  --color-yellow-800: #f5e595;
+
+  --color-amber-50: #2c220e;
+  --color-amber-300: #6b5220;
+  --color-amber-700: #f2c766;
+
+  --color-green-50: #0f2a1a;
+  --color-green-100: #163823;
+  --color-green-200: #1f4f30;
+  --color-green-700: #7fe0a8;
+  --color-green-800: #a5ecc2;
+
+  --color-emerald-50: #0e2b24;
+  --color-emerald-300: #2f6656;
+  --color-emerald-700: #8fe6cd;
+
+  --color-blue-50: #101f30;
+  --color-blue-100: #16283f;
+  --color-blue-200: #1e3856;
+  --color-blue-300: #2a4a70;
+  --color-blue-700: #8fc0ff;
+  --color-blue-800: #b6d7ff;
+
+  --color-purple-50: #211530;
+  --color-purple-100: #2c1c3f;
+  --color-purple-300: #553b70;
+  --color-purple-700: #d0a6ff;
+}
+
+:root:not(.dark) {
+  color-scheme: light;
+}
+
+.dark .bg-white,
+.dark .hover\:bg-white:hover,
+.dark .focus\:bg-white:focus {
+  background-color: var(--color-gray-100);
+}
+
+.dark .border-white {
+  border-color: var(--color-gray-100);
 }

@@ -2,6 +2,7 @@ import type { Route } from "./+types/student.settings";
 import MainLayout from "../components/MainLayout";
 import { useState } from "react";
 import { Bell, Monitor, Shield, ChevronLeft, Check } from "lucide-react";
+import { useTheme } from "../lib/theme";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -14,12 +15,12 @@ type TabId = 'notifications' | 'display' | 'privacy';
 
 export default function StudentSettings() {
   const [activeTab, setActiveTab] = useState<TabId>('notifications');
+  const { theme, setTheme } = useTheme();
 
   const [settings, setSettings] = useState({
     notifyNewAssignments: true,
     notifyGrades: true,
     notifyDeadlines: false,
-    theme: 'system', // 'light', 'dark', 'system'
     language: 'he', // 'he', 'en'
     allowAiAnalytics: true,
   });
@@ -148,30 +149,30 @@ export default function StudentSettings() {
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-3">ערכת נושא</label>
                     <div className="grid grid-cols-3 gap-3">
-                      <button 
-                        onClick={() => setSettings({...settings, theme: 'light'})}
-                        className={`py-3 px-4 rounded-lg border flex flex-col items-center gap-2 transition-all ${settings.theme === 'light' ? 'border-[#00857e] bg-teal-50 text-[#00857e]' : 'border-gray-200 text-gray-600 hover:border-gray-300'}`}
+                      <button
+                        onClick={() => setTheme('light')}
+                        className={`py-3 px-4 rounded-lg border flex flex-col items-center gap-2 transition-all ${theme === 'light' ? 'border-[#00857e] bg-teal-50 text-[#00857e]' : 'border-gray-200 text-gray-600 hover:border-gray-300'}`}
                       >
-                        <div className="w-8 h-8 rounded-full bg-white border border-gray-300 shadow-sm flex items-center justify-center">
-                          {settings.theme === 'light' && <Check size={16} />}
+                        <div className="w-8 h-8 rounded-full bg-[#ffffff] border border-[#d1d5db] shadow-sm flex items-center justify-center">
+                          {theme === 'light' && <Check size={16} className="text-[#00857e]" />}
                         </div>
                         <span className="font-medium text-sm">בהיר</span>
                       </button>
-                      <button 
-                        onClick={() => setSettings({...settings, theme: 'dark'})}
-                        className={`py-3 px-4 rounded-lg border flex flex-col items-center gap-2 transition-all ${settings.theme === 'dark' ? 'border-[#00857e] bg-teal-50 text-[#00857e]' : 'border-gray-200 text-gray-600 hover:border-gray-300'}`}
+                      <button
+                        onClick={() => setTheme('dark')}
+                        className={`py-3 px-4 rounded-lg border flex flex-col items-center gap-2 transition-all ${theme === 'dark' ? 'border-[#00857e] bg-teal-50 text-[#00857e]' : 'border-gray-200 text-gray-600 hover:border-gray-300'}`}
                       >
-                        <div className="w-8 h-8 rounded-full bg-gray-900 border border-gray-700 shadow-sm flex items-center justify-center text-white">
-                          {settings.theme === 'dark' && <Check size={16} />}
+                        <div className="w-8 h-8 rounded-full bg-[#111827] border border-[#374151] shadow-sm flex items-center justify-center">
+                          {theme === 'dark' && <Check size={16} className="text-white" />}
                         </div>
                         <span className="font-medium text-sm">כהה</span>
                       </button>
-                      <button 
-                        onClick={() => setSettings({...settings, theme: 'system'})}
-                        className={`py-3 px-4 rounded-lg border flex flex-col items-center gap-2 transition-all ${settings.theme === 'system' ? 'border-[#00857e] bg-teal-50 text-[#00857e]' : 'border-gray-200 text-gray-600 hover:border-gray-300'}`}
+                      <button
+                        onClick={() => setTheme('system')}
+                        className={`py-3 px-4 rounded-lg border flex flex-col items-center gap-2 transition-all ${theme === 'system' ? 'border-[#00857e] bg-teal-50 text-[#00857e]' : 'border-gray-200 text-gray-600 hover:border-gray-300'}`}
                       >
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-gray-900 to-white border border-gray-300 shadow-sm flex items-center justify-center">
-                          {settings.theme === 'system' && <Check size={16} className="text-gray-500" />}
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#111827] to-[#ffffff] border border-[#d1d5db] shadow-sm flex items-center justify-center">
+                          {theme === 'system' && <Check size={16} className="text-[#6b7280]" />}
                         </div>
                         <span className="font-medium text-sm">מערכת</span>
                       </button>
