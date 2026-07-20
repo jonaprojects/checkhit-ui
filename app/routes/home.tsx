@@ -12,7 +12,8 @@ export default function Home() {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50 font-sans text-center px-4">
       <div className="bg-white p-8 sm:p-12 rounded-xl border border-gray-200 flex flex-col gap-6 w-full max-w-md items-center">
-        <img src="/logo.png" alt="Check Hit Logo" className="h-10 object-contain mb-2 dark:bg-white dark:rounded-lg dark:px-4 dark:py-2" />
+        <img src="/logo.png" alt="Check Hit Logo" className="h-10 object-contain mb-2 dark:hidden" />
+        <img src="/logo-dark1.png" alt="Check Hit Logo" className="h-10 object-contain mb-2 hidden dark:block" />
         <h1 className="text-3xl font-extrabold text-gray-900 mb-4">ברוכים הבאים למערכת</h1>
         <Link to="/lecturer" className="w-full bg-[#00857e] text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-teal-700 transition-colors">
           כניסה למרצים
