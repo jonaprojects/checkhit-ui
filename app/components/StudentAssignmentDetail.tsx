@@ -1,8 +1,11 @@
 import { useState, useRef } from 'react';
 import { Link } from 'react-router';
 import { UploadCloud, File, AlertCircle, Bot, CheckCircle2, ChevronLeft, ArrowRight, MessageSquare, Download, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export default function StudentAssignmentDetail({ initialState = 'not-submitted' }) {
+  const { t, i18n } = useTranslation();
+  const isEn = i18n.language.startsWith('en');
   // 'not-submitted' | 'checking' | 'checked'
   const [submissionState, setSubmissionState] = useState(initialState);
   const [showDemoControl, setShowDemoControl] = useState(true);
@@ -16,11 +19,11 @@ export default function StudentAssignmentDetail({ initialState = 'not-submitted'
         </Link>
         <div className="min-w-0 flex-1">
           <div className="flex items-center text-sm text-gray-500 gap-2 mb-1 w-full max-w-full overflow-hidden">
-            <Link to="/student/courses" className="hover:text-gray-700 cursor-pointer whitespace-nowrap">מבני נתונים ואלגוריתמים</Link>
-            <ChevronLeft size={14} className="shrink-0" />
-            <span className="text-gray-800 font-medium truncate">תרגיל בית 3: עצי חיפוש בינאריים</span>
+            <Link to="/student/courses" className="hover:text-gray-700 cursor-pointer whitespace-nowrap">{isEn ? 'Data Structures & Algorithms' : 'מבני נתונים ואלגוריתמים'}</Link>
+            <ChevronLeft size={14} className={`shrink-0 ${isEn ? 'rotate-180' : ''}`} />
+            <span className="text-gray-800 font-medium truncate">{isEn ? 'Homework 3: Binary Search Trees' : 'תרגיל בית 3: עצי חיפוש בינאריים'}</span>
           </div>
-          <h1 className="text-3xl font-extrabold text-gray-900">תרגיל בית 3: עצי חיפוש בינאריים</h1>
+          <h1 className="text-3xl font-extrabold text-gray-900">{isEn ? 'Homework 3: Binary Search Trees' : 'תרגיל בית 3: עצי חיפוש בינאריים'}</h1>
         </div>
       </div>
 
@@ -28,19 +31,18 @@ export default function StudentAssignmentDetail({ initialState = 'not-submitted'
         {/* Assignment Details */}
         <div className="p-6 md:p-8 border-b border-gray-100">
           <div className="flex justify-between items-start mb-4">
-            <h2 className="text-xl font-bold text-gray-900">הנחיות המטלה</h2>
-            <span className="bg-red-50 text-red-600 px-3 py-1 rounded-md text-sm font-bold">15% מהציון</span>
+            <h2 className="text-xl font-bold text-gray-900">{t('assignmentDetail.instructions')}</h2>
+            <span className="bg-red-50 text-red-600 px-3 py-1 rounded-md text-sm font-bold">{t('assignmentDetail.gradeWeight')}</span>
           </div>
           <p className="text-gray-600 leading-relaxed mb-6">
-            בתרגיל זה תממשו עץ חיפוש בינארי ב-Java, הכולל פעולות הכנסה, מחיקה, וחיפוש.
-            אנא הקפידו על סיבוכיות זמן הריצה הנדרשת כפי שלמדנו בכיתה. את הקוד יש להגיש בקובץ PDF או Markdown.
+            {isEn ? 'In this exercise you will implement a Binary Search Tree in Java, including insert, delete, and search operations. Please adhere to the required time complexity as learned in class. The code must be submitted in a PDF or Markdown file.' : 'בתרגיל זה תממשו עץ חיפוש בינארי ב-Java, הכולל פעולות הכנסה, מחיקה, וחיפוש. אנא הקפידו על סיבוכיות זמן הריצה הנדרשת כפי שלמדנו בכיתה. את הקוד יש להגיש בקובץ PDF או Markdown.'}
           </p>
           <div className="flex flex-wrap gap-4 text-sm">
             <div className="bg-gray-50 text-gray-700 px-4 py-2 rounded-lg font-medium flex items-center gap-2 border border-gray-200">
-              <AlertCircle size={16} className="text-[#00857e]" /> מועד הגשה: 25.10.2023, 23:59
+              <AlertCircle size={16} className="text-[#00857e]" /> {t('assignmentDetail.dueDate')} 25.10.2023, 23:59
             </div>
             <div className="bg-gray-50 text-gray-700 px-4 py-2 rounded-lg font-medium flex items-center gap-2 border border-gray-200 cursor-pointer hover:bg-gray-100 transition">
-              <Download size={16} className="text-[#00857e]" /> קובץ עזר.pdf
+              <Download size={16} className="text-[#00857e]" /> {t('assignmentDetail.downloadHelper')}
             </div>
           </div>
         </div>
@@ -62,10 +64,10 @@ export default function StudentAssignmentDetail({ initialState = 'not-submitted'
       {/* State Switcher for Demo Purposes */}
       {showDemoControl && (
         <div className="fixed bottom-4 start-4 end-4 sm:end-auto bg-white p-4 rounded-xl shadow-lg border border-gray-200 flex flex-wrap gap-2 z-50 items-center max-w-full sm:max-w-none w-fit">
-          <span className="text-xs text-gray-500 font-bold self-center me-2 whitespace-nowrap">שליטה על תצוגה (למטרות הדגמה):</span>
-          <button onClick={() => setSubmissionState('not-submitted')} className={`text-xs px-3 py-1.5 rounded-md whitespace-nowrap ${submissionState==='not-submitted' ? 'bg-[#00857e] text-white' : 'bg-gray-100 hover:bg-gray-200'}`}>ללא הגשה</button>
-          <button onClick={() => setSubmissionState('checking')} className={`text-xs px-3 py-1.5 rounded-md whitespace-nowrap ${submissionState==='checking' ? 'bg-[#E8B43F] text-white' : 'bg-gray-100 hover:bg-gray-200'}`}>בבדיקה</button>
-          <button onClick={() => setSubmissionState('checked')} className={`text-xs px-3 py-1.5 rounded-md whitespace-nowrap ${submissionState==='checked' ? 'bg-[#00857e] text-white' : 'bg-gray-100 hover:bg-gray-200'}`}>נבדק</button>
+          <span className="text-xs text-gray-500 font-bold self-center me-2 whitespace-nowrap">{t('assignmentDetail.demoControl')}</span>
+          <button onClick={() => setSubmissionState('not-submitted')} className={`text-xs px-3 py-1.5 rounded-md whitespace-nowrap ${submissionState==='not-submitted' ? 'bg-[#00857e] text-white' : 'bg-gray-100 hover:bg-gray-200'}`}>{t('assignmentDetail.noSubmission')}</button>
+          <button onClick={() => setSubmissionState('checking')} className={`text-xs px-3 py-1.5 rounded-md whitespace-nowrap ${submissionState==='checking' ? 'bg-[#E8B43F] text-white' : 'bg-gray-100 hover:bg-gray-200'}`}>{t('assignmentDetail.checking')}</button>
+          <button onClick={() => setSubmissionState('checked')} className={`text-xs px-3 py-1.5 rounded-md whitespace-nowrap ${submissionState==='checked' ? 'bg-[#00857e] text-white' : 'bg-gray-100 hover:bg-gray-200'}`}>{t('assignmentDetail.checked')}</button>
           <div className="w-px h-6 bg-gray-200 mx-1 hidden sm:block"></div>
           <button
             onClick={() => setShowDemoControl(false)}
@@ -81,6 +83,7 @@ export default function StudentAssignmentDetail({ initialState = 'not-submitted'
 }
 
 function NotSubmittedView({ onUpload }: any) {
+  const { t } = useTranslation();
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -161,7 +164,7 @@ function NotSubmittedView({ onUpload }: any) {
             className="text-sm text-red-500 hover:text-red-700 font-medium px-3 py-1.5 bg-red-50 hover:bg-red-100 rounded-md transition-colors whitespace-nowrap"
             disabled={isUploading}
           >
-            הסר קובץ
+            {t('assignmentDetail.removeFile')}
           </button>
         </div>
         
@@ -170,7 +173,7 @@ function NotSubmittedView({ onUpload }: any) {
           className="w-full bg-[#00857e] text-white px-8 py-3 rounded-lg font-bold shadow-sm hover:bg-teal-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
           disabled={isUploading}
         >
-          {isUploading ? 'מעלה קובץ...' : 'שלח הגשה'}
+          {isUploading ? t('assignmentDetail.uploading') : t('assignmentDetail.submit')}
         </button>
       </div>
     );
@@ -194,20 +197,21 @@ function NotSubmittedView({ onUpload }: any) {
       <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 transition-colors ${isDragging ? 'bg-teal-100 text-[#00857e]' : 'bg-gray-50 group-hover:bg-teal-100 text-gray-400 group-hover:text-[#00857e]'}`}>
         <UploadCloud size={32} />
       </div>
-      <h3 className={`text-xl font-bold mb-2 transition-colors ${isDragging ? 'text-[#00857e]' : 'text-gray-800 group-hover:text-[#00857e]'}`}>גרור קבצים לכאן או לחץ להעלאה</h3>
+      <h3 className={`text-xl font-bold mb-2 transition-colors ${isDragging ? 'text-[#00857e]' : 'text-gray-800 group-hover:text-[#00857e]'}`}>{t('assignmentDetail.dragFiles')}</h3>
       <p className="text-gray-500 text-sm text-center max-w-sm">
-        ניתן להעלות קבצים מסוג PDF או Markdown בלבד, עד גודל של 50MB. המערכת תתחיל לסרוק ולבדוק אוטומטית לאחר ההגשה.
+        {t('assignmentDetail.fileRules')}
       </p>
       <button 
         className="mt-8 bg-[#00857e] text-white px-8 py-2.5 rounded-lg font-bold shadow-sm hover:bg-teal-700 transition-colors disabled:opacity-50"
       >
-        בחר קובץ להגשה
+        {t('assignmentDetail.chooseFile')}
       </button>
     </div>
   );
 }
 
 function CheckingView({ onFinish }) {
+  const { t } = useTranslation();
   return (
     <div className="flex flex-col items-center justify-center p-16 bg-white rounded-xl border border-[#E8B43F]/40 shadow-sm relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#E8B43F]/10 to-transparent animate-[pulse_2s_infinite]"></div>
@@ -219,9 +223,9 @@ function CheckingView({ onFinish }) {
             <Bot size={48} className="animate-pulse" />
           </div>
         </div>
-        <h3 className="text-2xl font-bold text-gray-900 mt-8 mb-3">ה-AI שלנו בודק את המטלה שלך</h3>
+        <h3 className="text-2xl font-bold text-gray-900 mt-8 mb-3">{t('assignmentDetail.aiChecking')}</h3>
         <p className="text-gray-500 text-center max-w-md leading-relaxed">
-          מערכת ההערכה החכמה סורקת את הקוד, מחפשת שגיאות, בודקת יעילות ועמידה בדרישות. פעולה זו לוקחת לרוב כמספר דקות.
+          {t('assignmentDetail.aiCheckingDesc')}
         </p>
         
         <div className="w-full max-w-sm bg-gray-100 h-2 rounded-full mt-8 overflow-hidden">
@@ -229,13 +233,15 @@ function CheckingView({ onFinish }) {
         </div>
         
         {/* Hidden button to simulate process finishing for the demo */}
-        <button onClick={onFinish} className="mt-8 text-xs text-gray-400 hover:text-gray-600 underline">דלג לסיום התהליך (הדגמה)</button>
+        <button onClick={onFinish} className="mt-8 text-xs text-gray-400 hover:text-gray-600 underline">{t('assignmentDetail.skipDemo')}</button>
       </div>
     </div>
   );
 }
 
 function CheckedView({ onReset }) {
+  const { t, i18n } = useTranslation();
+  const isEn = i18n.language.startsWith('en');
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       {/* Grade Banner */}
@@ -249,15 +255,15 @@ function CheckedView({ onReset }) {
             <CheckCircle2 size={36} className="text-white" />
           </div>
           <div>
-            <h3 className="text-3xl font-extrabold mb-1">המטלה נבדקה בהצלחה</h3>
+            <h3 className="text-3xl font-extrabold mb-1">{t('assignmentDetail.checkedSuccessfully')}</h3>
             <p className="text-teal-100 flex items-center gap-2 font-medium">
               <Bot size={18} />
-              הערכה אוטומטית באמצעות AI הושלמה
+              {t('assignmentDetail.aiEvalComplete')}
             </p>
           </div>
         </div>
         <div className="text-center bg-white text-[#00857e] px-8 py-4 rounded-xl shadow-sm relative z-10">
-          <span className="block text-sm font-bold text-gray-500 mb-1">ציון סופי</span>
+          <span className="block text-sm font-bold text-gray-500 mb-1">{t('assignmentDetail.finalGrade')}</span>
           <span className="text-5xl font-black">95</span>
           <span className="text-xl font-bold text-gray-400">/100</span>
         </div>
@@ -266,25 +272,25 @@ function CheckedView({ onReset }) {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Main Feedback */}
         <div className="lg:col-span-2 space-y-6">
-          <h3 className="text-2xl font-bold text-gray-900">פירוט ההערכה</h3>
+          <h3 className="text-2xl font-bold text-gray-900">{t('assignmentDetail.evalDetails')}</h3>
           
           <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm relative overflow-hidden">
             <div className="absolute top-0 start-0 w-1 h-full bg-[#E8B43F]"></div>
             <h4 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-              <Bot className="text-[#E8B43F]" /> משוב ה-AI
+              <Bot className="text-[#E8B43F]" /> {t('assignmentDetail.aiFeedback')}
             </h4>
             <div className="space-y-4">
-              <FeedbackItem type="positive" text="מימוש פונקציית ה-insert יעיל ונכון (O(log n) במקרה הממוצע)." />
-              <FeedbackItem type="positive" text="טיפול נכון במקרי קצה בעת מחיקת צומת בעל שני בנים (מציאת עוקב והחלפה)." />
-              <FeedbackItem type="warning" text="שם המשתנה `tmpNode` בשורה 45 אינו מעיד על תפקידו. מומלץ להשתמש בשמות בעלי משמעות גבוהה יותר כמו `nodeToDelete`." />
-              <FeedbackItem type="negative" text="חסר תיעוד (JavaDoc) בחלק מהמתודות הציבוריות של המחלקה. תיעוד הוא חלק מדרישות המטלה." />
+              <FeedbackItem type="positive" text={isEn ? "The insert function implementation is efficient and correct (O(log n) in average case)." : "מימוש פונקציית ה-insert יעיל ונכון (O(log n) במקרה הממוצע)."} />
+              <FeedbackItem type="positive" text={isEn ? "Correct edge case handling when deleting a node with two children (finding successor and replacing)." : "טיפול נכון במקרי קצה בעת מחיקת צומת בעל שני בנים (מציאת עוקב והחלפה)."} />
+              <FeedbackItem type="warning" text={isEn ? "The variable name `tmpNode` on line 45 does not indicate its role. It's recommended to use more meaningful names like `nodeToDelete`." : "שם המשתנה `tmpNode` בשורה 45 אינו מעיד על תפקידו. מומלץ להשתמש בשמות בעלי משמעות גבוהה יותר כמו `nodeToDelete`."} />
+              <FeedbackItem type="negative" text={isEn ? "Missing documentation (JavaDoc) in some public methods of the class. Documentation is part of the assignment requirements." : "חסר תיעוד (JavaDoc) בחלק מהמתודות הציבוריות של המחלקה. תיעוד הוא חלק מדרישות המטלה."} />
             </div>
           </div>
           
           <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
-            <h4 className="text-lg font-bold text-gray-800 mb-2">הערת המרצה</h4>
+            <h4 className="text-lg font-bold text-gray-800 mb-2">{t('assignmentDetail.lecturerNote')}</h4>
             <p className="text-gray-600 bg-gray-50 p-4 rounded-lg italic">
-              "עבודה יפה מאוד. שימו לב להערת ה-AI בנושא התיעוד להבא."
+              {isEn ? '"Very nice work. Pay attention to the AI note regarding documentation next time."' : '"עבודה יפה מאוד. שימו לב להערת ה-AI בנושא התיעוד להבא."'}
             </p>
           </div>
         </div>
@@ -295,29 +301,29 @@ function CheckedView({ onReset }) {
              <div className="w-12 h-12 bg-teal-50 text-[#00857e] rounded-full flex items-center justify-center mx-auto mb-4">
                <File size={24} />
              </div>
-             <h4 className="font-bold text-gray-800 mb-2">קובץ ההגשה שלך</h4>
-             <p className="text-sm text-gray-500 mb-4">
+             <h4 className="font-bold text-gray-800 mb-2">{t('assignmentDetail.yourFile')}</h4>
+             <p className="text-sm text-gray-500 mb-4" dir="ltr">
                binary_tree_submission.zip (1.2 MB)
              </p>
              <button className="w-full bg-gray-50 text-gray-700 hover:bg-gray-100 px-4 py-2 rounded-lg font-medium transition-colors text-sm flex items-center justify-center gap-2">
                <Download size={16} />
-               הורד קובץ
+               {t('assignmentDetail.download')}
              </button>
           </div>
 
           <div className="bg-teal-50 rounded-xl p-6 border border-teal-100">
-             <h4 className="font-bold text-gray-800 mb-2">מרגיש שהציון לא הוגן?</h4>
+             <h4 className="font-bold text-gray-800 mb-2">{t('assignmentDetail.unfairGrade')}</h4>
              <p className="text-sm text-gray-600 mb-4">
-               ניתן להגיש ערעור על הציון והמשוב של ה-AI. מרצה הקורס יעבור על הערעור באופן ידני.
+               {t('assignmentDetail.appealDesc')}
              </p>
-             <Link to="appeal" className="w-full bg-white text-[#00857e] border-2 border-[#00857e] hover:bg-teal-50 px-4 py-2.5 rounded-lg font-bold transition-colors shadow-sm flex items-center justify-center gap-2">
+             <Link to="/student/appeal" className="w-full bg-white text-[#00857e] border-2 border-[#00857e] hover:bg-teal-50 px-4 py-2.5 rounded-lg font-bold transition-colors shadow-sm flex items-center justify-center gap-2">
                <MessageSquare size={18} />
-               הגש ערעור
+               {t('assignmentDetail.submitAppeal')}
              </Link>
           </div>
           
           <button onClick={onReset} className="w-full text-center text-sm text-gray-400 hover:text-gray-600 py-2 transition-colors">
-             הגש קובץ מתוקן (למטרות תרגול)
+             {t('assignmentDetail.resubmitPrac')}
           </button>
         </div>
       </div>

@@ -2,6 +2,7 @@ import type { Route } from "./+types/lecturer.help";
 import MainLayout from "~/components/MainLayout";
 import { HelpCircle, MessageSquare, ChevronDown, Send, User, Bot } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from 'react-i18next';
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -10,18 +11,30 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-const faqs = [
-  { q: "איך פותחים קורס חדש?", a: "ניתן לפתוח קורס חדש מלשונית ״הקורסים שלי״ על ידי לחיצה על כפתור ״הוסף קורס״." },
-  { q: "איך מאשרים ציונים ממודל ה-AI?", a: "הכנס למטלה הרצויה, עבור על הציונים המוצעים ולחץ על כפתור ״אשר ציונים״ או ערוך ידנית במידת הצורך." },
-  { q: "האם אפשר להאריך מועד הגשה?", a: "כן. במסך הגדרות המטלה ניתן לשנות את תאריך היעד או לאפשר הגשות באיחור תחת סעיף ״מדיניות איחורים״." },
-  { q: "איך מגיבים לערעור סטודנט?", a: "בערעורים פתוחים תראה התראה. כנס למטלה דרך לשונית ערעורים, קרא את טענת הסטודנט, הוסף משוב ואשר/דחה את הערעור." },
-];
+const faqsData = {
+  he: [
+    { q: "איך פותחים קורס חדש?", a: "ניתן לפתוח קורס חדש מלשונית ״הקורסים שלי״ על ידי לחיצה על כפתור ״הוסף קורס״." },
+    { q: "איך מאשרים ציונים ממודל ה-AI?", a: "הכנס למטלה הרצויה, עבור על הציונים המוצעים ולחץ על כפתור ״אשר ציונים״ או ערוך ידנית במידת הצורך." },
+    { q: "האם אפשר להאריך מועד הגשה?", a: "כן. במסך הגדרות המטלה ניתן לשנות את תאריך היעד או לאפשר הגשות באיחור תחת סעיף ״מדיניות איחורים״." },
+    { q: "איך מגיבים לערעור סטודנט?", a: "בערעורים פתוחים תראה התראה. כנס למטלה דרך לשונית ערעורים, קרא את טענת הסטודנט, הוסף משוב ואשר/דחה את הערעור." },
+  ],
+  en: [
+    { q: "How do I open a new course?", a: "You can open a new course from the 'My Courses' tab by clicking the 'Add Course' button." },
+    { q: "How do I approve AI-generated grades?", a: "Enter the desired assignment, review the suggested grades and click 'Approve Grades' or edit manually if needed." },
+    { q: "Can I extend a submission deadline?", a: "Yes. In the assignment settings screen you can change the due date or allow late submissions under the 'Late Policy' section." },
+    { q: "How do I respond to a student appeal?", a: "You will see a notification for open appeals. Enter the assignment via the appeals tab, read the student's claim, add feedback and approve/reject the appeal." },
+  ]
+};
 
 export default function LecturerHelp() {
+  const { t, i18n } = useTranslation();
+  const isEn = i18n.language.startsWith('en');
+  const faqs = isEn ? faqsData.en : faqsData.he;
+  
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [message, setMessage] = useState('');
   const [chatHistory, setChatHistory] = useState([
-    { id: 1, text: "שלום סגל הוראה! איך אפשר לעזור היום?", sender: 'bot', time: '10:00' }
+    { id: 1, text: t('help.lecturerWelcome'), sender: 'bot', time: '10:00' }
   ]);
 
   const toggleFaq = (index: number) => {
@@ -41,7 +54,7 @@ export default function LecturerHelp() {
     setTimeout(() => {
       setChatHistory(prev => [...prev, {
         id: Date.now() + 1,
-        text: "תודה רבה על פנייתך. נציג תמיכה אקדמית יתחבר לשיחה בקרוב...",
+        text: t('help.autoReplyLecturer'),
         sender: 'bot',
         time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
       }]);
@@ -49,21 +62,21 @@ export default function LecturerHelp() {
   };
 
   return (
-    <MainLayout portalName="פורטל מרצים" view="lecturer">
+    <MainLayout portalName={t('nav.dashboard')} view="lecturer">
       <div className="space-y-8 animate-in fade-in duration-500 max-w-6xl mx-auto pb-12 min-h-[101vh]">
         <header className="border-b border-gray-200 pb-6">
           <h1 className="text-3xl font-extrabold text-gray-900 flex items-center gap-3">
             <HelpCircle className="text-[#00857e]" size={32} />
-            עזרה ותמיכה
+            {t('help.title')}
           </h1>
-          <p className="text-gray-500 mt-2 text-lg">כאן תוכל למצוא תשובות לשאלות נפוצות או לשוחח עם התמיכה הטכנית.</p>
+          <p className="text-gray-500 mt-2 text-lg">{t('help.subtitle')}</p>
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* FAQ Section */}
           <div className="bg-white rounded-xl border border-gray-200 p-6 flex flex-col h-[600px]">
             <h2 className="text-xl font-extrabold text-gray-900 mb-6 flex items-center gap-2">
-              שאלות נפוצות - סגל
+              {t('help.faqLecturerTitle')}
             </h2>
             <div className="space-y-4 overflow-y-auto flex-1 pe-2">
               {faqs.map((faq, idx) => (
@@ -92,8 +105,8 @@ export default function LecturerHelp() {
             <div className="bg-[#00857e] p-4 text-white flex items-center gap-3">
               <MessageSquare size={24} />
               <div>
-                <h2 className="font-extrabold text-lg">צ'אט תמיכה טכנית</h2>
-                <p className="text-teal-100 text-sm">שירות זמין עבור סגל ההוראה</p>
+                <h2 className="font-extrabold text-lg">{t('help.chatTechTitle')}</h2>
+                <p className="text-teal-100 text-sm">{t('help.chatTechSubtitle')}</p>
               </div>
             </div>
             
@@ -114,7 +127,7 @@ export default function LecturerHelp() {
             <form onSubmit={handleSendMessage} className="p-4 bg-white border-t border-gray-200 flex items-center gap-2">
               <input 
                 type="text" 
-                placeholder="הקלד הודעה..." 
+                placeholder={t('help.typeMessage')} 
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 className="flex-1 bg-gray-100 border-transparent focus:bg-white focus:border-[#00857e] focus:ring-2 focus:ring-teal-100 rounded-xl px-4 py-2.5 transition-all outline-none text-sm"

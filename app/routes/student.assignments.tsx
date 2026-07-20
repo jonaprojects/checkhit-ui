@@ -8,6 +8,7 @@ import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '.
 import { FilterBar } from '../components/ui/FilterBar';
 import { useState, useRef, useEffect } from 'react';
 import { StatusBadge, assignmentStatusConfig as statusConfig } from '../components/ui/StatusBadge';
+import { useTranslation } from 'react-i18next';
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -15,14 +16,26 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-const assignments = [
-  { id: 1, title: 'תרגיל בית 3: עצי חיפוש בינאריים', course: 'מבני נתונים ואלגוריתמים', dueDate: 'מחר, 23:59', status: 'pending' },
-  { id: 2, title: 'מטלה 2: מיון מהיר', course: 'מבני נתונים ואלגוריתמים', dueDate: 'הוגש לפני יומיים', status: 'checked', grade: 95 },
-  { id: 3, title: 'תרגיל 1: מודל OSI', course: 'רשתות תקשורת', dueDate: 'הוגש לפני שבוע', status: 'appeal', grade: 82 },
-  { id: 4, title: 'פרויקט גמר - שלב א', course: 'תכנות מונחה עצמים', dueDate: 'הוגש אתמול', status: 'checking' },
-];
+const assignmentsData = {
+  he: [
+    { id: 1, title: 'תרגיל בית 3: עצי חיפוש בינאריים', course: 'מבני נתונים ואלגוריתמים', dueDate: 'מחר, 23:59', status: 'pending' },
+    { id: 2, title: 'מטלה 2: מיון מהיר', course: 'מבני נתונים ואלגוריתמים', dueDate: 'הוגש לפני יומיים', status: 'checked', grade: 95 },
+    { id: 3, title: 'תרגיל 1: מודל OSI', course: 'רשתות תקשורת', dueDate: 'הוגש לפני שבוע', status: 'appeal', grade: 82 },
+    { id: 4, title: 'פרויקט גמר - שלב א', course: 'תכנות מונחה עצמים', dueDate: 'הוגש אתמול', status: 'checking' },
+  ],
+  en: [
+    { id: 1, title: 'Homework 3: Binary Search Trees', course: 'Data Structures & Algorithms', dueDate: 'Tomorrow, 23:59', status: 'pending' },
+    { id: 2, title: 'Assignment 2: Quick Sort', course: 'Data Structures & Algorithms', dueDate: 'Submitted 2 days ago', status: 'checked', grade: 95 },
+    { id: 3, title: 'Assignment 1: OSI Model', course: 'Computer Networks', dueDate: 'Submitted 1 week ago', status: 'appeal', grade: 82 },
+    { id: 4, title: 'Final Project - Phase A', course: 'Object Oriented Programming', dueDate: 'Submitted yesterday', status: 'checking' },
+  ]
+};
 
 export default function StudentAssignmentsRoute() {
+  const { t, i18n } = useTranslation();
+  const isEn = i18n.language.startsWith('en');
+  const assignments = isEn ? assignmentsData.en : assignmentsData.he;
+
   const [searchQuery, setSearchQuery] = useState('');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
@@ -71,31 +84,31 @@ export default function StudentAssignmentsRoute() {
   const activeFiltersCount = selectedStatuses.length + selectedCourses.length;
 
   return (
-    <MainLayout portalName="פורטל סטודנטים" view="student">
+    <MainLayout portalName={t('nav.dashboard')} view="student">
       <div className="space-y-8 animate-in fade-in duration-500 max-w-6xl mx-auto pb-12 min-h-[101vh]">
         <header className="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-gray-200 pb-6 gap-4 mb-6">
           <div>
-            <h1 className="text-3xl font-extrabold text-gray-900">המטלות שלי</h1>
-            <p className="text-gray-500 mt-2">מעקב אחר כלל המטלות בקורסים שלך</p>
+            <h1 className="text-3xl font-extrabold text-gray-900">{t('dashboard.myAssignments')}</h1>
+            <p className="text-gray-500 mt-2">{t('course.manageCourseAssignments')}</p>
           </div>
           <div className="w-full md:w-auto">
             <FilterBar
               compact
               searchQuery={searchQuery}
               onSearchChange={setSearchQuery}
-              searchPlaceholder="חיפוש מטלה..."
+              searchPlaceholder={t('course.searchAssignment')}
               activeFiltersCount={activeFiltersCount}
               onClearFilters={clearFilters}
               filterContent={
                 <>
                   {/* Status Filter */}
                   <div>
-                    <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">סטטוס</h3>
+                    <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">{t('course.status')}</h3>
                     <div className="space-y-2">
                       {Object.entries(statusConfig).map(([key, config]) => (
                         <Checkbox
                           key={key}
-                          label={config.label}
+                          label={t(`status.assignment.${key}`)}
                           checked={selectedStatuses.includes(key)}
                           onChange={() => toggleStatus(key)}
                         />
@@ -105,7 +118,7 @@ export default function StudentAssignmentsRoute() {
 
                   {/* Course Filter */}
                   <div>
-                    <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">קורס</h3>
+                    <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">{t('nav.courses')}</h3>
                     <div className="space-y-2">
                       {uniqueCourses.map(course => (
                         <Checkbox
@@ -128,11 +141,11 @@ export default function StudentAssignmentsRoute() {
             <Table className="min-w-[700px]">
               <TableHeader className="text-sm">
                 <TableRow>
-                  <TableHead className="w-1/3">מטלה</TableHead>
-                  <TableHead>קורס</TableHead>
-                  <TableHead>תאריך הגשה</TableHead>
-                  <TableHead className="text-center">סטטוס</TableHead>
-                  <TableHead className="text-center">ציון</TableHead>
+                  <TableHead className="w-1/3">{t('course.assignmentName')}</TableHead>
+                  <TableHead>{t('nav.courses')}</TableHead>
+                  <TableHead>{t('course.dueDate')}</TableHead>
+                  <TableHead className="text-center">{t('course.status')}</TableHead>
+                  <TableHead className="text-center">{t('course.grade')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -169,9 +182,9 @@ export default function StudentAssignmentsRoute() {
               <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4 text-gray-400">
                 <Search size={32} />
               </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-2">לא נמצאו תוצאות</h3>
+              <h3 className="text-xl font-bold text-gray-800 mb-2">{isEn ? 'No results found' : 'לא נמצאו תוצאות'}</h3>
               <p className="text-gray-500 max-w-sm mb-6">
-                לא מצאנו מטלות שמתאימות לסינון או לחיפוש שלך. כדאי לנסות לשנות את הבחירה.
+                {isEn ? 'No assignments match your search or filters. Try changing your selection.' : 'לא מצאנו מטלות שמתאימות לסינון או לחיפוש שלך. כדאי לנסות לשנות את הבחירה.'}
               </p>
               {(activeFiltersCount > 0 || searchQuery) && (
                 <button 
@@ -179,9 +192,9 @@ export default function StudentAssignmentsRoute() {
                     clearFilters();
                     setSearchQuery('');
                   }} 
-                  className="bg-gray-100 text-gray-700 hover:bg-gray-200 px-6 py-2 rounded-lg font-medium transition-colors"
+                  className="text-[#00857e] hover:underline font-medium"
                 >
-                  נקה הכל
+                  {isEn ? 'Clear all filters' : 'נקה את כל הסינונים'}
                 </button>
               )}
             </div>

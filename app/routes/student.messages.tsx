@@ -2,6 +2,7 @@ import type { Route } from "./+types/student.messages";
 import MainLayout from "../components/MainLayout";
 import { useState } from "react";
 import { Search, Mail, MailOpen, User, Clock, MoreVertical, Archive, Trash2, Reply } from "lucide-react";
+import { useTranslation } from 'react-i18next';
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -10,18 +11,19 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-const MOCK_MESSAGES = [
-  {
-    id: 1,
-    sender: "מערכת Check Hit",
-    avatar: "https://ui-avatars.com/api/?name=System&background=00857e&color=fff",
-    subject: "עדכון גרסה למערכת הגשת המטלות",
-    snippet: "שים לב, בלילה שבין שני לשלישי המערכת תרד לשדרוג שרתים...",
-    time: "08:30",
-    date: "היום",
-    isRead: false,
-    content: `סטודנטים יקרים,
-    
+const MOCK_MESSAGES_DATA = {
+  he: [
+    {
+      id: 1,
+      sender: "מערכת Check Hit",
+      avatar: "https://ui-avatars.com/api/?name=System&background=00857e&color=fff",
+      subject: "עדכון גרסה למערכת הגשת המטלות",
+      snippet: "שים לב, בלילה שבין שני לשלישי המערכת תרד לשדרוג שרתים...",
+      time: "08:30",
+      date: "היום",
+      isRead: false,
+      content: `סטודנטים יקרים,
+      
 ברצוננו לעדכן אתכם כי בלילה שבין יום שני ליום שלישי הקרוב, בין השעות 02:00 ל-06:00 בבוקר, תתבצע תחזוקת שרתים ושדרוג גרסה למערכת הגשת המטלות. 
 
 במהלך שעות אלו ייתכנו שיבושים בגישה לאתר ולא יתאפשר להעלות קבצים. אנו ממליצים לתכנן את זמני ההגשה בהתאם ולהימנע מהגשות ברגע האחרון.
@@ -29,17 +31,17 @@ const MOCK_MESSAGES = [
 בברכה,
 צוות התמיכה הטכנית
 Check Hit`
-  },
-  {
-    id: 2,
-    sender: "ד\"ר עמית שפירא",
-    avatar: "https://i.pravatar.cc/150?img=33",
-    subject: "הערות על מטלה 3 - מבוא למדעי המחשב",
-    snippet: "בדקתי את המטלה שהגשת, יש לשים לב ליעילות האלגוריתם בחלק ב'...",
-    time: "אתמול",
-    date: "10 באוקטובר",
-    isRead: true,
-    content: `שלום רב,
+    },
+    {
+      id: 2,
+      sender: "ד\"ר עמית שפירא",
+      avatar: "https://i.pravatar.cc/150?img=33",
+      subject: "הערות על מטלה 3 - מבוא למדעי המחשב",
+      snippet: "בדקתי את המטלה שהגשת, יש לשים לב ליעילות האלגוריתם בחלק ב'...",
+      time: "אתמול",
+      date: "10 באוקטובר",
+      isRead: true,
+      content: `שלום רב,
 
 הבדיקה של מטלה 3 הסתיימה. בסך הכל העבודה הייתה טובה מאוד, אך שמתי לב שבחלק ב' השתמשת בלולאות מקוננות שמעלות את סיבוכיות הזמן ל-O(n^2). 
 
@@ -47,17 +49,17 @@ Check Hit`
 
 בהצלחה בהמשך,
 ד"ר עמית שפירא`
-  },
-  {
-    id: 3,
-    sender: "מזכירות הפקולטה",
-    avatar: "https://ui-avatars.com/api/?name=Admin&background=E8B43F&color=fff",
-    subject: "רישום לקורסי בחירה סמסטר ב'",
-    snippet: "תזכורת: חלון הרישום לקורסי הבחירה ייסגר בעוד כיומיים. אנא ודאו...",
-    time: "8 באוקט",
-    date: "8 באוקטובר",
-    isRead: true,
-    content: `תזכורת חשובה,
+    },
+    {
+      id: 3,
+      sender: "מזכירות הפקולטה",
+      avatar: "https://ui-avatars.com/api/?name=Admin&background=E8B43F&color=fff",
+      subject: "רישום לקורסי בחירה סמסטר ב'",
+      snippet: "תזכורת: חלון הרישום לקורסי הבחירה ייסגר בעוד כיומיים. אנא ודאו...",
+      time: "8 באוקט",
+      date: "8 באוקטובר",
+      isRead: true,
+      content: `תזכורת חשובה,
 
 חלון הרישום לקורסי הבחירה של סמסטר ב' עומד להיסגר בעוד כיומיים (12 באוקטובר בחצות).
 סטודנטים שטרם השלימו את מערכת השעות מתבקשים לעשות זאת בהקדם דרך הפורטל האישי.
@@ -66,12 +68,74 @@ Check Hit`
 
 בברכה,
 מזכירות הפקולטה למדעים מדויקים`
-  },
-];
+    },
+  ],
+  en: [
+    {
+      id: 1,
+      sender: "Check Hit System",
+      avatar: "https://ui-avatars.com/api/?name=System&background=00857e&color=fff",
+      subject: "Version Update for Assignment System",
+      snippet: "Please note, Monday night the system will be down for server upgrades...",
+      time: "08:30",
+      date: "Today",
+      isRead: false,
+      content: `Dear students,
+      
+We want to update you that between Monday night and Tuesday morning, between 02:00 and 06:00, there will be server maintenance and version upgrade to the assignment submission system.
+
+During these hours there may be disruptions accessing the site and it will not be possible to upload files. We recommend planning submission times accordingly and avoiding last-minute submissions.
+
+Best regards,
+Technical Support Team
+Check Hit`
+    },
+    {
+      id: 2,
+      sender: "Dr. Amit Shapira",
+      avatar: "https://i.pravatar.cc/150?img=33",
+      subject: "Notes on Assignment 3 - Intro to CS",
+      snippet: "I checked your submitted assignment, pay attention to the algorithm efficiency in part B...",
+      time: "Yesterday",
+      date: "Oct 10",
+      isRead: true,
+      content: `Hello,
+
+The grading for Assignment 3 is complete. Overall the work was very good, but I noticed that in part B you used nested loops which increases time complexity to O(n^2).
+
+Efficiency can be improved by using a Hash Map data structure which will lower complexity to O(n). I recommend reviewing the material from lecture 4 again.
+
+Good luck ahead,
+Dr. Amit Shapira`
+    },
+    {
+      id: 3,
+      sender: "Faculty Secretariat",
+      avatar: "https://ui-avatars.com/api/?name=Admin&background=E8B43F&color=fff",
+      subject: "Registration for Spring Semester Electives",
+      snippet: "Reminder: The registration window for elective courses closes in two days. Please ensure...",
+      time: "Oct 8",
+      date: "Oct 8",
+      isRead: true,
+      content: `Important reminder,
+
+The registration window for spring semester elective courses is about to close in two days (October 12 at midnight).
+Students who have not yet completed their schedule are requested to do so promptly through the personal portal.
+
+Note: After the window closes, changes to the schedule will only be possible with exceptions committee approval.
+
+Best regards,
+Faculty of Exact Sciences Secretariat`
+    },
+  ]
+};
 
 export default function StudentMessages() {
-  const [messages, setMessages] = useState(MOCK_MESSAGES);
-  const [selectedMessageId, setSelectedMessageId] = useState<number | null>(MOCK_MESSAGES[0].id);
+  const { t, i18n } = useTranslation();
+  const isEn = i18n.language.startsWith('en');
+  const messagesList = isEn ? MOCK_MESSAGES_DATA.en : MOCK_MESSAGES_DATA.he;
+  const [messages, setMessages] = useState(messagesList);
+  const [selectedMessageId, setSelectedMessageId] = useState<number | null>(messagesList[0].id);
   const [searchQuery, setSearchQuery] = useState("");
 
   const selectedMessage = messages.find(m => m.id === selectedMessageId);
@@ -89,13 +153,13 @@ export default function StudentMessages() {
   };
 
   return (
-    <MainLayout portalName="פורטל סטודנטים" view="student">
+    <MainLayout portalName={t('nav.dashboard')} view="student">
       <div className="animate-in fade-in duration-500 max-w-[1400px] mx-auto pb-6 flex flex-col md:h-[calc(100vh-140px)]">
         
         {/* Header */}
         <header className="mb-6">
-          <h1 className="text-3xl font-extrabold text-gray-900">הודעות</h1>
-          <p className="text-gray-500 mt-1">תיבת הדואר הנכנס שלך</p>
+          <h1 className="text-3xl font-extrabold text-gray-900">{t('messages.title')}</h1>
+          <p className="text-gray-500 mt-1">{t('messages.subtitle')}</p>
         </header>
 
         {/* Main Content: Split Pane Layout */}
@@ -106,15 +170,15 @@ export default function StudentMessages() {
             {/* Search Bar */}
             <div className="p-4 border-b border-gray-200 bg-white">
               <div className="relative">
-                <div className="absolute inset-y-0 start-0 pl-3 flex items-center pointer-events-none">
-                  <Search className="h-5 w-5 text-gray-400 ms-3" />
+                <div className={`absolute inset-y-0 ${isEn ? 'left-0 pl-3' : 'right-0 pr-3'} flex items-center pointer-events-none`}>
+                  <Search className={`h-5 w-5 text-gray-400 ${isEn ? 'mr-3' : 'ms-3'}`} />
                 </div>
                 <input
                   type="text"
-                  placeholder="חיפוש הודעות..."
+                  placeholder={t('messages.searchMessages')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="block w-full ps-10 pe-3 py-2 border border-gray-200 rounded-lg focus:ring-[#00857e] focus:border-[#00857e] transition-colors text-sm"
+                  className={`block w-full ${isEn ? 'pl-10 pr-3' : 'ps-10 pe-3'} py-2 border border-gray-200 rounded-lg focus:ring-[#00857e] focus:border-[#00857e] transition-colors text-sm`}
                 />
               </div>
             </div>
@@ -124,7 +188,7 @@ export default function StudentMessages() {
               {filteredMessages.length === 0 ? (
                 <div className="p-8 text-center text-gray-500">
                   <Mail className="mx-auto h-12 w-12 text-gray-300 mb-3" />
-                  <p>לא נמצאו הודעות</p>
+                  <p>{t('messages.noMessagesFound')}</p>
                 </div>
               ) : (
                 <div className="divide-y divide-gray-100">
@@ -138,7 +202,7 @@ export default function StudentMessages() {
                     >
                       {/* Unread Indicator */}
                       {!message.isRead && (
-                        <div className="absolute top-1/2 -mt-1 end-3 w-2 h-2 bg-[#00857e] rounded-full"></div>
+                        <div className={`absolute top-1/2 -mt-1 ${isEn ? 'left-3' : 'end-3'} w-2 h-2 bg-[#00857e] rounded-full`}></div>
                       )}
                       
                       <img src={message.avatar} alt={message.sender} className="w-10 h-10 rounded-full border border-gray-200 mt-1 shrink-0" />
@@ -172,13 +236,13 @@ export default function StudentMessages() {
                 {/* Detail Toolbar */}
                 <div className="h-16 border-b border-gray-200 flex items-center justify-between px-6 bg-white shrink-0">
                   <div className="flex items-center gap-2">
-                    <button className="p-2 text-gray-500 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors" title="השב">
+                    <button className="p-2 text-gray-500 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors" title={t('messages.reply')}>
                       <Reply size={20} />
                     </button>
-                    <button className="p-2 text-gray-500 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors" title="ארכיון">
+                    <button className="p-2 text-gray-500 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors" title={t('messages.archive')}>
                       <Archive size={20} />
                     </button>
-                    <button className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="מחק">
+                    <button className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title={t('messages.delete')}>
                       <Trash2 size={20} />
                     </button>
                   </div>
@@ -198,7 +262,7 @@ export default function StudentMessages() {
                         <div>
                           <div className="font-bold text-gray-900">{selectedMessage.sender}</div>
                           <div className="text-sm text-gray-500 flex items-center gap-1 mt-0.5">
-                            <span>אל: אותי</span>
+                            <span>{t('messages.toMe')}</span>
                           </div>
                         </div>
                       </div>
@@ -217,7 +281,7 @@ export default function StudentMessages() {
                       <div className="border border-gray-200 rounded-xl p-4 bg-gray-50">
                         <div className="text-gray-500 mb-3 flex items-center gap-2">
                           <Reply size={16} />
-                          השב ל{selectedMessage.sender}...
+                          {t('messages.replyTo')} {selectedMessage.sender}...
                         </div>
                         <div className="h-12 bg-white border border-gray-200 rounded-lg cursor-text hover:border-gray-300 transition-colors"></div>
                       </div>
@@ -228,7 +292,7 @@ export default function StudentMessages() {
             ) : (
               <div className="flex-1 flex flex-col items-center justify-center text-gray-400 bg-gray-50/30">
                 <MailOpen className="h-20 w-20 mb-4 text-gray-200" />
-                <p className="text-lg font-medium text-gray-500">בחר הודעה לקריאה</p>
+                <p className="text-lg font-medium text-gray-500">{t('messages.selectMessage')}</p>
               </div>
             )}
           </div>

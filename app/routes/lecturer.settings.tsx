@@ -3,6 +3,8 @@ import MainLayout from "../components/MainLayout";
 import { useState } from "react";
 import { Bell, Monitor, Shield, ChevronLeft, Check } from "lucide-react";
 import { useTheme } from "../lib/theme";
+import { useTranslation } from "react-i18next";
+import { useEffect } from "react";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -14,6 +16,8 @@ export function meta({}: Route.MetaArgs) {
 type TabId = 'notifications' | 'display' | 'privacy';
 
 export default function LecturerSettings() {
+  const { t, i18n } = useTranslation();
+  const isEn = i18n.language.startsWith('en');
   const [activeTab, setActiveTab] = useState<TabId>('notifications');
   const { theme, setTheme } = useTheme();
 
@@ -21,10 +25,15 @@ export default function LecturerSettings() {
     notifyAppeals: true,
     notifyAiDone: true,
     notifyLateSubmissions: false,
-    language: 'he', // 'he', 'en'
+    language: i18n.language.startsWith('en') ? 'en' : 'he',
     allowAiAnalysis: true,
     showEmail: false,
   });
+
+  // Sync settings state if language is changed externally
+  useEffect(() => {
+    setSettings(s => ({ ...s, language: i18n.language.startsWith('en') ? 'en' : 'he' }));
+  }, [i18n.language]);
 
   const handleToggle = (key: keyof typeof settings) => {
     if (typeof settings[key] === 'boolean') {
@@ -50,13 +59,13 @@ export default function LecturerSettings() {
   );
 
   return (
-    <MainLayout portalName="פורטל מרצים" view="lecturer">
+    <MainLayout portalName={isEn ? "Lecturer Portal" : "פורטל מרצים"} view="lecturer">
       <div className="animate-in fade-in duration-500 max-w-6xl mx-auto pb-12">
         
         {/* Header */}
         <header className="mb-8">
-          <h1 className="text-3xl font-extrabold text-gray-900">הגדרות מרצה</h1>
-          <p className="text-gray-500 mt-1">נהל את ההעדפות וההגדרות של חשבון המרצה שלך</p>
+          <h1 className="text-3xl font-extrabold text-gray-900">{t('settings.lecturerTitle')}</h1>
+          <p className="text-gray-500 mt-1">{t('settings.lecturerSubtitle')}</p>
         </header>
 
         <div className="flex flex-col md:flex-row gap-8">
@@ -72,8 +81,8 @@ export default function LecturerSettings() {
                 }`}
               >
                 <Bell size={20} className={activeTab === 'notifications' ? 'text-[#00857e]' : 'text-gray-400'} />
-                התראות
-                <ChevronLeft size={16} className={`ms-auto ${activeTab === 'notifications' ? 'opacity-100' : 'opacity-0'}`} />
+                {t('settings.tabNotifications')}
+                <ChevronLeft size={16} className={`${isEn ? 'mr-auto rotate-180' : 'ms-auto'} ${activeTab === 'notifications' ? 'opacity-100' : 'opacity-0'}`} />
               </button>
               
               <button 
@@ -85,8 +94,8 @@ export default function LecturerSettings() {
                 }`}
               >
                 <Monitor size={20} className={activeTab === 'display' ? 'text-[#00857e]' : 'text-gray-400'} />
-                תצוגה ונגישות
-                <ChevronLeft size={16} className={`ms-auto ${activeTab === 'display' ? 'opacity-100' : 'opacity-0'}`} />
+                {t('settings.tabDisplay')}
+                <ChevronLeft size={16} className={`${isEn ? 'mr-auto rotate-180' : 'ms-auto'} ${activeTab === 'display' ? 'opacity-100' : 'opacity-0'}`} />
               </button>
               
               <button 
@@ -98,8 +107,8 @@ export default function LecturerSettings() {
                 }`}
               >
                 <Shield size={20} className={activeTab === 'privacy' ? 'text-[#00857e]' : 'text-gray-400'} />
-                פרטיות ומידע
-                <ChevronLeft size={16} className={`ms-auto ${activeTab === 'privacy' ? 'opacity-100' : 'opacity-0'}`} />
+                {t('settings.tabPrivacy')}
+                <ChevronLeft size={16} className={`${isEn ? 'mr-auto rotate-180' : 'ms-auto'} ${activeTab === 'privacy' ? 'opacity-100' : 'opacity-0'}`} />
               </button>
             </nav>
           </div>
@@ -108,26 +117,26 @@ export default function LecturerSettings() {
           <div className="flex-1 bg-white border border-gray-200 rounded-xl p-6 lg:p-8 min-h-[500px]">
             {activeTab === 'notifications' && (
               <div className="animate-in fade-in duration-300">
-                <h2 className="text-xl font-bold text-gray-900 mb-6 pb-4 border-b border-gray-100">הגדרות התראות</h2>
+                <h2 className="text-xl font-bold text-gray-900 mb-6 pb-4 border-b border-gray-100">{t('settings.notificationsTitle')}</h2>
                 
                 <div className="mb-8">
-                  <h3 className="text-sm font-bold tracking-wider text-gray-400 uppercase mb-4">עדכונים שוטפים</h3>
+                  <h3 className="text-sm font-bold tracking-wider text-gray-400 uppercase mb-4">{t('settings.routineUpdatesTitle')}</h3>
                   <div className="bg-gray-50/50 rounded-xl border border-gray-100 px-5">
                     <ToggleSwitch 
-                      label="ערעורים חדשים" 
-                      description="קבל התראה כאשר סטודנט מגיש ערעור על ציון במטלה"
+                      label={t('settings.newAppealsTitle')} 
+                      description={t('settings.newAppealsDesc')}
                       checked={settings.notifyAppeals}
                       onChange={() => handleToggle('notifyAppeals')}
                     />
                     <ToggleSwitch 
-                      label="סיום בדיקת AI" 
-                      description="קבל התראה ברגע שמערכת ה-AI מסיימת לבדוק סבב הגשות"
+                      label={t('settings.aiDoneTitle')} 
+                      description={t('settings.aiDoneDesc')}
                       checked={settings.notifyAiDone}
                       onChange={() => handleToggle('notifyAiDone')}
                     />
                     <ToggleSwitch 
-                      label="הגשות באיחור" 
-                      description="קבל התראה מיידית כאשר מתבצעת הגשה לאחר תאריך היעד"
+                      label={t('settings.lateSubmissionsTitle')} 
+                      description={t('settings.lateSubmissionsDesc')}
                       checked={settings.notifyLateSubmissions}
                       onChange={() => handleToggle('notifyLateSubmissions')}
                     />
@@ -138,11 +147,11 @@ export default function LecturerSettings() {
 
             {activeTab === 'display' && (
               <div className="animate-in fade-in duration-300">
-                <h2 className="text-xl font-bold text-gray-900 mb-6 pb-4 border-b border-gray-100">תצוגה ונגישות</h2>
+                <h2 className="text-xl font-bold text-gray-900 mb-6 pb-4 border-b border-gray-100">{t('settings.displayTitle')}</h2>
                 
                 <div className="space-y-6 max-w-lg">
                   <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-3">ערכת נושא</label>
+                    <label className="block text-sm font-bold text-gray-700 mb-3">{t('settings.themeTitle')}</label>
                     <div className="grid grid-cols-3 gap-3">
                       <button
                         onClick={() => setTheme('light')}
@@ -151,7 +160,7 @@ export default function LecturerSettings() {
                         <div className="w-8 h-8 rounded-full bg-[#ffffff] border border-[#d1d5db] shadow-sm flex items-center justify-center">
                           {theme === 'light' && <Check size={16} className="text-[#00857e]" />}
                         </div>
-                        <span className="font-medium text-sm">בהיר</span>
+                        <span className="font-medium text-sm">{t('settings.themeLight')}</span>
                       </button>
                       <button
                         onClick={() => setTheme('dark')}
@@ -160,7 +169,7 @@ export default function LecturerSettings() {
                         <div className="w-8 h-8 rounded-full bg-[#111827] border border-[#374151] shadow-sm flex items-center justify-center">
                           {theme === 'dark' && <Check size={16} className="text-white" />}
                         </div>
-                        <span className="font-medium text-sm">כהה</span>
+                        <span className="font-medium text-sm">{t('settings.themeDark')}</span>
                       </button>
                       <button
                         onClick={() => setTheme('system')}
@@ -169,20 +178,25 @@ export default function LecturerSettings() {
                         <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#111827] to-[#ffffff] border border-[#d1d5db] shadow-sm flex items-center justify-center">
                           {theme === 'system' && <Check size={16} className="text-[#6b7280]" />}
                         </div>
-                        <span className="font-medium text-sm">מערכת</span>
+                        <span className="font-medium text-sm">{t('settings.themeSystem')}</span>
                       </button>
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-3">שפת ממשק</label>
+                    <label className="block text-sm font-bold text-gray-700 mb-3">{t('settings.languageTitle')}</label>
                     <select
                       value={settings.language}
-                      onChange={(e) => setSettings({ ...settings, language: e.target.value })}
-                      className="mt-1 block w-full rounded-lg border-gray-200 py-3 px-4 text-gray-900 focus:border-[#00857e] focus:ring-[#00857e] sm:text-sm bg-gray-50 outline-none"
+                      onChange={(e) => {
+                        const newLang = e.target.value;
+                        setSettings({ ...settings, language: newLang });
+                        i18n.changeLanguage(newLang);
+                      }}
+                      className={`mt-1 block w-full rounded-lg border-gray-200 py-3 px-4 text-gray-900 focus:border-[#00857e] focus:ring-[#00857e] sm:text-sm bg-gray-50 outline-none ${isEn ? 'text-left' : 'text-right'}`}
+                      dir="auto"
                     >
-                      <option value="he">עברית (Hebrew)</option>
-                      <option value="en">English (אנגלית)</option>
+                      <option value="he">{t('settings.languageHe')}</option>
+                      <option value="en">{t('settings.languageEn')}</option>
                     </select>
                   </div>
                 </div>
@@ -191,20 +205,20 @@ export default function LecturerSettings() {
 
             {activeTab === 'privacy' && (
               <div className="animate-in fade-in duration-300">
-                <h2 className="text-xl font-bold text-gray-900 mb-6 pb-4 border-b border-gray-100">פרטיות ומידע</h2>
+                <h2 className="text-xl font-bold text-gray-900 mb-6 pb-4 border-b border-gray-100">{t('settings.privacyTitle')}</h2>
                 
                 <div className="mb-8">
-                  <h3 className="text-sm font-bold tracking-wider text-gray-400 uppercase mb-4">ניהול נתונים</h3>
+                  <h3 className="text-sm font-bold tracking-wider text-gray-400 uppercase mb-4">{t('settings.dataManagementTitle')}</h3>
                   <div className="bg-gray-50/50 rounded-xl border border-gray-100 px-5">
                     <ToggleSwitch 
-                      label="ניתוח מגמות בדיקה" 
-                      description="אפשר למערכת ה-AI לנתח את דפוסי מתן הציונים שלך כדי להפיק תובנות וסטטיסטיקות"
+                      label={t('settings.analyzeTrendsTitle')} 
+                      description={t('settings.analyzeTrendsDesc')}
                       checked={settings.allowAiAnalysis}
                       onChange={() => handleToggle('allowAiAnalysis')}
                     />
                     <ToggleSwitch 
-                      label="הצג דוא״ל לסטודנטים" 
-                      description="אפשר לסטודנטים הרשומים לקורסים שלך לראות את כתובת הדוא״ל האוניברסיטאית שלך"
+                      label={t('settings.showEmailTitle')} 
+                      description={t('settings.showEmailDesc')}
                       checked={settings.showEmail}
                       onChange={() => handleToggle('showEmail')}
                     />

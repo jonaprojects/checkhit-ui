@@ -16,24 +16,37 @@ import {
 } from 'lucide-react';
 import { NotificationItem } from './ui/NotificationItem';
 import { UserAvatar } from './ui/UserAvatar';
+import { useTranslation } from 'react-i18next';
+import { LanguageToggle } from './ui/LanguageToggle';
 
 export default function MainLayout({ children, portalName = "פורטל סטודנטים", view }: any) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const notificationRef = useRef<HTMLDivElement>(null);
+  const { t, i18n } = useTranslation();
   const location = useLocation();
   const currentPath = location.pathname;
 
+  const isEn = i18n.language.startsWith('en');
+
   // Mock notifications based on view
-  const notifications = view === 'lecturer' ? [
+  const notifications = view === 'lecturer' ? (isEn ? [
+    { id: 1, title: 'Assignments pending grading', desc: 'You have 15 assignments to grade in the "Interface Design" course', time: '2 hours ago', unread: true },
+    { id: 2, title: 'New Appeal', desc: 'Yossi Cohen submitted an appeal for the grade in Assignment 2', time: '4 hours ago', unread: true },
+    { id: 3, title: 'System Reminder', desc: 'Grade entry for "Intro to Computer Science" closes tomorrow', time: 'Yesterday', unread: false },
+  ] : [
     { id: 1, title: 'מטלות ממתינות לבדיקה', desc: 'יש לך 15 מטלות להעריך בקורס "עיצוב ממשקים"', time: 'לפני שעתיים', unread: true },
     { id: 2, title: 'ערעור חדש', desc: 'יוסי כהן הגיש ערעור על הציון במטלה 2', time: 'לפני 4 שעות', unread: true },
     { id: 3, title: 'תזכורת מערכת', desc: 'הזנת ציונים לקורס "מבוא למדעי המחשב" נסגרת מחר', time: 'אתמול', unread: false },
+  ]) : (isEn ? [
+    { id: 1, title: 'Submission Reminder', desc: 'Assignment 3 in Intro to Computer Science ends in 12 hours!', time: '1 hour ago', unread: true },
+    { id: 2, title: 'New Grade', desc: 'The grade and AI feedback for Assignment 2 are now available', time: '3 hours ago', unread: true },
+    { id: 3, title: 'Course Update', desc: 'New supplementary material has been uploaded to the system', time: '1 day ago', unread: false },
   ] : [
     { id: 1, title: 'תזכורת הגשה', desc: 'מטלה 3 במבוא למדעי המחשב מסתיימת בעוד 12 שעות!', time: 'לפני שעה', unread: true },
     { id: 2, title: 'ציון חדש', desc: 'הציון ומשוב ה-AI למטלה 2 זמינים כעת', time: 'לפני 3 שעות', unread: true },
     { id: 3, title: 'עדכון קורס', desc: 'חומר עזר חדש הועלה למערכת', time: 'לפני יום', unread: false },
-  ];
+  ]);
 
   // Click outside to close notifications
   useEffect(() => {
@@ -93,32 +106,32 @@ export default function MainLayout({ children, portalName = "פורטל סטוד
         <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
           {view === 'lecturer' ? (
             <>
-              <NavItem to="/lecturer" icon={LayoutDashboard} label="לוח בקרה" />
-              <NavItem to="/lecturer/courses" icon={GraduationCap} label="הקורסים שלי" />
-              <NavItem to="/lecturer/appeals" icon={FileWarning} label="ערעורים" />
+              <NavItem to="/lecturer" icon={LayoutDashboard} label={t('nav.dashboard')} />
+              <NavItem to="/lecturer/courses" icon={GraduationCap} label={t('nav.myCourses')} />
+              <NavItem to="/lecturer/appeals" icon={FileWarning} label={t('nav.appeals')} />
             </>
           ) : (
             <>
-              <NavItem to="/student" icon={LayoutDashboard} label="לוח בקרה" />
-              <NavItem to="/student/courses" icon={GraduationCap} label="הקורסים שלי" />
-              <NavItem to="/student/assignments" icon={FileText} label="מטלות" />
-              <NavItem to="/student/appeals" icon={FileWarning} label="ערעורים" />
+              <NavItem to="/student" icon={LayoutDashboard} label={t('nav.dashboard')} />
+              <NavItem to="/student/courses" icon={GraduationCap} label={t('nav.myCourses')} />
+              <NavItem to="/student/assignments" icon={FileText} label={t('nav.assignments')} />
+              <NavItem to="/student/appeals" icon={FileWarning} label={t('nav.appeals')} />
             </>
           )}
 
-          <NavItem to={view === 'lecturer' ? '/lecturer/notifications' : '/student/notifications'} icon={Bell} label="התראות" />
-          <NavItem to={view === 'lecturer' ? '/lecturer/settings' : '/student/settings'} icon={Settings} label="הגדרות" />
+          <NavItem to={view === 'lecturer' ? '/lecturer/notifications' : '/student/notifications'} icon={Bell} label={t('nav.notifications')} />
+          <NavItem to={view === 'lecturer' ? '/lecturer/settings' : '/student/settings'} icon={Settings} label={t('nav.settings')} />
           
         </nav>
 
         <div className="p-4 border-t border-gray-100 space-y-2">
           <Link to={`/${view}/help`} className="flex w-full items-center gap-3 px-4 py-3 rounded-xl text-[#00857e] hover:bg-teal-50 transition-colors border border-gray-200 cursor-pointer">
             <LifeBuoy size={20} />
-            תמיכה טכנית
+            {t('nav.support')}
           </Link>
           <button className="flex w-full items-center gap-3 px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 transition-colors font-medium">
             <LogOut size={20} />
-            התנתקות
+            {t('nav.logout')}
           </button>
         </div>
       </aside>
@@ -134,9 +147,9 @@ export default function MainLayout({ children, portalName = "פורטל סטוד
           </div>
 
           <div className="hidden lg:flex items-center gap-8 text-gray-600 font-medium">
-             <Link to={view === 'lecturer' ? '/lecturer' : '/student'} className={!currentPath.includes('/messages') ? "text-[#00857e] font-bold border-b-2 border-[#00857e] pb-1" : "hover:text-gray-900 pb-1"}>ראשי</Link>
+             <Link to={view === 'lecturer' ? '/lecturer' : '/student'} className={!currentPath.includes('/messages') ? "text-[#00857e] font-bold border-b-2 border-[#00857e] pb-1" : "hover:text-gray-900 pb-1"}>{t('nav.home')}</Link>
              <Link to={view === 'lecturer' ? '/lecturer/messages' : '/student/messages'} className={currentPath.includes('/messages') ? "text-[#00857e] font-bold border-b-2 border-[#00857e] pb-1 relative" : "hover:text-gray-900 pb-1 relative"}>
-               הודעות
+               {t('nav.messages')}
                <span className="absolute top-0 start-[-8px] w-2 h-2 bg-red-500 rounded-full"></span>
              </Link>
           </div>
@@ -161,8 +174,8 @@ export default function MainLayout({ children, portalName = "פורטל סטוד
                 {isNotificationsOpen && (
                   <div className="fixed inset-x-4 top-20 mt-2 md:absolute md:inset-x-auto md:top-full md:end-0 md:mt-3 w-auto md:w-80 bg-white rounded-xl border border-gray-200 shadow-xl overflow-hidden z-50 origin-top-right animate-in fade-in zoom-in-95 duration-200">
                     <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-gray-50/50">
-                      <h3 className="font-bold text-gray-900">התראות מערכת</h3>
-                      <button className="text-xs text-[#00857e] hover:underline font-medium">סמן הכל כנקרא</button>
+                      <h3 className="font-bold text-gray-900">{t('notifications.title')}</h3>
+                      <button className="text-xs text-[#00857e] hover:underline font-medium">{t('notifications.markAllRead')}</button>
                     </div>
                     <div className="max-h-[350px] overflow-y-auto">
                       {notifications.map((notif) => (
@@ -184,7 +197,7 @@ export default function MainLayout({ children, portalName = "פורטל סטוד
                         onClick={() => setIsNotificationsOpen(false)}
                         className="block text-sm text-gray-600 hover:text-gray-900 font-medium w-full py-1 text-center"
                       >
-                        הצג את כל ההתראות
+                        {t('notifications.viewAll')}
                       </Link>
                     </div>
                   </div>
@@ -194,9 +207,10 @@ export default function MainLayout({ children, portalName = "פורטל סטוד
                 <HelpCircle size={22} />
               </Link>
             </div>
+            <LanguageToggle />
             <UserAvatar 
               name={view === 'lecturer' ? "דן פלג" : "יונתן ישראלי"}
-              className="cursor-pointer transition" 
+              className="cursor-pointer transition ms-2" 
             />
           </div>
         </header>

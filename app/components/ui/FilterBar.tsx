@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Search, Filter } from 'lucide-react';
 import { Input } from './Input';
+import { useTranslation } from 'react-i18next';
 
 export interface FilterBarProps {
   searchQuery?: string;
@@ -25,6 +26,7 @@ export function FilterBar({
   className = '',
   compact = false
 }: FilterBarProps) {
+  const { t } = useTranslation();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const filterRef = useRef<HTMLDivElement>(null);
 
@@ -45,10 +47,10 @@ export function FilterBar({
           <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
           <Input
             type="text"
-            placeholder={searchPlaceholder}
+            placeholder={searchPlaceholder === 'חיפוש...' ? t('filterBar.search') : searchPlaceholder}
             value={searchQuery || ''}
             onChange={(e) => onSearchChange(e.target.value)}
-            className={`w-full pl-4 pr-10 py-2 ${compact ? 'bg-white border-gray-200 focus:border-[#00857e]' : '!bg-gray-50'}`}
+            className={`w-full px-4 py-2 ${compact ? 'bg-white border-gray-200 focus:border-[#00857e]' : '!bg-gray-50'}`}
           />
         </div>
       )}
@@ -64,21 +66,21 @@ export function FilterBar({
             }`}
           >
             <Filter size={18} />
-            סינון
+            <span className="hidden sm:inline">{t('filterBar.filter')}</span>
           </button>
 
           {isFilterOpen && (
-            <div className="absolute left-0 top-full mt-2 w-72 bg-white rounded-xl shadow-lg border border-gray-100 z-50 overflow-hidden">
+            <div className="absolute end-0 top-full mt-2 w-72 bg-white rounded-xl shadow-lg border border-gray-100 z-50 overflow-hidden">
               <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-                <span className="font-bold text-gray-800">סינון</span>
+                <span className="font-bold text-gray-800">{t('filterBar.filter')}</span>
                 {activeFiltersCount > 0 && onClearFilters && (
-                  <button onClick={onClearFilters} className="text-xs text-[#00857e] hover:underline font-medium cursor-pointer">
-                    נקה הכל
+                  <button onClick={onClearFilters} className="text-sm text-gray-500 hover:text-gray-900 transition-colors cursor-pointer">
+                    {t('filterBar.clearFilter')}
                   </button>
                 )}
               </div>
               
-              <div className="p-4 max-h-96 overflow-y-auto space-y-6 text-right">
+              <div className="p-4 max-h-96 overflow-y-auto space-y-6 text-start">
                 {filterContent}
               </div>
             </div>

@@ -1,16 +1,20 @@
 import { BookOpen, AlertCircle, Users, CheckCircle2, Clock, FileWarning, ArrowLeft, MoreVertical, ClipboardList, ChevronLeft } from 'lucide-react';
 import { Card } from './ui/Card';
 import { Link } from 'react-router';
+import { useTranslation } from 'react-i18next';
 
 export default function LecturerDashboard() {
+  const { t, i18n } = useTranslation();
+  const isEn = i18n.language.startsWith('en');
+
   return (
     <div className="space-y-12 animate-in fade-in duration-500 max-w-6xl mx-auto pb-12">
       {/* Welcome Section */}
       <div className="text-center md:text-start bg-white p-8 rounded-xl border border-gray-200 relative overflow-hidden">
         <div className="absolute top-0 end-0 -mt-10 -me-10 w-40 h-40 bg-teal-50 rounded-full blur-3xl opacity-60"></div>
         <div className="relative z-10">
-          <h1 className="text-4xl font-extrabold text-gray-900 mb-3">שלום, ד"ר שפירא</h1>
-          <p className="text-gray-600 text-lg">הנה סקירת המצב האקדמי העדכנית שלך להיום.</p>
+          <h1 className="text-4xl font-extrabold text-gray-900 mb-3">{t('lecturerDashboard.welcome')}</h1>
+          <p className="text-gray-600 text-lg">{t('lecturerDashboard.subtitle')}</p>
         </div>
       </div>
 
@@ -18,54 +22,54 @@ export default function LecturerDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <MetricCard 
           icon={<BookOpen className="text-emerald-600 group-hover:scale-110 transition-transform" size={26} />}
-          title="קורסים פעילים"
+          title={t('lecturerDashboard.activeCourses')}
           value="4"
-          subtitle="סמסטר א' תשפ״ו"
+          subtitle={t('lecturerDashboard.semester')}
         />
         <MetricCard 
           icon={<AlertCircle className="text-rose-600 group-hover:scale-110 transition-transform" size={26} />}
-          title="ערעורים להחלטה"
+          title={t('lecturerDashboard.appealsToReview')}
           value="7"
-          subtitle="ממתינים לבדיקתך"
+          subtitle={t('lecturerDashboard.pendingReview')}
           badgeIcon={true}
         />
         <MetricCard 
           icon={<Users className="text-indigo-600 group-hover:scale-110 transition-transform" size={26} />}
-          title="סטודנטים בסיכון"
+          title={t('lecturerDashboard.studentsAtRisk')}
           value="3"
-          subtitle="דרושה התערבות"
+          subtitle={t('lecturerDashboard.interventionNeeded')}
         />
       </div>
 
       {/* Activity Feed Section */}
       <Card className="p-8 mt-6">
         <div className="flex items-center justify-between mb-8">
-          <h2 className="text-2xl font-extrabold text-gray-900">פעילות אחרונה</h2>
+          <h2 className="text-2xl font-extrabold text-gray-900">{t('lecturerDashboard.recentActivity')}</h2>
         </div>
         <div className="space-y-6 relative before:absolute before:inset-y-0 before:start-5 before:w-0.5 before:bg-gray-100">
           <ActivityItem 
             active={true}
             iconBg="bg-white border-4 border-teal-200"
-            title="סיום בדיקת AI"
-            time="לפני שעה"
-            description="המערכת סיימה לבדוק 85 הגשות עבור 'תרגיל 3 - רקורסיה'. הציונים מוכנים לאישור."
+            title={isEn ? "AI Checking Complete" : "סיום בדיקת AI"}
+            time={isEn ? "An hour ago" : "לפני שעה"}
+            description={isEn ? "The system finished checking 85 submissions for 'Assignment 3 - Recursion'. Grades are ready for approval." : "המערכת סיימה לבדוק 85 הגשות עבור 'תרגיל 3 - רקורסיה'. הציונים מוכנים לאישור."}
           />
           <ActivityItem 
             active={false}
             iconBg="bg-white border-2 border-gray-200"
-            title="ערעור חדש התקבל"
-            time="היום, 10:30"
-            description="יוסי כהן הגיש ערעור על הציון ב'מטלה 2'. סיבה: 'טעות בחישוב ניקוד סעיף ב'."
+            title={isEn ? "New Appeal Received" : "ערעור חדש התקבל"}
+            time={isEn ? "Today, 10:30" : "היום, 10:30"}
+            description={isEn ? "Yossi Cohen submitted an appeal for 'Assignment 2'. Reason: 'Calculation error in part B'." : "יוסי כהן הגיש ערעור על הציון ב'מטלה 2'. סיבה: 'טעות בחישוב ניקוד סעיף ב'."}
           />
           <ActivityItem 
             active={false}
             iconBg="bg-white border-2 border-gray-200"
-            title="הגשה באיחור"
-            time="אתמול, 23:15"
-            description="מיכל רז הגישה את פרויקט האמצע באיחור של יומיים."
+            title={isEn ? "Late Submission" : "הגשה באיחור"}
+            time={isEn ? "Yesterday, 23:45" : "אתמול, 23:45"}
+            description={isEn ? "Michal Raz submitted the Midterm Project 2 days late." : "מיכל רז הגישה את פרויקט האמצע באיחור של יומיים."}
           />
           <Link to="/lecturer/appeals" className="text-[#00857e] font-bold mt-6 inline-flex items-center gap-1 hover:underline">
-            לכל הפעילויות <ChevronLeft size={18} />
+            {t('lecturerDashboard.viewAll')} {isEn ? <ChevronLeft size={18} className="rotate-180" /> : <ChevronLeft size={18} />}
           </Link>
         </div>
       </Card>
@@ -73,16 +77,16 @@ export default function LecturerDashboard() {
       {/* Active Courses Section */}
       <section>
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-extrabold text-gray-900">קורסים פעילים</h2>
+          <h2 className="text-2xl font-extrabold text-gray-900">{t('lecturerDashboard.activeCourses')}</h2>
           <Link to="/lecturer/courses" className="text-[#00857e] font-bold flex items-center gap-2 hover:underline">
-            לכל הקורסים <ArrowLeft size={18} />
+            {t('lecturerDashboard.allCourses')} {isEn ? <ArrowLeft size={18} className="rotate-180" /> : <ArrowLeft size={18} />}
           </Link>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <CourseCard 
-            title="תכנות מונחה עצמים"
+            title={isEn ? "Object Oriented Programming" : "תכנות מונחה עצמים"}
             code="CS303"
-            semester="סמסטר א' תשפ״ו"
+            semester={t('lecturerDashboard.semester')}
             students={85}
             activeAssignments={2}
             accent={{
@@ -96,9 +100,9 @@ export default function LecturerDashboard() {
             }}
           />
           <CourseCard 
-            title="מבני נתונים ואלגוריתמים"
+            title={isEn ? "Data Structures & Algorithms" : "מבני נתונים ואלגוריתמים"}
             code="CS101"
-            semester="סמסטר א' תשפ״ו"
+            semester={t('lecturerDashboard.semester')}
             students={120}
             activeAssignments={1}
             accent={{
@@ -139,6 +143,7 @@ function MetricCard({ icon, title, value, subtitle, badgeIcon = false }: { icon:
 }
 
 function CourseCard({ title, code, semester, students, activeAssignments, accent }) {
+  const { t } = useTranslation();
   return (
     <div className={`bg-white rounded-xl border border-gray-200 hover:shadow-md ${accent.borderHover} transition-all duration-300 relative group cursor-pointer flex flex-col h-full hover:-translate-y-1 overflow-hidden`}>
       <div className={`h-0 w-full border-t-[6px] ${accent.topBorder} transition-colors`}></div>
@@ -155,7 +160,7 @@ function CourseCard({ title, code, semester, students, activeAssignments, accent
           </div>
           <div className="flex items-center gap-2">
             <ClipboardList size={20} />
-            <span className="text-base">{activeAssignments} מטלות פעילות</span>
+            <span className="text-base">{activeAssignments} {t('lecturerDashboard.activeAssignments')}</span>
           </div>
         </div>
       </div>

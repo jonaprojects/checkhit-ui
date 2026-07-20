@@ -3,6 +3,8 @@ import MainLayout from "../components/MainLayout";
 import { useState } from "react";
 import { Bell, Monitor, Shield, ChevronLeft, Check } from "lucide-react";
 import { useTheme } from "../lib/theme";
+import { useTranslation } from "react-i18next";
+import { useEffect } from "react";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -14,6 +16,8 @@ export function meta({}: Route.MetaArgs) {
 type TabId = 'notifications' | 'display' | 'privacy';
 
 export default function StudentSettings() {
+  const { t, i18n } = useTranslation();
+  const isEn = i18n.language.startsWith('en');
   const [activeTab, setActiveTab] = useState<TabId>('notifications');
   const { theme, setTheme } = useTheme();
 
@@ -21,9 +25,14 @@ export default function StudentSettings() {
     notifyNewAssignments: true,
     notifyGrades: true,
     notifyDeadlines: false,
-    language: 'he', // 'he', 'en'
+    language: i18n.language.startsWith('en') ? 'en' : 'he',
     allowAiAnalytics: true,
   });
+
+  // Sync settings state if language is changed externally
+  useEffect(() => {
+    setSettings(s => ({ ...s, language: i18n.language.startsWith('en') ? 'en' : 'he' }));
+  }, [i18n.language]);
 
   const handleToggle = (key: keyof typeof settings) => {
     if (typeof settings[key] === 'boolean') {
@@ -49,13 +58,13 @@ export default function StudentSettings() {
   );
 
   return (
-    <MainLayout portalName="פורטל סטודנטים" view="student">
+    <MainLayout portalName={isEn ? "Student Portal" : "פורטל סטודנטים"} view="student">
       <div className="animate-in fade-in duration-500 max-w-6xl mx-auto pb-12">
         
         {/* Header */}
         <header className="mb-8">
-          <h1 className="text-3xl font-extrabold text-gray-900">הגדרות</h1>
-          <p className="text-gray-500 mt-1">נהל את ההעדפות וההגדרות של החשבון שלך</p>
+          <h1 className="text-3xl font-extrabold text-gray-900">{t('settings.studentTitle')}</h1>
+          <p className="text-gray-500 mt-1">{t('settings.studentSubtitle')}</p>
         </header>
 
         <div className="flex flex-col md:flex-row gap-8">
@@ -71,8 +80,8 @@ export default function StudentSettings() {
                 }`}
               >
                 <Bell size={20} className={activeTab === 'notifications' ? 'text-[#00857e]' : 'text-gray-400'} />
-                התראות
-                <ChevronLeft size={16} className={`ms-auto ${activeTab === 'notifications' ? 'opacity-100' : 'opacity-0'}`} />
+                {t('settings.tabNotifications')}
+                <ChevronLeft size={16} className={`${isEn ? 'mr-auto rotate-180' : 'ms-auto'} ${activeTab === 'notifications' ? 'opacity-100' : 'opacity-0'}`} />
               </button>
               
               <button 
@@ -84,8 +93,8 @@ export default function StudentSettings() {
                 }`}
               >
                 <Monitor size={20} className={activeTab === 'display' ? 'text-[#00857e]' : 'text-gray-400'} />
-                תצוגה ונגישות
-                <ChevronLeft size={16} className={`ms-auto ${activeTab === 'display' ? 'opacity-100' : 'opacity-0'}`} />
+                {t('settings.tabDisplay')}
+                <ChevronLeft size={16} className={`${isEn ? 'mr-auto rotate-180' : 'ms-auto'} ${activeTab === 'display' ? 'opacity-100' : 'opacity-0'}`} />
               </button>
               
               <button 
@@ -97,8 +106,8 @@ export default function StudentSettings() {
                 }`}
               >
                 <Shield size={20} className={activeTab === 'privacy' ? 'text-[#00857e]' : 'text-gray-400'} />
-                פרטיות ומידע
-                <ChevronLeft size={16} className={`ms-auto ${activeTab === 'privacy' ? 'opacity-100' : 'opacity-0'}`} />
+                {t('settings.tabPrivacy')}
+                <ChevronLeft size={16} className={`${isEn ? 'mr-auto rotate-180' : 'ms-auto'} ${activeTab === 'privacy' ? 'opacity-100' : 'opacity-0'}`} />
               </button>
             </nav>
           </div>
@@ -107,20 +116,20 @@ export default function StudentSettings() {
           <div className="flex-1 bg-white border border-gray-200 rounded-xl p-6 lg:p-8 min-h-[500px]">
             {activeTab === 'notifications' && (
               <div className="animate-in fade-in duration-300">
-                <h2 className="text-xl font-bold text-gray-900 mb-6 pb-4 border-b border-gray-100">הגדרות התראות</h2>
+                <h2 className="text-xl font-bold text-gray-900 mb-6 pb-4 border-b border-gray-100">{t('settings.notificationsTitle')}</h2>
                 
                 <div className="mb-8">
-                  <h3 className="text-sm font-bold tracking-wider text-gray-400 uppercase mb-4">עדכונים אקדמיים</h3>
+                  <h3 className="text-sm font-bold tracking-wider text-gray-400 uppercase mb-4">{t('settings.academicUpdatesTitle')}</h3>
                   <div className="bg-gray-50/50 rounded-xl border border-gray-100 px-5">
                     <ToggleSwitch 
-                      label="מטלות חדשות" 
-                      description="קבל התראה כאשר מרצה מפרסם מטלה חדשה בקורס"
+                      label={t('settings.newAssignmentsTitle')} 
+                      description={t('settings.newAssignmentsDesc')}
                       checked={settings.notifyNewAssignments}
                       onChange={() => handleToggle('notifyNewAssignments')}
                     />
                     <ToggleSwitch 
-                      label="ציונים ומשוב AI" 
-                      description="קבל התראה ברגע שציון או משוב אוטומטי זמין לצפייה"
+                      label={t('settings.gradesAiTitle')} 
+                      description={t('settings.gradesAiDesc')}
                       checked={settings.notifyGrades}
                       onChange={() => handleToggle('notifyGrades')}
                     />
@@ -128,11 +137,11 @@ export default function StudentSettings() {
                 </div>
 
                 <div>
-                  <h3 className="text-sm font-bold tracking-wider text-gray-400 uppercase mb-4">תזכורות</h3>
+                  <h3 className="text-sm font-bold tracking-wider text-gray-400 uppercase mb-4">{t('settings.remindersTitle')}</h3>
                   <div className="bg-gray-50/50 rounded-xl border border-gray-100 px-5">
                     <ToggleSwitch 
-                      label="התקרבות למועד הגשה" 
-                      description="תזכורת 24 שעות לפני מועד ההגשה של מטלה פתוחה"
+                      label={t('settings.approachingDeadlineTitle')} 
+                      description={t('settings.approachingDeadlineDesc')}
                       checked={settings.notifyDeadlines}
                       onChange={() => handleToggle('notifyDeadlines')}
                     />
@@ -143,11 +152,11 @@ export default function StudentSettings() {
 
             {activeTab === 'display' && (
               <div className="animate-in fade-in duration-300">
-                <h2 className="text-xl font-bold text-gray-900 mb-6 pb-4 border-b border-gray-100">תצוגה ונגישות</h2>
+                <h2 className="text-xl font-bold text-gray-900 mb-6 pb-4 border-b border-gray-100">{t('settings.displayTitle')}</h2>
                 
                 <div className="space-y-6 max-w-lg">
                   <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-3">ערכת נושא</label>
+                    <label className="block text-sm font-bold text-gray-700 mb-3">{t('settings.themeTitle')}</label>
                     <div className="grid grid-cols-3 gap-3">
                       <button
                         onClick={() => setTheme('light')}
@@ -156,7 +165,7 @@ export default function StudentSettings() {
                         <div className="w-8 h-8 rounded-full bg-[#ffffff] border border-[#d1d5db] shadow-sm flex items-center justify-center">
                           {theme === 'light' && <Check size={16} className="text-[#00857e]" />}
                         </div>
-                        <span className="font-medium text-sm">בהיר</span>
+                        <span className="font-medium text-sm">{t('settings.themeLight')}</span>
                       </button>
                       <button
                         onClick={() => setTheme('dark')}
@@ -165,7 +174,7 @@ export default function StudentSettings() {
                         <div className="w-8 h-8 rounded-full bg-[#111827] border border-[#374151] shadow-sm flex items-center justify-center">
                           {theme === 'dark' && <Check size={16} className="text-white" />}
                         </div>
-                        <span className="font-medium text-sm">כהה</span>
+                        <span className="font-medium text-sm">{t('settings.themeDark')}</span>
                       </button>
                       <button
                         onClick={() => setTheme('system')}
@@ -174,20 +183,25 @@ export default function StudentSettings() {
                         <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#111827] to-[#ffffff] border border-[#d1d5db] shadow-sm flex items-center justify-center">
                           {theme === 'system' && <Check size={16} className="text-[#6b7280]" />}
                         </div>
-                        <span className="font-medium text-sm">מערכת</span>
+                        <span className="font-medium text-sm">{t('settings.themeSystem')}</span>
                       </button>
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-3">שפת ממשק</label>
+                    <label className="block text-sm font-bold text-gray-700 mb-3">{t('settings.languageTitle')}</label>
                     <select 
                       value={settings.language}
-                      onChange={(e) => setSettings({...settings, language: e.target.value})}
-                      className="mt-1 block w-full rounded-lg border-gray-200 py-3 px-4 text-gray-900 focus:border-[#00857e] focus:ring-[#00857e] sm:text-sm bg-gray-50 outline-none"
+                      onChange={(e) => {
+                        const newLang = e.target.value;
+                        setSettings({...settings, language: newLang});
+                        i18n.changeLanguage(newLang);
+                      }}
+                      className={`mt-1 block w-full rounded-lg border-gray-200 py-3 px-4 text-gray-900 focus:border-[#00857e] focus:ring-[#00857e] sm:text-sm bg-gray-50 outline-none ${isEn ? 'text-left' : 'text-right'}`}
+                      dir="auto"
                     >
-                      <option value="he">עברית (Hebrew)</option>
-                      <option value="en">English (אנגלית)</option>
+                      <option value="he">{t('settings.languageHe')}</option>
+                      <option value="en">{t('settings.languageEn')}</option>
                     </select>
                   </div>
                 </div>
@@ -196,19 +210,19 @@ export default function StudentSettings() {
 
             {activeTab === 'privacy' && (
               <div className="animate-in fade-in duration-300">
-                <h2 className="text-xl font-bold text-gray-900 mb-6 pb-4 border-b border-gray-100">פרטיות ומערכת AI</h2>
+                <h2 className="text-xl font-bold text-gray-900 mb-6 pb-4 border-b border-gray-100">{t('settings.privacyTitle')}</h2>
                 
                 <div className="bg-blue-50 text-blue-800 p-4 rounded-xl border border-blue-100 mb-8 flex gap-3 text-sm">
                   <Shield size={20} className="shrink-0 text-blue-600" />
                   <div>
-                    <strong>שקיפות נתונים:</strong> המערכת פועלת תחת תקנות הפרטיות המחמירות ביותר. הנתונים שלך משמשים אך ורק לצורך בדיקת המטלות ומתן משוב.
+                    <strong>{t('settings.dataTransparency')}</strong> {t('settings.dataTransparencyDesc')}
                   </div>
                 </div>
 
                 <div className="bg-gray-50/50 rounded-xl border border-gray-100 px-5">
                   <ToggleSwitch 
-                    label="תרומה לשיפור מודל הבדיקה" 
-                    description="אפשר שימוש בנתונים אנונימיים מהמטלות שלך (ללא פרטים מזהים) כדי לשפר את אלגוריתם הבדיקה האוטומטית של מוסד הלימודים."
+                    label={t('settings.allowAnalyticsTitle')} 
+                    description={t('settings.allowAnalyticsDesc')}
                     checked={settings.allowAiAnalytics}
                     onChange={() => handleToggle('allowAiAnalytics')}
                   />

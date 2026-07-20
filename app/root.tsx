@@ -24,9 +24,16 @@ export const links: Route.LinksFunction = () => [
   },
 ];
 
+import { useTranslation } from "react-i18next";
+import "./lib/i18n";
+
 export function Layout({ children }: { children: React.ReactNode }) {
+  const { i18n } = useTranslation();
+  const dir = i18n.dir();
+  const lang = i18n.language || 'he';
+
   return (
-    <html lang="he" dir="rtl">
+    <html lang={lang} dir={dir}>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
