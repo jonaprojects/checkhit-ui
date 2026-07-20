@@ -14,6 +14,8 @@ import {
   Home,
   FileWarning
 } from 'lucide-react';
+import { NotificationItem } from './ui/NotificationItem';
+import { UserAvatar } from './ui/UserAvatar';
 
 export default function MainLayout({ children, portalName = "פורטל סטודנטים", view }: any) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -110,10 +112,10 @@ export default function MainLayout({ children, portalName = "פורטל סטוד
         </nav>
 
         <div className="p-4 border-t border-gray-100 space-y-2">
-          <button className="flex w-full items-center gap-3 px-4 py-3 rounded-xl text-[#00857e] hover:bg-teal-50 transition-colors border border-gray-200">
+          <Link to={`/${view}/help`} className="flex w-full items-center gap-3 px-4 py-3 rounded-xl text-[#00857e] hover:bg-teal-50 transition-colors border border-gray-200 cursor-pointer">
             <LifeBuoy size={20} />
             תמיכה טכנית
-          </button>
+          </Link>
           <button className="flex w-full items-center gap-3 px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 transition-colors font-medium">
             <LogOut size={20} />
             התנתקות
@@ -164,18 +166,16 @@ export default function MainLayout({ children, portalName = "פורטל סטוד
                     </div>
                     <div className="max-h-[350px] overflow-y-auto">
                       {notifications.map((notif) => (
-                        <div key={notif.id} className={`p-4 border-b border-gray-50 last:border-0 hover:bg-gray-50 cursor-pointer transition-colors relative ${notif.unread ? 'bg-teal-50/30' : ''}`}>
-                          {notif.unread && (
-                            <span className="absolute top-5 start-2 w-2 h-2 bg-[#00857e] rounded-full"></span>
-                          )}
-                          <div className="ps-3">
-                            <h4 className={`text-sm ${notif.unread ? 'font-bold text-gray-900' : 'font-medium text-gray-700'}`}>
-                              {notif.title}
-                            </h4>
-                            <p className="text-sm text-gray-500 mt-1 line-clamp-2">{notif.desc}</p>
-                            <span className="text-xs text-gray-400 mt-2 block">{notif.time}</span>
-                          </div>
-                        </div>
+                        <NotificationItem
+                          key={notif.id}
+                          id={notif.id}
+                          title={notif.title}
+                          desc={notif.desc}
+                          time={notif.time}
+                          unread={notif.unread}
+                          type={notif.type as any}
+                          variant="compact"
+                        />
                       ))}
                     </div>
                     <div className="border-t border-gray-100 p-2 bg-gray-50/50 text-center">
@@ -194,9 +194,10 @@ export default function MainLayout({ children, portalName = "פורטל סטוד
                 <HelpCircle size={22} />
               </Link>
             </div>
-            <div className="h-10 w-10 rounded-full overflow-hidden border-2 border-gray-200 shadow-sm cursor-pointer hover:border-[#00857e] transition">
-              <img src="https://i.pravatar.cc/150?img=11" alt="User profile" className="w-full h-full object-cover" />
-            </div>
+            <UserAvatar 
+              name={view === 'lecturer' ? "דן פלג" : "יונתן ישראלי"}
+              className="cursor-pointer transition" 
+            />
           </div>
         </header>
 

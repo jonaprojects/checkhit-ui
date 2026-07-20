@@ -2,7 +2,10 @@ import type { Route } from "./+types/lecturer.appeals";
 import MainLayout from "../components/MainLayout";
 import { useState } from "react";
 import { Link } from "react-router";
-import { Search, Filter, AlertCircle, CheckCircle2, ChevronLeft, ArrowRight } from "lucide-react";
+import { Search, Filter, AlertCircle, CheckCircle2, ChevronLeft, Clock, FileText, ChevronRight } from 'lucide-react';
+import { Card } from '../components/ui/Card';
+import { FilterBar } from '../components/ui/FilterBar';
+import { Select } from '../components/ui/Input';
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -98,54 +101,46 @@ export default function LecturerAppealsRoute() {
         </header>
 
         {/* Filter Bar */}
-        <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col lg:flex-row gap-4 items-center">
-          <div className="relative w-full lg:w-1/3">
-            <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-            <input 
-              type="text" 
-              placeholder="חיפוש לפי שם או ת.ז..."
-              className="w-full pl-4 pr-10 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#00857e]"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+        <FilterBar
+          searchQuery={searchTerm}
+          onSearchChange={setSearchTerm}
+          searchPlaceholder="חיפוש לפי שם או ת.ז..."
+          className="mb-6"
+        >
+          <div className="relative w-full md:w-1/2">
+            <Filter className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+            <Select 
+              className="w-full pl-4 pr-10 py-2.5 !bg-gray-50 border-gray-200"
+              value={courseFilter}
+              onChange={(e) => setCourseFilter(e.target.value)}
+            >
+              <option value="all">כל הקורסים</option>
+              {uniqueCourses.map(course => (
+                <option key={course} value={course}>{course}</option>
+              ))}
+            </Select>
           </div>
-          
-          <div className="flex flex-wrap md:flex-nowrap w-full lg:w-2/3 gap-4">
-            <div className="relative w-full md:w-1/2">
-              <Filter className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-              <select 
-                className="w-full pl-4 pr-10 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-[#00857e] cursor-pointer"
-                value={courseFilter}
-                onChange={(e) => setCourseFilter(e.target.value)}
-              >
-                <option value="all">כל הקורסים</option>
-                {uniqueCourses.map(course => (
-                  <option key={course} value={course}>{course}</option>
-                ))}
-              </select>
-            </div>
-            <div className="w-full md:w-1/2 flex bg-gray-100 p-1 rounded-lg">
-              <button 
-                onClick={() => setStatusFilter("pending")}
-                className={`flex-1 py-1.5 text-sm font-bold rounded-md transition-colors ${statusFilter === "pending" ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
-              >
-                ממתינים
-              </button>
-              <button 
-                onClick={() => setStatusFilter("resolved")}
-                className={`flex-1 py-1.5 text-sm font-bold rounded-md transition-colors ${statusFilter === "resolved" ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
-              >
-                טופלו
-              </button>
-              <button 
-                onClick={() => setStatusFilter("all")}
-                className={`flex-1 py-1.5 text-sm font-bold rounded-md transition-colors ${statusFilter === "all" ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
-              >
-                הכל
-              </button>
-            </div>
+          <div className="w-full md:w-1/2 flex bg-gray-100 p-1 rounded-lg">
+            <button 
+              onClick={() => setStatusFilter("pending")}
+              className={`flex-1 py-1.5 text-sm font-bold rounded-md transition-colors cursor-pointer ${statusFilter === "pending" ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
+            >
+              ממתינים
+            </button>
+            <button 
+              onClick={() => setStatusFilter("resolved")}
+              className={`flex-1 py-1.5 text-sm font-bold rounded-md transition-colors cursor-pointer ${statusFilter === "resolved" ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
+            >
+              טופלו
+            </button>
+            <button 
+              onClick={() => setStatusFilter("all")}
+              className={`flex-1 py-1.5 text-sm font-bold rounded-md transition-colors cursor-pointer ${statusFilter === "all" ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
+            >
+              הכל
+            </button>
           </div>
-        </div>
+        </FilterBar>
 
         {/* Appeals List */}
         <div className="space-y-3">

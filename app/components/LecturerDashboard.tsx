@@ -1,4 +1,5 @@
-import { BookOpen, AlertCircle, Users, CheckCircle2, Clock, FileWarning, ArrowLeft, MoreVertical, ClipboardList } from 'lucide-react';
+import { BookOpen, AlertCircle, Users, CheckCircle2, Clock, FileWarning, ArrowLeft, MoreVertical, ClipboardList, ChevronLeft } from 'lucide-react';
+import { Card } from './ui/Card';
 import { Link } from 'react-router';
 
 export default function LecturerDashboard() {
@@ -37,7 +38,7 @@ export default function LecturerDashboard() {
       </div>
 
       {/* Activity Feed Section */}
-      <section className="bg-white rounded-xl border border-gray-200 p-8">
+      <Card className="p-8 mt-6">
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-2xl font-extrabold text-gray-900">פעילות אחרונה</h2>
         </div>
@@ -63,8 +64,11 @@ export default function LecturerDashboard() {
             time="אתמול, 23:15"
             description="מיכל רז הגישה את פרויקט האמצע באיחור של יומיים."
           />
+          <Link to="/lecturer/appeals" className="text-[#00857e] font-bold mt-6 inline-flex items-center gap-1 hover:underline">
+            לכל הפעילויות <ChevronLeft size={18} />
+          </Link>
         </div>
-      </section>
+      </Card>
 
       {/* Active Courses Section */}
       <section>
@@ -115,7 +119,7 @@ export default function LecturerDashboard() {
 
 function MetricCard({ icon, title, value, subtitle, badgeIcon = false }: { icon: React.ReactNode, title: string, value: string | number, subtitle: string, badgeIcon?: boolean }) {
   return (
-    <div className="bg-white rounded-xl p-6 border border-gray-200 flex flex-col relative transition-all duration-300 hover:shadow-sm hover:-translate-y-1 group">
+    <Card className="p-6 flex flex-col relative transition-all duration-300 hover:shadow-sm hover:-translate-y-1 group overflow-visible">
       <div className="flex justify-between items-start mb-4">
         <h3 className="text-4xl font-black text-[#00857e]">{value}</h3>
         <div className="p-4 bg-gray-50/80 border border-gray-100 rounded-xl relative transition-colors group-hover:bg-gray-100">
@@ -130,7 +134,7 @@ function MetricCard({ icon, title, value, subtitle, badgeIcon = false }: { icon:
       </div>
       <p className="text-xl font-extrabold text-gray-800 mb-1">{title}</p>
       <p className="text-sm text-gray-500 font-medium">{subtitle}</p>
-    </div>
+    </Card>
   );
 }
 

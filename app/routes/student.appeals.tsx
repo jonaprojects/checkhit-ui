@@ -2,18 +2,13 @@ import type { Route } from "./+types/student.appeals";
 import MainLayout from "../components/MainLayout";
 import { FileText, Clock, CheckCircle2, AlertCircle, ChevronLeft } from 'lucide-react';
 import { Link } from 'react-router';
+import { StatusBadge, appealStatusConfig as statusConfig } from '../components/ui/StatusBadge';
 
 export function meta({}: Route.MetaArgs) {
   return [
     { title: "My Appeals | Check Hit" },
   ];
 }
-
-const statusConfig: Record<string, { label: string, color: string, icon: any }> = {
-  'pending': { label: 'בבדיקה', color: 'bg-yellow-100 text-yellow-700', icon: Clock },
-  'accepted': { label: 'התקבל', color: 'bg-green-100 text-green-700', icon: CheckCircle2 },
-  'rejected': { label: 'נדחה', color: 'bg-red-100 text-red-700', icon: AlertCircle },
-};
 
 const appeals = [
   { 
@@ -78,9 +73,7 @@ export default function StudentAppealsRoute() {
                   <div>
                     <div className="flex items-center gap-3 mb-1">
                       <h3 className="text-lg font-bold text-gray-900">{appeal.assignmentTitle}</h3>
-                      <span className={`text-xs font-bold px-3 py-1 rounded-full ${statusConfig[appeal.status].color}`}>
-                        {statusConfig[appeal.status].label}
-                      </span>
+                      <StatusBadge type="appeal" status={appeal.status} />
                     </div>
                     <div className="text-gray-500 text-sm mb-3">
                       <span>{appeal.courseName}</span>

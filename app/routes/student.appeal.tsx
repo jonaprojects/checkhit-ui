@@ -2,6 +2,8 @@ import type { Route } from "./+types/student.appeal";
 import MainLayout from "../components/MainLayout";
 import { ChevronRight, FileText, UploadCloud, AlertCircle } from 'lucide-react';
 import { Link, useParams } from 'react-router';
+import { Button } from '../components/ui/Button';
+import { Select, Textarea, Label } from '../components/ui/Input';
 import { useState } from "react";
 
 export function meta({}: Route.MetaArgs) {
@@ -70,25 +72,25 @@ export default function StudentAppealRoute() {
           </div>
 
           <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">קטגוריית ערעור (רשות)</label>
-            <select className="w-full border border-gray-200 rounded-xl p-4 focus:ring-2 focus:ring-[#00857e] focus:outline-none bg-gray-50 hover:bg-white focus:bg-white transition-colors">
+            <Label>קטגוריית ערעור (רשות)</Label>
+            <Select>
               <option value="">בחר קטגוריה...</option>
               <option value="grading_error">טעות בבדיקה</option>
               <option value="misunderstanding">חוסר הבנה של הקוד</option>
               <option value="technical">בעיה טכנית</option>
               <option value="other">אחר</option>
-            </select>
+            </Select>
           </div>
 
           <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">פירוט הערעור (חובה)</label>
-            <textarea 
+            <Label>פירוט הערעור (חובה)</Label>
+            <Textarea 
               required
               minLength={20}
               rows={6}
-              className="w-full border border-gray-200 rounded-xl p-4 focus:ring-2 focus:ring-[#00857e] focus:outline-none bg-gray-50 hover:bg-white focus:bg-white transition-colors resize-none"
+              className="resize-none"
               placeholder="אנא פרט מדוע אתה מגיש את הערעור... (מינימום 20 תווים)"
-            ></textarea>
+            ></Textarea>
           </div>
 
           <div>
@@ -111,30 +113,32 @@ export default function StudentAppealRoute() {
                   <p className="font-bold text-gray-800 truncate text-start" dir="ltr">{selectedFile.name}</p>
                   <p className="text-sm text-gray-500 text-start">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</p>
                 </div>
-                <button 
+                <Button 
                   type="button"
+                  variant="danger"
+                  size="sm"
                   onClick={() => setSelectedFile(null)}
-                  className="text-sm text-red-500 hover:text-red-700 font-medium px-3 py-1.5 bg-red-50 hover:bg-red-100 rounded-md transition-colors whitespace-nowrap cursor-pointer"
                   disabled={isSubmitting}
                 >
                   הסר קובץ
-                </button>
+                </Button>
               </div>
             )}
           </div>
 
           <div className="pt-4 flex justify-end">
-            <button 
+            <Button 
               type="submit" 
+              variant="primary"
+              size="lg"
               disabled={isSubmitting}
-              className="bg-[#00857e] text-white px-8 py-3 rounded-xl font-bold hover:bg-teal-700 transition-colors cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {isSubmitting ? (
                 <>שולח ערעור...</>
               ) : (
                 <>הגש ערעור לבדיקה</>
               )}
-            </button>
+            </Button>
           </div>
         </form>
       </div>

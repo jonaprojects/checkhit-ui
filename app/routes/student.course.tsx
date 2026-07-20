@@ -1,19 +1,15 @@
 import type { Route } from "./+types/student.course";
 import MainLayout from "../components/MainLayout";
-import { BookOpen, FileText, Download, ChevronRight, CheckCircle2, Clock, PlayCircle } from 'lucide-react';
+import { BookOpen, FileText, Download, ChevronRight, Clock, PlayCircle } from 'lucide-react';
 import { Link } from 'react-router';
+import { StatusBadge, assignmentStatusConfig as statusConfig } from '../components/ui/StatusBadge';
+import { Card } from '../components/ui/Card';
 
 export function meta({}: Route.MetaArgs) {
   return [
     { title: "Course Details | Check Hit" },
   ];
 }
-
-const statusConfig: Record<string, { label: string, color: string, icon: any }> = {
-  'pending': { label: 'טרם הוגש', color: 'bg-gray-100 text-gray-700', icon: Clock },
-  'checking': { label: 'בבדיקת AI', color: 'bg-yellow-100 text-yellow-700', icon: Clock },
-  'checked': { label: 'נבדק', color: 'bg-green-100 text-green-700', icon: CheckCircle2 },
-};
 
 const assignments = [
   { id: 1, title: 'תרגיל בית 3: עצי חיפוש בינאריים', dueDate: 'מחר, 23:59', status: 'pending' },
@@ -56,25 +52,21 @@ export default function StudentCourseRoute() {
             
             <div className="space-y-4">
               {assignments.map(assignment => {
-                const StatusIcon = statusConfig[assignment.status].icon;
                 return (
                   <Link key={assignment.id} to={`/student/assignments/${assignment.id}`} className="block bg-white rounded-xl border border-gray-200 p-5 hover:border-teal-200 hover:shadow-sm transition-all group">
-                    <div className="flex items-center justify-between mb-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 gap-2">
                       <h3 className="font-bold text-lg text-gray-900 group-hover:text-[#00857e] transition-colors">{assignment.title}</h3>
-                      <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${statusConfig[assignment.status].color}`}>
-                        <StatusIcon size={14} />
-                        {statusConfig[assignment.status].label}
-                      </span>
+                      <div className="flex items-center gap-4 text-sm mt-2 sm:mt-0">
+                        <StatusBadge type="assignment" status={assignment.status} />
+                        {assignment.grade && (
+                          <span className="font-bold text-gray-900 border-r border-gray-200 pr-4">ציון: {assignment.grade}</span>
+                        )}
+                      </div>
                     </div>
                     <div className="flex items-center justify-between text-sm">
                       <div className="text-gray-500 flex items-center gap-2">
                         <Clock size={16} /> {assignment.dueDate}
                       </div>
-                      {assignment.grade && (
-                        <div className="font-bold text-gray-900 bg-gray-50 px-3 py-1 rounded-lg">
-                          ציון: {assignment.grade}
-                        </div>
-                      )}
                     </div>
                   </Link>
                 )
@@ -88,7 +80,7 @@ export default function StudentCourseRoute() {
               <BookOpen className="text-teal-600" /> חומרי עזר וסיכומים
             </h2>
             
-            <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-4">
+            <Card className="p-6 space-y-4">
               <p className="text-sm text-gray-500 mb-2">חומרים שהמרצה העלה לטובת המטלות הקרובות:</p>
               
               {resources.map(resource => (
@@ -107,7 +99,7 @@ export default function StudentCourseRoute() {
                   </button>
                 </div>
               ))}
-            </div>
+            </Card>
           </div>
 
         </div>

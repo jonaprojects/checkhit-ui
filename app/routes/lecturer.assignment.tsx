@@ -1,7 +1,9 @@
 import type { Route } from "./+types/lecturer.assignment";
 import MainLayout from "../components/MainLayout";
 import { ChevronRight, Users, CheckCircle2, XCircle, Clock, Search, Download, Edit } from 'lucide-react';
-import { Link, useParams } from 'react-router';
+import { Link, useParams } from "react-router";
+import { Button, LinkButton } from '../components/ui/Button';
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../components/ui/Table';
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -112,40 +114,40 @@ export default function LecturerAssignmentRoute() {
             </div>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[700px] text-start text-sm">
-              <thead>
-                <tr className="bg-gray-50/50 border-b border-gray-100 text-gray-500">
-                  <th className="px-6 py-4 font-medium">סטודנט</th>
-                  <th className="px-6 py-4 font-medium">ת.ז</th>
-                  <th className="px-6 py-4 font-medium text-center">סטטוס הגשה</th>
-                  <th className="px-6 py-4 font-medium text-center">תאריך הגשה</th>
-                  <th className="px-6 py-4 font-medium text-center">ציון סופי</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {students.map((student, i) => (
-                  <tr key={i} className="hover:bg-gray-50/50 transition-colors">
-                    <td className="px-6 py-4 font-bold text-gray-900">
-                      {student.name}
-                    </td>
-                    <td className="px-6 py-4 text-gray-600 font-mono text-xs">
-                      {student.id}
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      {student.status === 'submitted' && <span className="inline-block px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-bold w-24">נבדק</span>}
-                      {student.status === 'checking' && <span className="inline-block px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs font-bold w-24">בבדיקת AI</span>}
-                      {student.status === 'missing' && <span className="inline-block px-2 py-1 bg-gray-100 text-gray-500 rounded text-xs font-bold w-24">טרם הוגש</span>}
-                    </td>
-                    <td className="px-6 py-4 text-center text-gray-500">
-                      {student.time}
-                    </td>
-                    <td className="px-6 py-4 text-center font-bold text-gray-900 text-base">
-                      {student.grade !== null ? student.grade : '-'}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <Table className="min-w-[700px]">
+            <TableHeader>
+              <TableRow>
+                <TableHead>סטודנט</TableHead>
+                <TableHead>ת.ז</TableHead>
+                <TableHead className="text-center">סטטוס הגשה</TableHead>
+                <TableHead className="text-center">תאריך הגשה</TableHead>
+                <TableHead className="text-center">ציון סופי</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {students.map((student, i) => (
+                <TableRow key={i}>
+                  <TableCell className="font-bold text-gray-900">
+                    {student.name}
+                  </TableCell>
+                  <TableCell className="text-gray-600 font-mono text-xs">
+                    {student.id}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    {student.status === 'submitted' && <span className="inline-block px-2 py-1 bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400 rounded text-xs font-bold w-24">נבדק</span>}
+                    {student.status === 'checking' && <span className="inline-block px-2 py-1 bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-400 rounded text-xs font-bold w-24">בבדיקת AI</span>}
+                    {student.status === 'missing' && <span className="inline-block px-2 py-1 bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400 rounded text-xs font-bold w-24">טרם הוגש</span>}
+                  </TableCell>
+                  <TableCell className="text-center text-gray-500">
+                    {student.time}
+                  </TableCell>
+                  <TableCell className="text-center font-bold text-gray-900 text-base">
+                    {student.grade !== null ? student.grade : '-'}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
           </div>
         </div>
       </div>

@@ -1,6 +1,9 @@
 import type { Route } from "./+types/lecturer.course";
 import MainLayout from "../components/MainLayout";
-import { ChevronRight, FileText, Plus, Users, Search, MoreVertical, Edit2, Trash2 } from 'lucide-react';
+import { Search, ChevronLeft, Plus, Users, FileText, BarChart3, Clock, AlertCircle, ChevronRight, MoreVertical, Edit2, Trash2 } from 'lucide-react';
+import { Card } from '../components/ui/Card';
+import { Button, LinkButton } from '../components/ui/Button';
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../components/ui/Table';
 import { Link, useParams } from 'react-router';
 
 export function meta({}: Route.MetaArgs) {
@@ -56,60 +59,58 @@ export default function LecturerCourseRoute() {
               />
             </div>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[640px] text-start text-sm">
-              <thead>
-                <tr className="bg-gray-50/50 border-b border-gray-100 text-gray-500">
-                  <th className="px-6 py-4 font-medium w-2/5">שם המטלה</th>
-                  <th className="px-6 py-4 font-medium">מועד הגשה</th>
-                  <th className="px-6 py-4 font-medium text-center">הגשות</th>
-                  <th className="px-6 py-4 font-medium text-center">אחוז הגשה</th>
-                  <th className="px-6 py-4 font-medium text-center">פעולות</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {assignments.map((assignment) => {
-                  const submitPercentage = Math.round((assignment.submissions / assignment.totalStudents) * 100);
-                  return (
-                    <tr key={assignment.id} className="hover:bg-gray-50/50 transition-colors group">
-                      <td className="px-6 py-4">
-                        <Link to={`/lecturer/assignments/${assignment.id}`} className="font-bold text-gray-900 group-hover:text-[#00857e] transition-colors">
-                          {assignment.title}
-                        </Link>
-                        {assignment.status === 'active' && (
-                          <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-700">פעיל</span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 text-gray-600">
-                        {assignment.dueDate}
-                      </td>
-                      <td className="px-6 py-4 text-center text-gray-600">
-                        <span className="font-bold text-gray-900">{assignment.submissions}</span> / {assignment.totalStudents}
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2 justify-center">
-                          <div className="w-24 bg-gray-200 rounded-full h-1.5 overflow-hidden flex-shrink-0">
-                            <div className={`h-1.5 rounded-full ${submitPercentage > 80 ? 'bg-green-500' : 'bg-[#00857e]'}`} style={{ width: `${submitPercentage}%` }}></div>
-                          </div>
-                          <span className="text-xs font-bold text-gray-500 w-8">{submitPercentage}%</span>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-2/5">שם המטלה</TableHead>
+                <TableHead>מועד הגשה</TableHead>
+                <TableHead className="text-center">הגשות</TableHead>
+                <TableHead className="text-center">אחוז הגשה</TableHead>
+                <TableHead className="text-center">פעולות</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {assignments.map((assignment) => {
+                const submitPercentage = Math.round((assignment.submissions / assignment.totalStudents) * 100);
+                return (
+                  <TableRow key={assignment.id}>
+                    <TableCell>
+                      <Link to={`/lecturer/assignments/${assignment.id}`} className="font-bold text-gray-900 group-hover:text-[#00857e] transition-colors">
+                        {assignment.title}
+                      </Link>
+                      {assignment.status === 'active' && (
+                        <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-700">פעיל</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-gray-600">
+                      {assignment.dueDate}
+                    </TableCell>
+                    <TableCell className="text-center text-gray-600">
+                      <span className="font-bold text-gray-900">{assignment.submissions}</span> / {assignment.totalStudents}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2 justify-center">
+                        <div className="w-24 bg-gray-200 rounded-full h-1.5 overflow-hidden flex-shrink-0">
+                          <div className={`h-1.5 rounded-full ${submitPercentage > 80 ? 'bg-green-500' : 'bg-[#00857e]'}`} style={{ width: `${submitPercentage}%` }}></div>
                         </div>
-                      </td>
-                      <td className="px-6 py-4 text-center">
-                        <div className="flex items-center justify-center gap-2">
-                          <Link to={`/lecturer/assignments/${assignment.id}`} className="text-[#00857e] hover:bg-teal-50 px-3 py-1.5 rounded-lg font-medium transition-colors border border-transparent hover:border-teal-100">
-                            צפייה וניהול
-                          </Link>
-                          <button className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
-                            <MoreVertical size={16} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
+                        <span className="text-xs font-bold text-gray-500 w-8">{submitPercentage}%</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <div className="flex items-center justify-center gap-2">
+                        <LinkButton to={`/lecturer/assignments/${assignment.id}`} variant="ghost" size="sm" className="text-[#00857e]">
+                          צפייה וניהול
+                        </LinkButton>
+                        <Button variant="ghost" size="icon" className="text-gray-400">
+                          <MoreVertical size={16} />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
         </div>
       </div>
     </MainLayout>

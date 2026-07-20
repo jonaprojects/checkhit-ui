@@ -2,6 +2,10 @@ import type { Route } from "./+types/student.dashboard";
 import MainLayout from "../components/MainLayout";
 import { Clock, FileText, CheckCircle, AlertCircle, ArrowLeft, GraduationCap } from 'lucide-react';
 import { Link } from 'react-router';
+import { StudentAssignmentCard } from '../components/StudentAssignmentCard';
+import { CourseCard } from '../components/CourseCard';
+import { StatusBadge } from '../components/ui/StatusBadge';
+import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card';
 
 const dashboardCourses = [
   { id: 1, name: 'מבני נתונים ואלגוריתמים', code: 'CS101', instructor: 'פרופ׳ כהן', accent: { bg: 'bg-teal-50', text: 'text-teal-700', groupHoverBg: 'group-hover:bg-teal-600', borderHover: 'hover:border-teal-300' } },
@@ -29,7 +33,7 @@ export default function StudentDashboardRoute() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           
           {/* Upcoming Assignments */}
-          <div className="md:col-span-2 bg-white rounded-xl border border-gray-200 p-6 flex flex-col">
+          <div className="md:col-span-2 bg-white rounded-xl border border-gray-200 p-4 sm:p-5 flex flex-col">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-extrabold text-gray-900">
                 מטלות קרובות
@@ -39,51 +43,29 @@ export default function StudentDashboardRoute() {
               </Link>
             </div>
             <div className="space-y-4 flex-1">
-              <Link to="/student/assignments" className="flex items-center justify-between p-5 rounded-xl border border-gray-200 bg-white hover:border-teal-200 hover:shadow-sm transition-all group">
-                <div className="text-start flex-1">
-                  <div className="flex items-center gap-3 mb-1">
-                    <h3 className="font-extrabold text-gray-900 text-xl group-hover:text-[#00857e] transition-colors">תרגיל 3 - רקורסיה</h3>
-                    <span className="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-md font-bold">טרם הוגש</span>
-                  </div>
-                  <p className="text-sm text-gray-500 font-medium">מבוא למדעי המחשב</p>
-                </div>
-                <div className="text-end flex items-center gap-6">
-                  <div className="hidden sm:block">
-                    <p className="text-sm text-gray-400 font-bold mb-1">הגשה עד</p>
-                    <p className="font-black text-gray-900">2026-07-14</p>
-                  </div>
-                  <button className="bg-gray-50 border border-gray-200 text-gray-700 px-4 py-2 rounded-xl font-bold text-sm group-hover:bg-[#00857e] group-hover:border-[#00857e] group-hover:text-white transition-colors flex items-center gap-2">
-                    להגשה <ArrowLeft size={16} />
-                  </button>
-                </div>
-              </Link>
+              <StudentAssignmentCard
+                title="תרגיל 3 - רקורסיה"
+                course="מבוא למדעי המחשב"
+                dueDate="2026-07-14"
+                actionText="להגשה"
+                linkTo="/student/assignments"
+                statusBadge={<StatusBadge type="assignment" status="pending" rounded="md" />}
+              />
               
-              <Link to="/student/assignments" className="flex items-center justify-between p-5 rounded-xl border border-gray-200 bg-white hover:border-teal-200 hover:shadow-sm transition-all group">
-                <div className="text-start flex-1">
-                  <div className="flex items-center gap-3 mb-1">
-                    <h3 className="font-extrabold text-gray-900 text-xl group-hover:text-[#00857e] transition-colors">תרגיל 4</h3>
-                    <span className="bg-yellow-100 text-yellow-700 text-xs px-2 py-1 rounded-md font-bold flex items-center gap-1">
-                      <Clock size={12} /> בבדיקת AI
-                    </span>
-                  </div>
-                  <p className="text-sm text-gray-500 font-medium">מבני נתונים ואלגוריתמים</p>
-                </div>
-                <div className="text-end flex items-center gap-6">
-                  <div className="hidden sm:block">
-                    <p className="text-sm text-gray-400 font-bold mb-1">הגשה עד</p>
-                    <p className="font-black text-gray-900">2026-07-20</p>
-                  </div>
-                  <button className="bg-gray-50 border border-gray-200 text-gray-700 px-4 py-2 rounded-xl font-bold text-sm group-hover:bg-[#00857e] group-hover:border-[#00857e] group-hover:text-white transition-colors flex items-center gap-2">
-                    צפייה <ArrowLeft size={16} />
-                  </button>
-                </div>
-              </Link>
+              <StudentAssignmentCard
+                title="תרגיל 4"
+                course="מבני נתונים ואלגוריתמים"
+                dueDate="2026-07-20"
+                actionText="צפייה"
+                linkTo="/student/assignments"
+                statusBadge={<StatusBadge type="assignment" status="checking" rounded="md" />}
+              />
             </div>
           </div>
 
           <div className="space-y-6">
             {/* Recent Grades */}
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
+            <Card className="p-6">
               <h2 className="text-xl font-extrabold text-gray-900 mb-4 flex items-center gap-2">
                 <CheckCircle className="text-green-500" /> ציונים אחרונים
               </h2>
@@ -104,12 +86,12 @@ export default function StudentDashboardRoute() {
                 </div>
               </div>
               <Link to="/student/assignments" className="text-sm text-[#00857e] font-medium mt-4 inline-block hover:underline">לכל הציונים</Link>
-            </div>
+            </Card>
 
             {/* Appeal Status */}
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
+            <Card className="p-6">
               <h2 className="text-xl font-extrabold text-gray-900 mb-4 flex items-center gap-2">
-                <AlertCircle className="text-orange-500" /> ערעור בתהליך
+                <AlertCircle className="text-orange-500" /> ערעורים בתהליך
               </h2>
               <div className="p-4 bg-orange-50 rounded-xl border border-orange-100">
                 <div className="font-bold text-orange-900 text-sm">מטלה 1: מודל OSI</div>
@@ -118,8 +100,8 @@ export default function StudentDashboardRoute() {
                   ממתין לתשובת מרצה
                 </div>
               </div>
-            </div>
-            </div>
+            </Card>
+          </div>
         </div>
 
         {/* Small Courses Section */}
@@ -134,15 +116,16 @@ export default function StudentDashboardRoute() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {dashboardCourses.map(course => (
-              <Link key={course.id} to={`/student/courses/${course.id}`} className={`group bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md ${course.accent.borderHover} transition-all duration-300 flex items-center gap-4 hover:-translate-y-1`}>
-                <div className={`w-12 h-12 rounded-xl ${course.accent.bg} ${course.accent.text} flex items-center justify-center ${course.accent.groupHoverBg} group-hover:text-white transition-colors shrink-0`}>
-                  <GraduationCap size={24} />
-                </div>
-                <div className="flex-1 overflow-hidden text-start">
-                  <h3 className="font-bold text-gray-900 text-base mb-1 truncate">{course.name}</h3>
-                  <div className="text-sm text-gray-500 font-medium truncate">{course.code} • {course.instructor}</div>
-                </div>
-              </Link>
+              <CourseCard
+                key={course.id}
+                name={course.name}
+                code={course.code}
+                accent={course.accent}
+                to={`/student/courses/${course.id}`}
+                variant="compact"
+              >
+                {course.code} • {course.instructor}
+              </CourseCard>
             ))}
           </div>
         </div>

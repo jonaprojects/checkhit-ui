@@ -2,6 +2,8 @@ import type { Route } from "./+types/lecturer.course.new";
 import MainLayout from "../components/MainLayout";
 import { ChevronRight, Save, X, BookOpen, GraduationCap, Calendar, FileText } from 'lucide-react';
 import { Link, useNavigate } from 'react-router';
+import { Button, LinkButton } from '../components/ui/Button';
+import { Input, Textarea, Select, Label } from '../components/ui/Input';
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -37,17 +39,17 @@ export default function NewCourseRoute() {
             
             {/* Field: Course Name */}
             <div>
-              <label htmlFor="courseName" className="block text-sm font-bold text-gray-700 mb-2">
+              <Label htmlFor="courseName">
                 שם הקורס
-              </label>
+              </Label>
               <div className="relative">
                 <div className="absolute inset-y-0 start-0 ps-4 flex items-center pointer-events-none text-gray-400">
                   <BookOpen size={20} />
                 </div>
-                <input
+                <Input
                   type="text"
                   id="courseName"
-                  className="block w-full ps-12 pe-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 focus:ring-2 focus:ring-[#00857e] focus:border-transparent transition-all outline-none"
+                  className="ps-12 pe-4 py-3"
                   placeholder="לדוגמה: מבני נתונים ואלגוריתמים"
                   required
                 />
@@ -57,17 +59,17 @@ export default function NewCourseRoute() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Field: Course Code */}
               <div>
-                <label htmlFor="courseCode" className="block text-sm font-bold text-gray-700 mb-2">
+                <Label htmlFor="courseCode">
                   קוד קורס
-                </label>
+                </Label>
                 <div className="relative">
                   <div className="absolute inset-y-0 start-0 ps-4 flex items-center pointer-events-none text-gray-400">
                     <GraduationCap size={20} />
                   </div>
-                  <input
+                  <Input
                     type="text"
                     id="courseCode"
-                    className="block w-full ps-12 pe-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 focus:ring-2 focus:ring-[#00857e] focus:border-transparent transition-all outline-none"
+                    className="ps-12 pe-4 py-3"
                     placeholder="לדוגמה: CS101"
                     required
                   />
@@ -76,17 +78,17 @@ export default function NewCourseRoute() {
 
               {/* Field: Semester */}
               <div>
-                <label htmlFor="semester" className="block text-sm font-bold text-gray-700 mb-2">
+                <Label htmlFor="semester">
                   סמסטר ושנה
-                </label>
+                </Label>
                 <div className="relative">
                   <div className="absolute inset-y-0 start-0 ps-4 flex items-center pointer-events-none text-gray-400">
                     <Calendar size={20} />
                   </div>
-                  <input
+                  <Input
                     type="text"
                     id="semester"
-                    className="block w-full ps-12 pe-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 focus:ring-2 focus:ring-[#00857e] focus:border-transparent transition-all outline-none"
+                    className="ps-12 pe-4 py-3"
                     placeholder="לדוגמה: סמסטר א׳ תשפ״ו"
                     required
                   />
@@ -96,32 +98,32 @@ export default function NewCourseRoute() {
 
             {/* Field: Description */}
             <div>
-              <label htmlFor="description" className="block text-sm font-bold text-gray-700 mb-2">
+              <Label htmlFor="description">
                 תיאור הקורס (אופציונלי)
-              </label>
+              </Label>
               <div className="relative">
                 <div className="absolute top-3 start-0 ps-4 flex items-start pointer-events-none text-gray-400">
                   <FileText size={20} />
                 </div>
-                <textarea
+                <Textarea
                   id="description"
                   rows={4}
-                  className="block w-full ps-12 pe-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 focus:ring-2 focus:ring-[#00857e] focus:border-transparent transition-all outline-none resize-none"
+                  className="ps-12 pe-4 py-3 resize-none"
                   placeholder="תיאור קצר של מטרות ותכני הקורס..."
-                ></textarea>
+                ></Textarea>
               </div>
             </div>
 
             {/* Actions */}
             <div className="pt-6 mt-6 border-t border-gray-100 flex flex-wrap items-center justify-end gap-4">
-              <Link to="/lecturer/courses" className="px-6 py-3 text-gray-500 font-bold rounded-xl hover:bg-gray-100 transition-colors flex items-center gap-2 shrink-0 whitespace-nowrap">
+              <LinkButton to="/lecturer/courses" variant="ghost" size="lg" className="px-6">
                 <X size={20} />
                 ביטול
-              </Link>
-              <button type="submit" className="px-8 py-3 bg-[#00857e] text-white font-bold rounded-xl hover:bg-teal-700 transition-colors shadow-sm flex items-center gap-2 shrink-0 whitespace-nowrap">
+              </LinkButton>
+              <Button type="submit" variant="primary" size="lg">
                 <Save size={20} />
                 שמירת קורס
-              </button>
+              </Button>
             </div>
             
           </form>

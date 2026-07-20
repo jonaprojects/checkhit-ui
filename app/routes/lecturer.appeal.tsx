@@ -2,6 +2,7 @@ import type { Route } from "./+types/lecturer.appeal";
 import MainLayout from "../components/MainLayout";
 import { Link, useParams } from "react-router";
 import { useState } from "react";
+import { Button } from '../components/ui/Button';
 import { ChevronRight, FileText, Download, Eye, Bot, Sparkles, CheckCircle2, AlertCircle } from "lucide-react";
 
 export function meta({}: Route.MetaArgs) {
@@ -234,13 +235,15 @@ export default function LecturerAppealReviewRoute() {
                          <span className="text-lg font-black text-green-700">+13 נק'</span>
                       </div>
                     </div>
-                    <button 
+                    <Button 
                       onClick={handleApplyAiRecommendation}
-                      className="w-full bg-[#00857e] text-white hover:bg-teal-700 py-2.5 rounded-lg font-bold transition-colors cursor-pointer flex items-center justify-center gap-2"
+                      variant="primary"
+                      size="md"
+                      className="w-full"
                     >
                       <CheckCircle2 size={18} />
                       החל המלצת AI בטופס
-                    </button>
+                    </Button>
                   </div>
                 )}
               </div>
@@ -290,23 +293,27 @@ export default function LecturerAppealReviewRoute() {
                 </div>
 
                 <div className="pt-2 flex flex-col gap-3">
-                  <button 
+                  <Button 
                     type="submit" 
+                    variant="primary"
+                    size="lg"
+                    className="w-full"
                     disabled={isSubmitting}
-                    className="w-full bg-[#00857e] text-white py-3 rounded-lg font-bold hover:bg-teal-700 transition-colors cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
                     {isSubmitting ? 'שומר...' : 'שלח החלטה סופית לסטודנט'}
-                  </button>
-                  <button 
+                  </Button>
+                  <Button 
                     type="button"
+                    variant="outline"
+                    size="lg"
+                    className="w-full text-red-600 hover:text-red-700 hover:bg-red-50 border-gray-200 hover:border-red-200"
                     onClick={() => {
                       setNewGrade(MOCK_APPEAL.originalGrade);
                       setLecturerFeedback("לאחר בדיקה מעמיקה של טענותיך, המימוש עדיין לא עומד בדרישות היעילות. הציון נותר בעינו.");
                     }}
-                    className="w-full bg-white text-red-600 border border-gray-200 hover:bg-red-50 hover:border-red-200 py-2.5 rounded-lg font-bold transition-colors cursor-pointer text-sm"
                   >
                     דחה ערעור (השאר ציון מקורי)
-                  </button>
+                  </Button>
                 </div>
               </div>
             </form>

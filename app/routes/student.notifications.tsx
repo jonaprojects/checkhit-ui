@@ -1,27 +1,23 @@
 import type { Route } from "./+types/student.notifications";
 import MainLayout from "~/components/MainLayout";
-import { Bell, CheckCircle2, Clock, Info, Check } from "lucide-react";
+import { Bell, Check, BookOpen, Scale, CheckCircle2, AlertCircle, Info, Inbox } from "lucide-react";
 import { useState } from "react";
+import { NotificationItem } from "~/components/ui/NotificationItem";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "התראות | Check Hit" },
-    { name: "description", content: "התראות סטודנט" },
+    { title: "התראות - פורטל סטודנטים | CheckHit" },
   ];
 }
 
 const mockNotifications = [
-  { id: 1, title: 'תזכורת הגשה', desc: 'מטלה 3 במבוא למדעי המחשב מסתיימת בעוד 12 שעות!', time: 'לפני שעה', unread: true, type: 'warning' },
-  { id: 2, title: 'ציון חדש', desc: 'הציון ומשוב ה-AI למטלה 2 "מיון מהיר" זמינים כעת (ציון: 95)', time: 'לפני 3 שעות', unread: true, type: 'success' },
-  { id: 3, title: 'עדכון קורס', desc: 'חומר עזר חדש הועלה למערכת על ידי ד"ר לוי', time: 'לפני יום', unread: false, type: 'info' },
-  { id: 4, title: 'תשובה לערעור', desc: 'התקבלה תשובה מהמרצה על הערעור שהגשת במטלה 1', time: 'לפני יומיים', unread: false, type: 'info' },
+  { id: 1, title: 'ציון חדש הוקלד', desc: 'הציון שלך במטלה 3 בקורס מבוא למדעי המחשב הוקלד.', time: 'לפני 10 דקות', unread: true, type: 'success' },
+  { id: 2, title: 'הערעור התקבל', desc: 'הערעור שהגשת על שאלה 2 במטלה 1 התקבל. ציונך עודכן.', time: 'לפני שעתיים', unread: true, type: 'appeal' },
+  { id: 3, title: 'מטלה חדשה', desc: 'פורסמה מטלה 4 בקורס תכנות מונחה עצמים.', time: 'אתמול, 14:30', unread: false, type: 'assignment' },
+  { id: 4, title: 'חשד להעתקה', desc: 'נמצא דמיון חריג במטלה 2. נא לפנות למרצה הקורס לבירור.', time: 'לפני יומיים', unread: false, type: 'warning' },
+  { id: 5, title: 'תזכורת: הגשת מטלה', desc: 'המטלה בקורס מסדי נתונים נסגרת להגשה מחר בחצות.', time: '15/05/2026', unread: false, type: 'info' },
+  { id: 6, title: 'עדכון מערכת', desc: 'המערכת תרד לתחזוקה ביום שבת בין השעות 02:00 ל-04:00.', time: '14/05/2026', unread: false, type: 'system' }
 ];
-
-const typeConfig: Record<string, { icon: any, color: string, bg: string }> = {
-  warning: { icon: Clock, color: 'text-orange-500', bg: 'bg-orange-100' },
-  success: { icon: CheckCircle2, color: 'text-green-500', bg: 'bg-green-100' },
-  info: { icon: Info, color: 'text-blue-500', bg: 'bg-blue-100' },
-};
 
 export default function StudentNotifications() {
   const [notifications, setNotifications] = useState(mockNotifications);
@@ -50,7 +46,7 @@ export default function StudentNotifications() {
           {unreadCount > 0 && (
             <button 
               onClick={markAllAsRead}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-50 border border-gray-200 text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-xl transition-colors font-medium text-sm"
+              className="flex items-center gap-2 px-4 py-2 bg-gray-50 border border-gray-200 text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-xl transition-colors font-medium text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
             >
               <Check size={18} />
               סמן הכל כנקרא
@@ -58,43 +54,22 @@ export default function StudentNotifications() {
           )}
         </header>
 
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
-          <div className="divide-y divide-gray-100">
+        <div className="space-y-4">
           {notifications.map((notif) => {
-            const config = typeConfig[notif.type] || typeConfig.info;
-            const Icon = config.icon;
-
             return (
-              <div 
-                key={notif.id} 
+              <NotificationItem
+                key={notif.id}
+                id={notif.id}
+                title={notif.title}
+                desc={notif.desc}
+                time={notif.time}
+                unread={notif.unread}
+                type={notif.type as any}
+                variant="full"
                 onClick={() => notif.unread && markAsRead(notif.id)}
-                className={`flex items-center gap-4 px-6 py-4 transition-colors cursor-pointer group relative
-                  ${notif.unread ? 'bg-teal-50/10' : 'hover:bg-gray-50/80'}
-                `}
-              >
-                {notif.unread && (
-                  <span className="absolute top-1/2 -translate-y-1/2 start-2 w-2 h-2 bg-[#00857e] rounded-full"></span>
-                )}
-                
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${config.bg} ${config.color}`}>
-                  <Icon size={20} />
-                </div>
-                
-                <div className="flex-1 text-start flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-                  <div className="flex-1">
-                    <h3 className={`text-base ${notif.unread ? 'font-extrabold text-gray-900' : 'font-bold text-gray-700'}`}>
-                      {notif.title}
-                    </h3>
-                    <p className={`text-sm mt-0.5 ${notif.unread ? 'text-gray-700 font-medium' : 'text-gray-500'}`}>
-                      {notif.desc}
-                    </p>
-                  </div>
-                  <span className="text-sm text-gray-400 whitespace-nowrap shrink-0 sm:ms-auto font-medium">{notif.time}</span>
-                </div>
-              </div>
+              />
             );
           })}
-          </div>
           
           {notifications.length === 0 && (
              <div className="flex flex-col items-center justify-center py-16 px-4 text-center bg-white rounded-xl border border-gray-200">
