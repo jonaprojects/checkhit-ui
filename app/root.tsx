@@ -24,6 +24,7 @@ export const links: Route.LinksFunction = () => [
   },
 ];
 
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import "./lib/i18n";
 
@@ -31,6 +32,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const { i18n } = useTranslation();
   const lang = i18n.language || 'he';
   const dir = lang.startsWith('en') ? 'ltr' : 'rtl';
+
+  useEffect(() => {
+    document.documentElement.dir = dir;
+    document.documentElement.lang = lang;
+  }, [dir, lang]);
 
   return (
     <html lang={lang} dir={dir} suppressHydrationWarning>

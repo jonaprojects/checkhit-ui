@@ -32,22 +32,29 @@ function readStoredTheme(): ThemeChoice {
 /** Reads/writes the user's theme choice and keeps <html class="dark"> in sync. */
 export function useTheme() {
   const [theme, setThemeState] = useState<ThemeChoice>("system");
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setThemeState(readStoredTheme());
+    setMounted(true);
   }, []);
 
   useEffect(() => {
+    if (!mounted) return;
     document.documentElement.classList.toggle("dark", resolveTheme(theme) === "dark");
-  }, [theme]);
+  }, [theme, mounted]);
 
   useEffect(() => {
     if (theme !== "system") return;
     const media = window.matchMedia("(prefers-color-scheme: dark)");
-    const onChange = () => document.documentElement.classList.toggle("dark", systemPrefersDark());
+    const onChange = () => {
+      if (mounted) {
+        document.documentElement.classList.toggle("dark", systemPrefersDark());
+      }
+    };
     media.addEventListener("change", onChange);
     return () => media.removeEventListener("change", onChange);
-  }, [theme]);
+  }, [theme, mounted]);
 
   const setTheme = (next: ThemeChoice) => {
     window.localStorage.setItem(STORAGE_KEY, next);
