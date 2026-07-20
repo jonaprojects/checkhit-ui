@@ -90,10 +90,12 @@ export default function MainLayout({ children, portalName = "פורטל סטוד
       )}
 
       {/* Sidebar */}
-      <aside className={`
+      <aside 
+        key={i18n.language}
+        className={`
         fixed lg:static inset-y-0 start-0 z-50 w-72 h-full bg-white shadow-xl lg:shadow-sm
         flex flex-col transition-transform duration-300 ease-in-out
-        ${sidebarOpen ? 'translate-x-0' : 'translate-x-[100%] lg:translate-x-0'}
+        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full rtl:translate-x-full lg:translate-x-0 rtl:lg:translate-x-0'}
         border-e border-gray-100 shrink-0
       `}>
         <div className="h-20 px-6 flex flex-col items-center justify-center border-b border-gray-100 shrink-0">
