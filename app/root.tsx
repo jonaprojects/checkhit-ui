@@ -29,11 +29,11 @@ import "./lib/i18n";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const { i18n } = useTranslation();
-  const dir = i18n.dir();
   const lang = i18n.language || 'he';
+  const dir = lang.startsWith('en') ? 'ltr' : 'rtl';
 
   return (
-    <html lang={lang} dir={dir}>
+    <html lang={lang} dir={dir} suppressHydrationWarning>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />

@@ -31,7 +31,11 @@ function readStoredTheme(): ThemeChoice {
 
 /** Reads/writes the user's theme choice and keeps <html class="dark"> in sync. */
 export function useTheme() {
-  const [theme, setThemeState] = useState<ThemeChoice>(readStoredTheme);
+  const [theme, setThemeState] = useState<ThemeChoice>("system");
+
+  useEffect(() => {
+    setThemeState(readStoredTheme());
+  }, []);
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", resolveTheme(theme) === "dark");
