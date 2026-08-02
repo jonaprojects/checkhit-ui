@@ -1,8 +1,9 @@
 import type { Route } from "./+types/lecturer.assignment.new";
 import MainLayout from "../components/MainLayout";
 import { ChevronRight, Save, X, Calendar, Settings } from 'lucide-react';
-import { Link, useParams } from 'react-router';
+import { Link, useParams, useSearchParams } from 'react-router';
 import { useState } from "react";
+import { createAssignment, generateDeeplink } from "../lib/api";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -12,35 +13,57 @@ export function meta({}: Route.MetaArgs) {
 
 export default function LecturerAssignmentNewRoute() {
   const { courseId } = useParams();
+  const [searchParams] = useSearchParams();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsSubmitting(true);
-    // Mock API call
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setIsSubmitted(true);
-    }, 1500);
-  };
+    const ltik = searchParams.get("ltik");
 
-  if (isSubmitted) {
-    return (
-      <MainLayout portalName="פורטל מרצים" view="lecturer">
-        <div className="flex flex-col items-center justify-center min-h-[70vh] animate-in fade-in zoom-in duration-500">
-          <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-6">
-            <Save size={40} />
-          </div>
-          <h1 className="text-3xl font-extrabold text-gray-900 mb-2">המטלה נוצרה בהצלחה!</h1>
-          <p className="text-gray-500 max-w-md text-center mb-8">המטלה הופצה ל-120 סטודנטים הרשומים לקורס, וה-AI מוכן לבדוק את ההגשות.</p>
-          <Link to={`/lecturer/courses/${courseId}`} className="bg-[#00857e] text-white px-8 py-3 rounded-xl font-bold hover:bg-teal-700 transition-colors">
-            חזרה לדף הקורס
-          </Link>
-        </div>
-      </MainLayout>
-    );
-  }
+    if (!courseId || !ltik) {
+      setSubmitError("לא ניתן ליצור מטלה ללא פרטי הקורס והפעלת Moodle.");
+      return;
+    }
+
+    const formData = new FormData(e.currentTarget);
+    const dueAt = formData.get("dueAt");
+    const description = String(formData.get("description") ?? "");
+
+    setIsSubmitting(true);
+    setSubmitError(null);
+
+    try {
+      const assignment = await createAssignment(courseId, ltik, {
+        name: formData.get("name"),
+        description,
+        type: formData.get("type"),
+        evaluationInstructions: description,
+        maxScore: 100,
+        dueAt:
+          typeof dueAt === "string" && dueAt
+            ? new Date(dueAt).toISOString()
+            : null,
+        status: "PUBLISHED",
+      });
+
+      if (!assignment.id) {
+        throw new Error("השרת לא החזיר מזהה עבור המטלה שנוצרה.");
+      }
+
+      const deepLinkForm = await generateDeeplink(assignment.id, ltik);
+
+      // ltijs returns an auto-submitting HTML form that completes the flow in Moodle.
+      document.open();
+      document.write(deepLinkForm);
+      document.close();
+    } catch (error) {
+      setSubmitError(
+        error instanceof Error ? error.message : "יצירת המטלה נכשלה.",
+      );
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <MainLayout portalName="פורטל מרצים" view="lecturer">
@@ -66,6 +89,7 @@ export default function LecturerAssignmentNewRoute() {
               <label className="block text-sm font-bold text-gray-700 mb-2">שם המטלה <span className="text-red-500">*</span></label>
               <input 
                 type="text" 
+                name="name"
                 required
                 className="w-full border border-gray-200 rounded-xl p-3 text-lg focus:ring-2 focus:ring-[#00857e] focus:outline-none bg-gray-50 hover:bg-white focus:bg-white transition-colors"
                 placeholder="למשל: תרגיל בית 4: גרפים"
@@ -80,6 +104,7 @@ export default function LecturerAssignmentNewRoute() {
                 </label>
                 <input 
                   type="datetime-local" 
+                  name="dueAt"
                   required
                   className="w-full border border-gray-200 rounded-xl p-3 focus:ring-2 focus:ring-[#00857e] focus:outline-none bg-gray-50 hover:bg-white focus:bg-white transition-colors"
                 />
@@ -90,7 +115,7 @@ export default function LecturerAssignmentNewRoute() {
                   <Settings size={16} className="text-[#00857e]" />
                   סוג מטלה (הגשה) <span className="text-red-500">*</span>
                 </label>
-                <select className="w-full border border-gray-200 rounded-xl p-3 focus:ring-2 focus:ring-[#00857e] focus:outline-none bg-gray-50 hover:bg-white focus:bg-white transition-colors">
+                <select name="type" className="w-full border border-gray-200 rounded-xl p-3 focus:ring-2 focus:ring-[#00857e] focus:outline-none bg-gray-50 hover:bg-white focus:bg-white transition-colors">
                   <option value="file">העלאת קובץ (ZIP / PDF)</option>
                   <option value="text">הזנת טקסט חופשי</option>
                   <option value="github">קישור ל-GitHub Repository</option>
@@ -101,6 +126,7 @@ export default function LecturerAssignmentNewRoute() {
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-2">תיאור והנחיות למטלה <span className="text-red-500">*</span></label>
               <textarea 
+                name="description"
                 required
                 rows={8}
                 className="w-full border border-gray-200 rounded-xl p-4 focus:ring-2 focus:ring-[#00857e] focus:outline-none bg-gray-50 hover:bg-white focus:bg-white transition-colors resize-none"
@@ -108,6 +134,12 @@ export default function LecturerAssignmentNewRoute() {
               ></textarea>
             </div>
           </div>
+
+          {submitError && (
+            <p role="alert" className="text-sm font-bold text-red-600">
+              {submitError}
+            </p>
+          )}
 
           <div className="pt-6 border-t border-gray-100 flex flex-wrap justify-end gap-4">
             <Link to={`/lecturer/courses/${courseId}`} className="px-6 py-3 rounded-xl font-bold text-gray-600 hover:bg-gray-100 transition-colors flex items-center gap-2 shrink-0 whitespace-nowrap">
