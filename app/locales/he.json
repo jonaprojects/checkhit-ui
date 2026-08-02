@@ -24,6 +24,31 @@
       "filter": "סינון",
       "clearFilter": "נקה סינון"
     },
+    "courses": {
+      "myCourses": "הקורסים שלי",
+      "myCoursesDesc": "כל הקורסים בהם הנך רשום בשנת הלימודים הנוכחית",
+      "assignments": "מטלות",
+      "toSubmit": "להגשה",
+      "noInstructor": "לא שובץ מרצה",
+      "emptyTitle": "לא נמצאו קורסים פעילים",
+      "emptyDesc": "אינך רשום לקורסים כלשהם בסמסטר הנוכחי.",
+      "errorTitle": "שגיאה בטעינת הקורסים",
+      "errorDesc": "אירעה שגיאה בעת התקשורת מול השרת.",
+      "retry": "נסה שוב"
+    },
+    "course": {
+      "backToCourses": "חזרה לרשימת הקורסים",
+      "courseAssignments": "מטלות הקורס",
+      "noAssignments": "טרם פורסמו מטלות בקורס זה.",
+      "courseMaterials": "חומרי עזר ומשאבים",
+      "courseMaterialsDesc": "מצגות, קבצי קוד וחומרי לימוד שהועלו על ידי צוות ההוראה.",
+      "download": "הורד קובץ",
+      "grade": "ציון",
+      "errorTitle": "שגיאה בטעינת פרטי הקורס",
+      "errorDesc": "לא ניתן היה לטעון את נתוני הקורס מהשרת.",
+      "retry": "נסה שוב",
+      "noInstructor": "לא שובץ מרצה"
+    },
     "status": {
       "assignment": {
         "pending": "טרם הוגש",
@@ -196,6 +221,13 @@
       "checking": "בדיקה",
       "viewAssignment": "צפה במטלה",
       "submitted": "הוגש",
+      "emptyTitle": "לא נמצאו ערעורים",
+      "emptyDesc": "טרם הגשת ערעורים על ציוני מטלות.",
+      "errorTitle": "שגיאה בטעינת הערעורים",
+      "errorDesc": "אירעה שגיאה בעת קבלת נתוני הערעורים מהשרת.",
+      "retry": "נסה שוב",
+      "reason": "נימוק הערעור",
+      "resolution": "החלטת צוות ההוראה",
       "lecturerTitle": "ניהול ערעורים",
       "lecturerSubtitle": "סקור וטפל בערעורי סטודנטים מכל הקורסים שלך",
       "pendingCount": "ערעורים ממתינים",

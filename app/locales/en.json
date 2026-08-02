@@ -24,6 +24,31 @@
       "filter": "Filter",
       "clearFilter": "Clear Filter"
     },
+    "courses": {
+      "myCourses": "My Courses",
+      "myCoursesDesc": "All courses you are enrolled in for the current academic year",
+      "assignments": "assignments",
+      "toSubmit": "to submit",
+      "noInstructor": "No instructor assigned",
+      "emptyTitle": "No enrolled courses found",
+      "emptyDesc": "You are currently not enrolled in any courses for this semester.",
+      "errorTitle": "Failed to load courses",
+      "errorDesc": "An error occurred while communicating with the server.",
+      "retry": "Try Again"
+    },
+    "course": {
+      "backToCourses": "Back to Courses",
+      "courseAssignments": "Course Assignments",
+      "noAssignments": "No assignments have been published for this course yet.",
+      "courseMaterials": "Course Materials & Resources",
+      "courseMaterialsDesc": "Presentations, code samples, and materials uploaded by the lecturer.",
+      "download": "Download File",
+      "grade": "Grade",
+      "errorTitle": "Failed to load course details",
+      "errorDesc": "Could not retrieve course information from the server.",
+      "retry": "Try Again",
+      "noInstructor": "No instructor assigned"
+    },
     "status": {
       "assignment": {
         "pending": "Not submitted",
@@ -196,6 +221,13 @@
       "checking": "Checking",
       "viewAssignment": "View Assignment",
       "submitted": "Submitted",
+      "emptyTitle": "No Appeals Submitted",
+      "emptyDesc": "You haven't submitted any grade appeals yet.",
+      "errorTitle": "Failed to load appeals",
+      "errorDesc": "An error occurred while fetching your appeals from the server.",
+      "retry": "Try Again",
+      "reason": "Reason for appeal",
+      "resolution": "Lecturer Resolution",
       "lecturerTitle": "Appeals Management",
       "lecturerSubtitle": "Review and handle student appeals across all your courses",
       "pendingCount": "pending appeals",

@@ -210,7 +210,7 @@ function NotSubmittedView({ onUpload }: any) {
   );
 }
 
-function CheckingView({ onFinish }) {
+function CheckingView({ onFinish }: { onFinish: () => void }) {
   const { t } = useTranslation();
   return (
     <div className="flex flex-col items-center justify-center p-16 bg-white rounded-xl border border-[#E8B43F]/40 shadow-sm relative overflow-hidden">
@@ -239,7 +239,7 @@ function CheckingView({ onFinish }) {
   );
 }
 
-function CheckedView({ onReset }) {
+function CheckedView({ onReset }: { onReset: () => void }) {
   const { t, i18n } = useTranslation();
   const isEn = i18n.language.startsWith('en');
   return (
@@ -331,7 +331,7 @@ function CheckedView({ onReset }) {
   );
 }
 
-function FeedbackItem({ type, text }) {
+function FeedbackItem({ type, text }: { type: 'positive' | 'warning' | 'negative'; text: string }) {
   const styles = {
     positive: {
       bg: 'bg-green-50',

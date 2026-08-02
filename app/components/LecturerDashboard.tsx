@@ -142,7 +142,24 @@ function MetricCard({ icon, title, value, subtitle, badgeIcon = false }: { icon:
   );
 }
 
-function CourseCard({ title, code, semester, students, activeAssignments, accent }) {
+interface DashboardCourseCardProps {
+  title: string;
+  code: string;
+  semester: string;
+  students: number;
+  activeAssignments: number;
+  accent: {
+    borderHover: string;
+    topBorder: string;
+    gradient?: string;
+    text?: string;
+    bg?: string;
+    groupHoverText?: string;
+    groupHoverBorder?: string;
+  };
+}
+
+function CourseCard({ title, code, semester, students, activeAssignments, accent }: DashboardCourseCardProps) {
   const { t } = useTranslation();
   return (
     <div className={`bg-white rounded-xl border border-gray-200 hover:shadow-md ${accent.borderHover} transition-all duration-300 relative group cursor-pointer flex flex-col h-full hover:-translate-y-1 overflow-hidden`}>
