@@ -231,17 +231,6 @@ export function GradeDistributionChart() {
           </BarChart>
         </ResponsiveContainer>
       </div>
-
-      {/* Footer Info */}
-      <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
-        <span>
-          {t('lecturerDashboard.gradeDistribution.totalStudents')}:{' '}
-          <strong className="text-gray-800 dark:text-white font-bold">{currentStats.totalStudents}</strong>
-        </span>
-        <span className="font-bold text-teal-700 dark:text-teal-300">
-          {t('lecturerDashboard.gradeDistribution.normalCurve')}
-        </span>
-      </div>
     </div>
   );
 }
