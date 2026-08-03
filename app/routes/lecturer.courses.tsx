@@ -1,6 +1,6 @@
 import type { Route } from "./+types/lecturer.courses";
 import MainLayout from "../components/MainLayout";
-import { GraduationCap, Users, BookOpen, ChevronLeft, Plus } from 'lucide-react';
+import { GraduationCap, Users, BookOpen, ChevronLeft, Plus, CheckCircle2, AlertCircle } from 'lucide-react';
 import { Link } from 'react-router';
 import { CourseCard } from '../components/CourseCard';
 import { LinkButton } from '../components/ui/Button';
@@ -55,27 +55,37 @@ export default function LecturerCoursesRoute() {
               variant="detailed"
               footer={
                 <>
-                  <div className="flex items-center gap-4 text-sm">
+                  <div className="flex items-center text-xs">
                     {course.appeals > 0 ? (
-                      <div className="flex items-center gap-1.5 text-orange-600 font-bold bg-orange-50 px-2 py-0.5 rounded">
+                      <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 text-amber-800 border border-amber-200/80 font-bold">
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
                         <span>{course.appeals} {t('courses.pendingAppeals')}</span>
                       </div>
                     ) : (
-                      <div className="text-gray-400">{t('courses.noActiveAppeals')}</div>
+                      <div className="inline-flex items-center gap-1.5 text-gray-400 font-medium">
+                        <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
+                        <span>{t('courses.noActiveAppeals')}</span>
+                      </div>
                     )}
                   </div>
-                  <ChevronLeft size={18} className={`text-gray-400 group-hover:${course.accent.text} transition-all duration-300 ${isEn ? 'translate-x-2 group-hover:translate-x-0 rotate-180' : '-translate-x-2 group-hover:translate-x-0'}`} />
+                  <ChevronLeft size={18} className={`text-gray-400 group-hover:${course.accent.text} transition-all duration-300 ${isEn ? 'translate-x-1 group-hover:translate-x-0 rotate-180' : '-translate-x-1 group-hover:translate-x-0'}`} />
                 </>
               }
             >
-              <div className="grid grid-cols-2 gap-4 text-sm mb-6">
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <div className="text-gray-500 mb-1 flex items-center gap-1.5"><Users size={14} /> {t('courses.registeredStudents')}</div>
-                  <div className="font-bold text-gray-900">{course.students}</div>
+              <div className="space-y-2 text-sm text-gray-600 text-start">
+                <div className="flex items-center gap-2">
+                  <Users size={16} className="text-gray-400 shrink-0" />
+                  <span>
+                    <strong className="text-gray-900 font-semibold">{course.students}</strong>{' '}
+                    {t('courses.registeredStudents')}
+                  </span>
                 </div>
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <div className="text-gray-500 mb-1 flex items-center gap-1.5"><BookOpen size={14} /> {t('courses.activeAssignments')}</div>
-                  <div className="font-bold text-gray-900">{course.assignments}</div>
+                <div className="flex items-center gap-2">
+                  <BookOpen size={16} className="text-gray-400 shrink-0" />
+                  <span>
+                    <strong className="text-gray-900 font-semibold">{course.assignments}</strong>{' '}
+                    {t('courses.activeAssignments')}
+                  </span>
                 </div>
               </div>
             </CourseCard>

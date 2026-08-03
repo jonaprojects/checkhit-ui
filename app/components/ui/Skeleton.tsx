@@ -53,16 +53,16 @@ export function CourseCardSkeleton({
   }
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-6 flex flex-col h-full justify-between">
+    <div className="bg-white rounded-2xl border border-gray-200/80 p-6 flex flex-col h-full justify-between">
       <div>
         {/* Top Header: Icon & Code pill */}
         <div className="flex items-start justify-between mb-4">
-          <Skeleton className="w-14 h-14 rounded-xl" />
-          <Skeleton className="w-16 h-7 rounded-lg" />
+          <Skeleton className="w-12 h-12 rounded-xl" />
+          <Skeleton className="w-16 h-6 rounded-lg" />
         </div>
 
         {/* Course Title */}
-        <Skeleton className="h-6 w-3/4 rounded-md mb-3" />
+        <Skeleton className="h-6 w-3/4 rounded-md mb-4" />
 
         {/* Content area: Mode-dependent */}
         {mode === 'student' ? (
@@ -71,14 +71,14 @@ export function CourseCardSkeleton({
             <Skeleton className="h-4 w-32 rounded" />
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-4 mb-6">
-            <div className="bg-gray-50 rounded-lg p-3 space-y-2">
-              <Skeleton className="h-3 w-20 rounded" />
-              <Skeleton className="h-5 w-10 rounded" />
+          <div className="space-y-2 mb-6">
+            <div className="flex items-center gap-2">
+              <Skeleton className="w-4 h-4 rounded-full" />
+              <Skeleton className="h-4 w-36 rounded" />
             </div>
-            <div className="bg-gray-50 rounded-lg p-3 space-y-2">
-              <Skeleton className="h-3 w-20 rounded" />
-              <Skeleton className="h-5 w-10 rounded" />
+            <div className="flex items-center gap-2">
+              <Skeleton className="w-4 h-4 rounded-full" />
+              <Skeleton className="h-4 w-28 rounded" />
             </div>
           </div>
         )}
