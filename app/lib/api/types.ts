@@ -3,6 +3,7 @@ export type LecturerPermission = 'OWNER' | 'EDITOR';
 export type AssignmentStatus = 'DRAFT' | 'PUBLISHED' | 'CLOSED' | 'ARCHIVED';
 export type StudentTaskStatus = 'NOT_STARTED' | 'DRAFT' | 'SUBMITTED' | 'EVALUATING' | 'GRADED' | 'OVERDUE' | 'APPEAL' | 'COMPLETED';
 export type BackendAppealStatus = 'SUBMITTED' | 'IN_REVIEW' | 'ACCEPTED' | 'REJECTED' | 'RESOLVED' | 'PENDING';
+export type NotificationCategory = 'ASSIGNMENT' | 'GRADE' | 'APPEAL' | 'WARNING' | 'SYSTEM' | 'INFO';
 
 export interface User {
   id: string;
@@ -113,6 +114,20 @@ export interface Appeal {
     user?: User;
   } | null;
   files?: AppealFileItem[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Notification {
+  id: string;
+  recipientId: string;
+  title: string;
+  body: string;
+  category: NotificationCategory;
+  isRead: boolean;
+  link?: string | null;
+  metadata?: Record<string, any>;
+  readAt?: string | null;
   createdAt: string;
   updatedAt: string;
 }

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Link, useLocation } from 'react-router';
+import { Link, useLocation, useNavigate } from 'react-router';
 import { 
   Menu, 
   LayoutDashboard, 
@@ -10,14 +10,18 @@ import {
   LogOut,
   Bell,
   HelpCircle,
-  Upload,
-  Home,
   FileWarning
 } from 'lucide-react';
 import { NotificationItem } from './ui/NotificationItem';
 import { UserAvatar } from './ui/UserAvatar';
 import { useTranslation } from 'react-i18next';
 import { LanguageToggle } from './ui/LanguageToggle';
+import { 
+  useNotifications, 
+  useUnreadNotificationCount, 
+  useMarkNotificationAsRead, 
+  useMarkAllNotificationsAsRead 
+} from '../hooks/useNotifications';
 
 export default function MainLayout({ children, portalName = "פורטל סטודנטים", view }: any) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -25,28 +29,20 @@ export default function MainLayout({ children, portalName = "פורטל סטוד
   const notificationRef = useRef<HTMLDivElement>(null);
   const { t, i18n } = useTranslation();
   const location = useLocation();
+  const navigate = useNavigate();
   const currentPath = location.pathname;
 
   const isEn = i18n.language.startsWith('en');
 
-  // Mock notifications based on view
-  const notifications = view === 'lecturer' ? (isEn ? [
-    { id: 1, title: 'Assignments pending grading', desc: 'You have 15 assignments to grade in the "Interface Design" course', time: '2 hours ago', unread: true, type: 'assignment' as const },
-    { id: 2, title: 'New Appeal', desc: 'Yossi Cohen submitted an appeal for the grade in Assignment 2', time: '4 hours ago', unread: true, type: 'appeal' as const },
-    { id: 3, title: 'System Reminder', desc: 'Grade entry for "Intro to Computer Science" closes tomorrow', time: 'Yesterday', unread: false, type: 'system' as const },
-  ] : [
-    { id: 1, title: 'מטלות ממתינות לבדיקה', desc: 'יש לך 15 מטלות להעריך בקורס "עיצוב ממשקים"', time: 'לפני שעתיים', unread: true, type: 'assignment' as const },
-    { id: 2, title: 'ערעור חדש', desc: 'יוסי כהן הגיש ערעור על הציון במטלה 2', time: 'לפני 4 שעות', unread: true, type: 'appeal' as const },
-    { id: 3, title: 'תזכורת מערכת', desc: 'הזנת ציונים לקורס "מבוא למדעי המחשב" נסגרת מחר', time: 'אתמול', unread: false, type: 'system' as const },
-  ]) : (isEn ? [
-    { id: 1, title: 'Submission Reminder', desc: 'Assignment 3 in Intro to Computer Science ends in 12 hours!', time: '1 hour ago', unread: true, type: 'assignment' as const },
-    { id: 2, title: 'New Grade', desc: 'The grade and AI feedback for Assignment 2 are now available', time: '3 hours ago', unread: true, type: 'success' as const },
-    { id: 3, title: 'Course Update', desc: 'New supplementary material has been uploaded to the system', time: '1 day ago', unread: false, type: 'system' as const },
-  ] : [
-    { id: 1, title: 'תזכורת הגשה', desc: 'מטלה 3 במבוא למדעי המחשב מסתיימת בעוד 12 שעות!', time: 'לפני שעה', unread: true, type: 'assignment' as const },
-    { id: 2, title: 'ציון חדש', desc: 'הציון ומשוב ה-AI למטלה 2 זמינים כעת', time: 'לפני 3 שעות', unread: true, type: 'success' as const },
-    { id: 3, title: 'עדכון קורס', desc: 'חומר עזר חדש הועלה למערכת', time: 'לפני יום', unread: false, type: 'system' as const },
-  ]);
+  const userId = view === 'lecturer' 
+    ? import.meta.env.VITE_LECTURER_ID 
+    : import.meta.env.VITE_STUDENT_ID;
+
+  // Live Notifications via TanStack Query
+  const { data: notifications = [] } = useNotifications(userId, { limit: 5 }, isEn);
+  const { data: unreadCount = 0 } = useUnreadNotificationCount(userId);
+  const markAsReadMutation = useMarkNotificationAsRead(userId);
+  const markAllAsReadMutation = useMarkAllNotificationsAsRead(userId);
 
   // Click outside to close notifications
   useEffect(() => {
@@ -59,7 +55,19 @@ export default function MainLayout({ children, portalName = "פורטל סטוד
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const unreadCount = notifications.filter(n => n.unread).length;
+  const handleNotificationClick = (notifId: string, isRead: boolean, link?: string | null) => {
+    if (!isRead) {
+      markAsReadMutation.mutate(notifId);
+    }
+    setIsNotificationsOpen(false);
+    if (link) {
+      navigate(link);
+    }
+  };
+
+  const handleMarkAllRead = () => {
+    markAllAsReadMutation.mutate();
+  };
 
   const NavItem = ({ to, icon: Icon, label }: any) => {
     const isActive = currentPath === to || (to !== '/lecturer' && to !== '/student' && currentPath.startsWith(to));
@@ -157,41 +165,54 @@ export default function MainLayout({ children, portalName = "פורטל סטוד
           </div>
 
           <div className="flex items-center gap-4 lg:gap-6 ms-auto">
-
             <div className="flex items-center gap-3 px-4 border-s border-gray-200">
               <div className="relative" ref={notificationRef}>
                 <button 
                   onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
-                  className={`cursor-pointer text-gray-500 hover:text-gray-800 transition-colors relative p-1 rounded-md flex items-center justify-center ${isNotificationsOpen ? 'bg-gray-100 text-gray-900' : ''}`}
+                  className={`cursor-pointer text-gray-500 hover:text-gray-800 transition-colors relative p-2 rounded-xl flex items-center justify-center ${isNotificationsOpen ? 'bg-gray-100 text-gray-900' : ''}`}
                 >
                   <Bell size={22} />
                   {unreadCount > 0 && (
-                    <span className="absolute top-0 start-0 w-4 h-4 bg-[#E8B43F] text-white text-[10px] font-bold flex items-center justify-center rounded-full border border-white translate-x-1 -translate-y-1">
-                      {unreadCount}
+                    <span className="absolute top-1 end-1 min-w-[18px] h-[18px] px-1 bg-[#E8B43F] text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-white shadow-xs">
+                      {unreadCount > 99 ? '99+' : unreadCount}
                     </span>
                   )}
                 </button>
 
                 {/* Notifications Dropdown */}
                 {isNotificationsOpen && (
-                  <div className="fixed inset-x-4 top-20 mt-2 md:absolute md:inset-x-auto md:top-full md:end-0 md:mt-3 w-auto md:w-80 bg-white rounded-xl border border-gray-200 shadow-xl overflow-hidden z-50 origin-top-right animate-in fade-in zoom-in-95 duration-200">
+                  <div className="fixed inset-x-4 top-20 mt-2 md:absolute md:inset-x-auto md:top-full md:end-0 md:mt-3 w-auto md:w-84 bg-white rounded-2xl border border-gray-200 shadow-xl overflow-hidden z-50 origin-top-right animate-in fade-in zoom-in-95 duration-200">
                     <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-gray-50/50">
-                      <h3 className="font-bold text-gray-900">{t('notifications.title')}</h3>
-                      <button className="text-xs text-[#00857e] hover:underline font-medium">{t('notifications.markAllRead')}</button>
+                      <h3 className="font-bold text-gray-900 text-sm">{t('notifications.title')}</h3>
+                      {unreadCount > 0 && (
+                        <button 
+                          onClick={handleMarkAllRead}
+                          disabled={markAllAsReadMutation.isPending}
+                          className="text-xs text-[#00857e] hover:underline font-medium cursor-pointer"
+                        >
+                          {t('notifications.markAllRead')}
+                        </button>
+                      )}
                     </div>
-                    <div className="max-h-[350px] overflow-y-auto">
+                    <div className="max-h-[350px] overflow-y-auto divide-y divide-gray-50">
                       {notifications.map((notif) => (
                         <NotificationItem
                           key={notif.id}
                           id={notif.id}
                           title={notif.title}
-                          desc={notif.desc}
-                          time={notif.time}
-                          unread={notif.unread}
-                          type={notif.type as any}
+                          desc={notif.body}
+                          time={notif.formattedTime}
+                          unread={!notif.isRead}
+                          type={notif.uiType}
                           variant="compact"
+                          onClick={() => handleNotificationClick(notif.id, notif.isRead, notif.link)}
                         />
                       ))}
+                      {notifications.length === 0 && (
+                        <div className="py-8 text-center text-sm text-gray-500">
+                          {t('notifications.emptyDesc')}
+                        </div>
+                      )}
                     </div>
                     <div className="border-t border-gray-100 p-2 bg-gray-50/50 text-center">
                       <Link 

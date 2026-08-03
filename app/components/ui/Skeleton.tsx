@@ -301,3 +301,45 @@ export function AssignmentTableSkeleton({ rows = 5 }: { rows?: number }) {
     </div>
   );
 }
+
+/**
+ * Skeleton matching full NotificationItem.
+ */
+export function NotificationCardSkeleton({ variant = 'full' }: { variant?: 'full' | 'compact' }) {
+  if (variant === 'compact') {
+    return (
+      <div className="p-4 border-b border-gray-50 space-y-2">
+        <Skeleton className="h-4 w-3/4 rounded" />
+        <Skeleton className="h-3 w-full rounded" />
+        <Skeleton className="h-3 w-20 rounded" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-4 p-6 rounded-2xl border border-gray-100 bg-white">
+      <Skeleton className="w-10 h-10 rounded-full shrink-0" />
+      <div className="flex-1 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+        <div className="flex-1 space-y-2">
+          <Skeleton className="h-4 w-48 rounded" />
+          <Skeleton className="h-3 w-3/4 rounded" />
+        </div>
+        <Skeleton className="h-3.5 w-20 rounded shrink-0 sm:ms-auto" />
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Stack of NotificationCard skeletons.
+ */
+export function NotificationListSkeleton({ count = 4, variant = 'full' }: { count?: number; variant?: 'full' | 'compact' }) {
+  return (
+    <div className="space-y-4">
+      {Array.from({ length: count }).map((_, idx) => (
+        <NotificationCardSkeleton key={idx} variant={variant} />
+      ))}
+    </div>
+  );
+}
+
