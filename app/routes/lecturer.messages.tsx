@@ -376,7 +376,7 @@ export default function LecturerMessages() {
         id: `msg-user-${Date.now()}`,
         sender: isEn ? "Dr. Dan Peleg (You)" : "ד\"ר דן פלג (אתה)",
         senderRole: isEn ? "Course Lecturer" : "מרצה הקורס",
-        targetType: recipientMode,
+        targetType: recipientMode === 'broadcast' ? 'broadcast' : 'direct',
         courseCode: selectedCourse.code,
         courseName: courseName,
         recipientCount: recipientMode === 'broadcast' ? selectedCourse.studentCount : 1,

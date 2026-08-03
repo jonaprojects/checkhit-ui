@@ -35,7 +35,7 @@ export function CourseCard({
           <GraduationCap size={24} />
         </div>
         <div className="flex-1 overflow-hidden text-start">
-          <h3 className="font-bold text-gray-900 text-base mb-0.5 truncate group-hover:text-[#00857e] transition-colors">{name}</h3>
+          <h3 className="font-bold text-gray-900 dark:text-white text-base mb-0.5 truncate group-hover:text-[#00857e] dark:group-hover:text-teal-300 transition-colors">{name}</h3>
           <div className="text-xs text-gray-500 font-medium truncate">{children}</div>
         </div>
       </Link>
@@ -53,14 +53,14 @@ export function CourseCard({
         </span>
       </div>
       
-      <h2 className="text-lg font-black text-gray-900 mb-4 group-hover:text-[#00857e] transition-colors leading-snug line-clamp-1">{name}</h2>
+      <h2 className="text-lg font-black text-gray-900 dark:text-white mb-4 group-hover:text-[#00857e] dark:group-hover:text-teal-300 transition-colors leading-snug line-clamp-1">{name}</h2>
       
       <div className="flex-1 mb-5">
         {children}
       </div>
 
       {footer && (
-        <div className="mt-auto pt-4 border-t border-gray-100 flex items-center justify-between">
+        <div className="mt-auto pt-4 border-t border-gray-100 dark:border-[#263330] flex items-center justify-between">
           {footer}
         </div>
       )}

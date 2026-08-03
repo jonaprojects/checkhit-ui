@@ -40,6 +40,7 @@ export interface Course {
   academicYear: number;
   ltiContextId?: string | null;
   lecturers?: CourseLecturer[];
+  studentsCount?: number;
   createdAt: string;
   updatedAt: string;
 }
