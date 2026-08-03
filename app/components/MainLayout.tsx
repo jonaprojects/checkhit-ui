@@ -10,7 +10,8 @@ import {
   LogOut,
   Bell,
   HelpCircle,
-  FileWarning
+  FileWarning,
+  Mail
 } from 'lucide-react';
 import { NotificationItem } from './ui/NotificationItem';
 import { UserAvatar } from './ui/UserAvatar';
@@ -119,6 +120,7 @@ export default function MainLayout({ children, portalName = "פורטל סטוד
               <NavItem to="/lecturer" icon={LayoutDashboard} label={t('nav.dashboard')} />
               <NavItem to="/lecturer/courses" icon={GraduationCap} label={t('nav.myCourses')} />
               <NavItem to="/lecturer/appeals" icon={FileWarning} label={t('nav.appeals')} />
+              <NavItem to="/lecturer/messages" icon={Mail} label={t('nav.messages')} />
             </>
           ) : (
             <>
@@ -126,6 +128,7 @@ export default function MainLayout({ children, portalName = "פורטל סטוד
               <NavItem to="/student/courses" icon={GraduationCap} label={t('nav.myCourses')} />
               <NavItem to="/student/assignments" icon={FileText} label={t('nav.assignments')} />
               <NavItem to="/student/appeals" icon={FileWarning} label={t('nav.appeals')} />
+              <NavItem to="/student/messages" icon={Mail} label={t('nav.messages')} />
             </>
           )}
 
