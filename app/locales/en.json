@@ -442,6 +442,34 @@
       "removeFile": "Remove File",
       "submitting": "Submitting Appeal...",
       "submitBtn": "Submit Appeal for Review"
+    },
+    "calendar": {
+      "title": "Assignment Due Dates",
+      "today": "Today",
+      "month": "Month",
+      "week": "Week",
+      "day": "Day",
+      "monthView": "Month",
+      "weekView": "Week",
+      "dayView": "Day",
+      "view": "View",
+      "listView": "List",
+      "calendarView": "Calendar",
+      "viewCalendar": "Calendar",
+      "noAssignmentsOnDay": "No assignments due on this day",
+      "noAssignmentsInMonth": "No assignments due in this month",
+      "noAssignmentsInWeek": "No assignments due this week",
+      "moreAssignments": "+{{count}} more",
+      "dueAt": "Due at:",
+      "course": "Course:",
+      "status": "Status:",
+      "openAssignment": "Open Assignment",
+      "submitAssignment": "Submit Assignment",
+      "agendaTitle": "Assignment Schedule",
+      "swipeHint": "Swipe left or right to switch days",
+      "jumpToNextDeadline": "Jump to next deadline",
+      "fullscreen": "Full View",
+      "exitFullscreen": "Exit Full View"
     }
   }
 }

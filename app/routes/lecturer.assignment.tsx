@@ -1,9 +1,10 @@
 import type { Route } from "./+types/lecturer.assignment";
 import MainLayout from "../components/MainLayout";
-import { ChevronRight, Users, CheckCircle2, XCircle, Clock, Search, Download, Edit } from 'lucide-react';
+import { ChevronRight, Users, CheckCircle2, XCircle, Clock, Download, Edit } from 'lucide-react';
 import { Link, useParams } from "react-router";
 import { Button, LinkButton } from '../components/ui/Button';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../components/ui/Table';
+import { SearchBar } from '../components/ui/SearchBar';
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -102,14 +103,13 @@ export default function LecturerAssignmentRoute() {
 
         {/* Students Table */}
         <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-          <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-            <h2 className="font-bold text-gray-800">רשימת הגשות סטודנטים</h2>
-            <div className="relative w-64">
-              <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-              <input 
-                type="text" 
-                placeholder="חיפוש סטודנט (שם או ת.ז)..." 
-                className="w-full pl-4 pr-10 py-1.5 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#00857e] transition-all bg-white"
+          <div className="p-4 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/40">
+            <h2 className="font-bold text-gray-800 dark:text-white">רשימת הגשות סטודנטים</h2>
+            <div className="w-64">
+              <SearchBar
+                placeholder="חיפוש סטודנט (שם או ת.ז)..."
+                size="sm"
+                variant="default"
               />
             </div>
           </div>
@@ -136,7 +136,7 @@ export default function LecturerAssignmentRoute() {
                   <TableCell className="text-center">
                     {student.status === 'submitted' && <span className="inline-block px-2 py-1 bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400 rounded text-xs font-bold w-24">נבדק</span>}
                     {student.status === 'checking' && <span className="inline-block px-2 py-1 bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-400 rounded text-xs font-bold w-24">בבדיקת AI</span>}
-                    {student.status === 'missing' && <span className="inline-block px-2 py-1 bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400 rounded text-xs font-bold w-24">טרם הוגש</span>}
+                    {student.status === 'missing' && <span className="inline-block px-2 py-1 bg-slate-100 text-slate-600 dark:bg-slate-800/80 dark:text-slate-300 rounded text-xs font-bold w-24 border border-slate-200/60 dark:border-slate-700/60">טרם הוגש</span>}
                   </TableCell>
                   <TableCell className="text-center text-gray-500">
                     {student.time}

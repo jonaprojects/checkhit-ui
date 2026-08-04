@@ -442,6 +442,34 @@
       "removeFile": "הסר קובץ",
       "submitting": "שולח ערעור...",
       "submitBtn": "הגש ערעור לבדיקה"
+    },
+    "calendar": {
+      "title": "לוח מועדי הגשה",
+      "today": "היום",
+      "month": "חודש",
+      "week": "שבוע",
+      "day": "יום",
+      "monthView": "חודשי",
+      "weekView": "שבועי",
+      "dayView": "יומי",
+      "view": "תצוגה",
+      "listView": "רשימה",
+      "calendarView": "לוח שנה",
+      "viewCalendar": "לוח שנה",
+      "noAssignmentsOnDay": "אין מטלות להגשה ביום זה",
+      "noAssignmentsInMonth": "אין מטלות להגשה בחודש זה",
+      "noAssignmentsInWeek": "אין מטלות להגשה בשבוע זה",
+      "moreAssignments": "עוד {{count}}",
+      "dueAt": "מועד הגשה:",
+      "course": "קורס:",
+      "status": "סטטוס:",
+      "openAssignment": "מעבר למטלה",
+      "submitAssignment": "הגשת מטלה",
+      "agendaTitle": "סדר יום למטלות",
+      "swipeHint": "החלק ימינה או שמאלה למעבר בין ימים",
+      "jumpToNextDeadline": "קפיצה למועד ההגשה הבא",
+      "fullscreen": "מסך מלא",
+      "exitFullscreen": "יציאה ממסך מלא"
     }
   }
 }

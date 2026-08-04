@@ -1,9 +1,10 @@
 import type { Route } from "./+types/lecturer.course";
 import MainLayout from "../components/MainLayout";
-import { Search, ChevronLeft, Plus, Users, FileText, BarChart3, Clock, AlertCircle, ChevronRight, MoreVertical, Edit2, Trash2 } from 'lucide-react';
+import { ChevronLeft, Plus, Users, FileText, BarChart3, Clock, AlertCircle, ChevronRight, MoreVertical, Edit2, Trash2 } from 'lucide-react';
 import { Card } from '../components/ui/Card';
 import { Button, LinkButton } from '../components/ui/Button';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../components/ui/Table';
+import { SearchBar } from '../components/ui/SearchBar';
 import { Link, useParams } from 'react-router';
 import { useTranslation } from 'react-i18next';
 
@@ -56,17 +57,16 @@ export default function LecturerCourseRoute() {
         </header>
 
         <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-          <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-            <h2 className="font-bold text-gray-800 flex items-center gap-2">
+          <div className="p-4 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/40">
+            <h2 className="font-bold text-gray-800 dark:text-white flex items-center gap-2">
               <FileText size={18} className="text-gray-400" />
               {t('course.courseAssignments')}
             </h2>
-            <div className="relative w-64">
-              <Search className={`absolute ${isEn ? 'left-3' : 'right-3'} top-1/2 -translate-y-1/2 text-gray-400`} size={16} />
-              <input 
-                type="text" 
-                placeholder={t('course.searchAssignment')} 
-                className={`w-full ${isEn ? 'pl-10 pr-4' : 'pl-4 pr-10'} py-1.5 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#00857e] transition-all bg-white`}
+            <div className="w-64">
+              <SearchBar
+                placeholder={t('course.searchAssignment')}
+                size="sm"
+                variant="default"
               />
             </div>
           </div>

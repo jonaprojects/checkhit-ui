@@ -1,6 +1,6 @@
 import type { Route } from "./+types/student.dashboard";
 import MainLayout from "../components/MainLayout";
-import { Clock, FileText, CheckCircle, AlertCircle, ArrowLeft, GraduationCap } from 'lucide-react';
+import { Clock, FileText, CheckCircle, AlertCircle, ArrowLeft, GraduationCap, Calendar as CalendarIcon } from 'lucide-react';
 import { Link } from 'react-router';
 import { StudentAssignmentCard } from '../components/StudentAssignmentCard';
 import { CourseCard } from '../components/CourseCard';
@@ -47,13 +47,22 @@ export default function StudentDashboardRoute() {
           
           {/* Upcoming Assignments */}
           <div className="md:col-span-2 bg-white rounded-xl border border-gray-200 p-4 sm:p-5 flex flex-col">
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex flex-wrap justify-between items-center gap-3 mb-6">
               <h2 className="text-2xl font-extrabold text-gray-900">
                 {t('dashboard.upcomingAssignments')}
               </h2>
-              <Link to="/student/assignments" className="text-[#00857e] font-bold flex items-center gap-2 hover:underline">
-                {t('dashboard.allAssignments')} {isEn ? <ArrowLeft size={18} className="rotate-180" /> : <ArrowLeft size={18} />}
-              </Link>
+              <div className="flex items-center gap-3">
+                <Link
+                  to="/student/assignments?view=calendar"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-teal-200 dark:border-teal-800/60 bg-teal-50 dark:bg-teal-950/40 text-[#00857e] dark:text-teal-300 hover:bg-teal-100/70 dark:hover:bg-teal-900/50 text-xs font-bold transition-colors shadow-2xs"
+                >
+                  <CalendarIcon size={14} />
+                  <span>{t('calendar.viewCalendar')}</span>
+                </Link>
+                <Link to="/student/assignments" className="text-[#00857e] font-bold text-sm flex items-center gap-1 hover:underline">
+                  {t('dashboard.allAssignments')} {isEn ? <ArrowLeft size={16} className="rotate-180" /> : <ArrowLeft size={16} />}
+                </Link>
+              </div>
             </div>
             <div className="space-y-4 flex-1">
               <StudentAssignmentCard
