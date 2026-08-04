@@ -7,6 +7,7 @@ export interface EnrichedStudentCourse extends Course {
   code: string;
   displayTitle: string;
   instructorName: string;
+  instructorId?: string;
   assignmentsCount: number;
   activeAssignments: number;
   accent: CourseAccent;
@@ -39,6 +40,14 @@ function getInstructorNames(course: Course): string {
     .join(', ');
 }
 
+function getInstructorId(course: Course): string | undefined {
+  if (!course.lecturers || course.lecturers.length === 0) {
+    return undefined;
+  }
+  const first = course.lecturers[0];
+  return first.lecturer?.userId || first.lecturerId || first.lecturer?.user?.id;
+}
+
 export function useStudentCourses() {
   const studentId = import.meta.env.VITE_STUDENT_ID;
 
@@ -64,6 +73,7 @@ export function useStudentCourses() {
 
           const { code, displayTitle } = extractCourseCode(course.name, idx);
           const instructorName = getInstructorNames(course);
+          const instructorId = getInstructorId(course);
           const activeAssignments = assignments.filter(
             (a) => a.status === 'PUBLISHED'
           ).length;
@@ -75,6 +85,7 @@ export function useStudentCourses() {
             code,
             displayTitle,
             instructorName,
+            instructorId,
             assignmentsCount: assignments.length,
             activeAssignments,
             accent,

@@ -132,3 +132,87 @@ export interface Notification {
   createdAt: string;
   updatedAt: string;
 }
+
+export type MessageTargetType = 'DIRECT' | 'BROADCAST' | 'SYSTEM' | 'ALL';
+export type MessageFolder = 'inbox' | 'sent' | 'archive';
+
+export interface MessageSender {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  avatarUrl?: string;
+}
+
+export interface MessageReply {
+  id: string;
+  messageId: string;
+  senderId: string;
+  sender: MessageSender;
+  content: string;
+  isMe?: boolean;
+  createdAt: string;
+}
+
+export interface MessageItem {
+  id: string;
+  senderId: string;
+  sender: MessageSender;
+  targetType: 'DIRECT' | 'BROADCAST' | 'SYSTEM';
+  courseId?: string | null;
+  courseCode?: string | null;
+  courseName?: string | null;
+  subject: string;
+  snippet: string;
+  content: string;
+  isPriority: boolean;
+  isRead: boolean;
+  readAt?: string | null;
+  isArchived?: boolean;
+  isSentByMe?: boolean;
+  recipientCount?: number;
+  readCount?: number;
+  repliesCount?: number;
+  recipient?: MessageSender;
+  replies?: MessageReply[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface GetMessagesParams {
+  userId?: string;
+  folder?: MessageFolder;
+  targetType?: MessageTargetType;
+  courseId?: string;
+  search?: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface MessagesListResponse {
+  messages: MessageItem[];
+  total: number;
+  unreadCount: number;
+  page?: number;
+  limit?: number;
+}
+
+export interface CreateMessageDto {
+  senderId?: string;
+  targetType: 'DIRECT' | 'BROADCAST' | 'SYSTEM';
+  courseId?: string;
+  recipientId?: string;
+  subject: string;
+  content: string;
+  isPriority?: boolean;
+}
+
+export interface CreateReplyDto {
+  senderId?: string;
+  content: string;
+}
+
+export interface UnreadMessagesCountResponse {
+  unreadCount: number;
+}
+

@@ -19,6 +19,15 @@
       "markAllRead": "Mark all as read",
       "viewAll": "View all notifications"
     },
+    "profileMenu": {
+      "syncedFromMoodle": "Synced via Moodle",
+      "studentRole": "Student",
+      "lecturerRole": "Lecturer",
+      "settings": "Settings & Preferences",
+      "help": "Help & Support",
+      "returnToMoodle": "Return to Moodle",
+      "userId": "User ID"
+    },
     "filterBar": {
       "search": "Search...",
       "filter": "Filter",
@@ -243,7 +252,11 @@
       "messageSentSuccess": "Message sent successfully!",
       "broadcastTag": "Broadcast",
       "directTag": "Direct",
-      "studentsCount": "{{count}} Students"
+      "studentsCount": "{{count}} Students",
+      "studentComposeSubtitle": "Send an inquiry or question to your course lecturer/teaching staff",
+      "studentSubjectPlaceholder": "e.g., Question regarding Homework 2 Question 4...",
+      "studentContentPlaceholder": "Describe your question or inquiry in detail...",
+      "inquiryToStaff": "Inquiry to Course Staff"
     },
     "help": {
       "title": "Help & Support",

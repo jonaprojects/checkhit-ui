@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { NotificationItem } from './ui/NotificationItem';
 import { UserAvatar } from './ui/UserAvatar';
+import { ProfileDropdown } from './ui/ProfileDropdown';
 import { useTranslation } from 'react-i18next';
 import { LanguageToggle } from './ui/LanguageToggle';
 import { 
@@ -23,11 +24,14 @@ import {
   useMarkNotificationAsRead, 
   useMarkAllNotificationsAsRead 
 } from '../hooks/useNotifications';
+import { useUnreadMessageCount } from '../hooks/useMessages';
 
 export default function MainLayout({ children, portalName = "פורטל סטודנטים", view }: any) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const notificationRef = useRef<HTMLDivElement>(null);
+  const profileRef = useRef<HTMLDivElement>(null);
   const { t, i18n } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
@@ -42,14 +46,18 @@ export default function MainLayout({ children, portalName = "פורטל סטוד
   // Live Notifications via TanStack Query
   const { data: notifications = [] } = useNotifications(userId, { limit: 5 }, isEn);
   const { data: unreadCount = 0 } = useUnreadNotificationCount(userId);
+  const { data: unreadMessagesCount = 0 } = useUnreadMessageCount(userId);
   const markAsReadMutation = useMarkNotificationAsRead(userId);
   const markAllAsReadMutation = useMarkAllNotificationsAsRead(userId);
 
-  // Click outside to close notifications
+  // Click outside to close notifications & profile dropdown
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) {
         setIsNotificationsOpen(false);
+      }
+      if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
+        setIsProfileOpen(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -70,20 +78,27 @@ export default function MainLayout({ children, portalName = "פורטל סטוד
     markAllAsReadMutation.mutate();
   };
 
-  const NavItem = ({ to, icon: Icon, label }: any) => {
+  const NavItem = ({ to, icon: Icon, label, badge }: { to: string; icon: any; label: string; badge?: number }) => {
     const isActive = currentPath === to || (to !== '/lecturer' && to !== '/student' && currentPath.startsWith(to));
     return (
       <Link 
         to={to} 
         onClick={() => setSidebarOpen(false)}
-        className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors border-s-4 ${
+        className={`flex items-center justify-between px-4 py-3 rounded-xl transition-colors border-s-4 ${
           isActive 
             ? 'bg-teal-50 text-[#00857e] font-bold border-[#00857e]' 
             : 'text-gray-600 hover:bg-gray-50 border-transparent hover:border-gray-300'
         }`}
       >
-        <Icon size={20} />
-        {label}
+        <div className="flex items-center gap-3">
+          <Icon size={20} />
+          <span>{label}</span>
+        </div>
+        {Boolean(badge && badge > 0) && (
+          <span className="min-w-[18px] h-[18px] px-1.5 bg-[#00857e] text-white text-[10px] font-bold flex items-center justify-center rounded-full">
+            {badge! > 99 ? '99+' : badge}
+          </span>
+        )}
       </Link>
     );
   };
@@ -120,7 +135,7 @@ export default function MainLayout({ children, portalName = "פורטל סטוד
               <NavItem to="/lecturer" icon={LayoutDashboard} label={t('nav.dashboard')} />
               <NavItem to="/lecturer/courses" icon={GraduationCap} label={t('nav.myCourses')} />
               <NavItem to="/lecturer/appeals" icon={FileWarning} label={t('nav.appeals')} />
-              <NavItem to="/lecturer/messages" icon={Mail} label={t('nav.messages')} />
+              <NavItem to="/lecturer/messages" icon={Mail} label={t('nav.messages')} badge={unreadMessagesCount} />
             </>
           ) : (
             <>
@@ -128,11 +143,11 @@ export default function MainLayout({ children, portalName = "פורטל סטוד
               <NavItem to="/student/courses" icon={GraduationCap} label={t('nav.myCourses')} />
               <NavItem to="/student/assignments" icon={FileText} label={t('nav.assignments')} />
               <NavItem to="/student/appeals" icon={FileWarning} label={t('nav.appeals')} />
-              <NavItem to="/student/messages" icon={Mail} label={t('nav.messages')} />
+              <NavItem to="/student/messages" icon={Mail} label={t('nav.messages')} badge={unreadMessagesCount} />
             </>
           )}
 
-          <NavItem to={view === 'lecturer' ? '/lecturer/notifications' : '/student/notifications'} icon={Bell} label={t('nav.notifications')} />
+          <NavItem to={view === 'lecturer' ? '/lecturer/notifications' : '/student/notifications'} icon={Bell} label={t('nav.notifications')} badge={unreadCount} />
           <NavItem to={view === 'lecturer' ? '/lecturer/settings' : '/student/settings'} icon={Settings} label={t('nav.settings')} />
           
         </nav>
@@ -163,7 +178,9 @@ export default function MainLayout({ children, portalName = "פורטל סטוד
              <Link to={view === 'lecturer' ? '/lecturer' : '/student'} className={!currentPath.includes('/messages') ? "text-[#00857e] font-bold border-b-2 border-[#00857e] pb-1" : "hover:text-gray-900 pb-1"}>{t('nav.home')}</Link>
              <Link to={view === 'lecturer' ? '/lecturer/messages' : '/student/messages'} className={currentPath.includes('/messages') ? "text-[#00857e] font-bold border-b-2 border-[#00857e] pb-1 relative" : "hover:text-gray-900 pb-1 relative"}>
                {t('nav.messages')}
-               <span className="absolute top-0 start-[-8px] w-2 h-2 bg-red-500 rounded-full"></span>
+               {unreadMessagesCount > 0 && (
+                 <span className="absolute top-0 start-[-8px] w-2 h-2 bg-[#00857e] rounded-full"></span>
+               )}
              </Link>
           </div>
 
@@ -171,7 +188,10 @@ export default function MainLayout({ children, portalName = "פורטל סטוד
             <div className="flex items-center gap-3 px-4 border-s border-gray-200">
               <div className="relative" ref={notificationRef}>
                 <button 
-                  onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+                  onClick={() => {
+                    setIsNotificationsOpen(!isNotificationsOpen);
+                    if (isProfileOpen) setIsProfileOpen(false);
+                  }}
                   className={`cursor-pointer text-gray-500 hover:text-gray-800 transition-colors relative p-2 rounded-xl flex items-center justify-center ${isNotificationsOpen ? 'bg-gray-100 text-gray-900' : ''}`}
                 >
                   <Bell size={22} />
@@ -234,10 +254,31 @@ export default function MainLayout({ children, portalName = "פורטל סטוד
               </Link>
             </div>
             <LanguageToggle />
-            <UserAvatar 
-              name={view === 'lecturer' ? "דן פלג" : "יונתן ישראלי"}
-              className="cursor-pointer transition ms-2" 
-            />
+            <div className="relative ms-2" ref={profileRef}>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsProfileOpen(!isProfileOpen);
+                  if (isNotificationsOpen) setIsNotificationsOpen(false);
+                }}
+                className={`p-0.5 rounded-full transition-all cursor-pointer focus:outline-none ${
+                  isProfileOpen ? 'ring-2 ring-[#00857e] ring-offset-2 dark:ring-offset-[#17211f]' : 'hover:opacity-90'
+                }`}
+                aria-expanded={isProfileOpen}
+                aria-label={t('profileMenu.settings')}
+              >
+                <UserAvatar 
+                  name={view === 'lecturer' ? (isEn ? "Dr. Dan Peleg" : "ד״ר דן פלג") : (isEn ? "Jonathan Israeli" : "יונתן ישראלי")}
+                  className="transition-transform" 
+                />
+              </button>
+
+              <ProfileDropdown
+                isOpen={isProfileOpen}
+                onClose={() => setIsProfileOpen(false)}
+                view={view}
+              />
+            </div>
           </div>
         </header>
 

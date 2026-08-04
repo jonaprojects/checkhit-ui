@@ -1,319 +1,59 @@
 import type { Route } from "./+types/lecturer.messages";
 import MainLayout from "../components/MainLayout";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   Search, 
   Mail, 
   MailOpen, 
+  User, 
   Clock, 
-  MoreVertical, 
   Archive, 
   Trash2, 
-  Reply, 
   Send, 
   Plus, 
-  Radio, 
-  Users, 
-  User, 
-  AlertCircle, 
-  CheckCircle2, 
   X, 
-  ArrowLeft, 
+  AlertCircle, 
+  Megaphone, 
+  Users, 
+  CheckCircle2, 
+  ArrowLeft,
   ArrowRight,
-  BookOpen,
-  Filter,
-  Check,
-  Megaphone,
-  Sparkles
+  Loader2,
 } from "lucide-react";
 import { useTranslation } from 'react-i18next';
+import { useLecturerCourses } from "../hooks/useLecturerCourses";
+import {
+  useMessages,
+  useMessageDetail,
+  useSendMessage,
+  useSendReply,
+  useMarkMessageAsRead,
+  useArchiveMessage,
+  useDeleteMessage,
+  formatMessageTime,
+} from "../hooks/useMessages";
+import type { MessageItem } from "../lib/api/types";
 
 export function meta({}: Route.MetaArgs) {
   return [
     { title: "הודעות מרצה | Check Hit" },
-    { name: "description", content: "ניהול הודעות ותפוצה לסגל" },
+    { name: "description", content: "ניהול הודעות ופרסום עדכונים לקורסים" },
   ];
 }
-
-interface MessageItem {
-  id: string;
-  sender: string;
-  senderRole?: string;
-  avatar?: string;
-  targetType: 'broadcast' | 'direct';
-  courseCode: string;
-  courseName: string;
-  recipientCount?: number;
-  readCount?: number;
-  recipientName?: string;
-  recipientEmail?: string;
-  subject: string;
-  snippet: string;
-  time: string;
-  date: string;
-  isRead: boolean;
-  isPriority?: boolean;
-  isSentByMe?: boolean;
-  content: string;
-  replies?: Array<{
-    id: string;
-    sender: string;
-    avatar?: string;
-    time: string;
-    content: string;
-    isMe: boolean;
-  }>;
-}
-
-const COURSES_DATA = [
-  { id: "cs101", code: "CS101", nameHe: "מבוא למדעי המחשב", nameEn: "Intro to Computer Science", studentCount: 84 },
-  { id: "cs202", code: "CS202", nameHe: "מבני נתונים ואלגוריתמים", nameEn: "Data Structures & Algorithms", studentCount: 62 },
-  { id: "cs303", code: "CS303", nameHe: "תכנות מונחה עצמים", nameEn: "Object Oriented Programming", studentCount: 45 },
-];
-
-const INITIAL_MESSAGES: { he: MessageItem[]; en: MessageItem[] } = {
-  he: [
-    {
-      id: "msg-1",
-      sender: "יוסי כהן (סטודנט)",
-      senderRole: "סטודנט • מבוא למדעי המחשב",
-      avatar: "https://i.pravatar.cc/150?img=11",
-      targetType: "direct",
-      courseCode: "CS101",
-      courseName: "מבוא למדעי המחשב",
-      subject: "שאלה לגבי פונקציה רקורסיבית במטלה 2",
-      snippet: "שלום ד\"ר פלג, רציתי לשאול לגבי תנאי העצירה בשאלה 3 האם מותר להניח שהקלט תמיד חיובי...",
-      time: "10:15",
-      date: "היום",
-      isRead: false,
-      isPriority: true,
-      content: `שלום ד"ר פלג,
-
-רציתי לשאול לגבי תנאי העצירה בשאלה 3 במטלה 2. 
-האם מותר להניח במבחני הקצה שהקלט תמיד יהיה מספר שלם חיובי או שעלינו לבדוק מקרים של קלט 0 ומספרים שליליים?
-
-בנוסף, האם מותר להשתמש בפונקציית עזר (helper function) נוספת?
-
-תודה רבה,
-יוסי כהן (ת.ז 318294821)`,
-      replies: []
-    },
-    {
-      id: "msg-2",
-      sender: "ד\"ר דן פלג (תפוצה)",
-      senderRole: "מרצה הקורס",
-      targetType: "broadcast",
-      courseCode: "CS101",
-      courseName: "מבוא למדעי המחשב",
-      recipientCount: 84,
-      readCount: 76,
-      isSentByMe: true,
-      subject: "הבהרה חשובה ודחיית מועד הגשה למטלה 3",
-      snippet: "סטודנטים יקרים, בעקבות שאלות רבות שעלו בנוגע לחלק ב' במטלה, עודכן קובץ ההנחיות...",
-      time: "אתמול",
-      date: "2 באוגוסט",
-      isRead: true,
-      isPriority: true,
-      content: `סטודנטים יקרים,
-
-בעקבות שאלות רבות שעלו בתרגול בנוגע לחלק ב' במטלה 3 (עצי חיפוש בינאריים), עודכן קובץ ההנחיות בפורטל הקורס עם דוגמאות הרצה נוספות.
-
-לבקשתכם, מועד ההגשה נדחה ב-48 שעות:
-📅 מועד הגשה חדש: יום חמישי, 06/08/2026 בשעה 23:59.
-
-שימו לב: המערכת האוטומטית תיסגר בדיוק בשעה זו ולא יתקבלו הגשות באיחור ללא אישור מראש.
-
-בהצלחה,
-ד"ר דן פלג`,
-      replies: []
-    },
-    {
-      id: "msg-3",
-      sender: "נועה לוי (סטודנטית)",
-      senderRole: "סטודנטית • מבני נתונים",
-      avatar: "https://i.pravatar.cc/150?img=47",
-      targetType: "direct",
-      courseCode: "CS202",
-      courseName: "מבני נתונים ואלגוריתמים",
-      subject: "בקשה להארכת מועד עקב שירות מילואים",
-      snippet: "שלום ד\"ר פלג, מצורף טופס 3010 עבור שירות מילואים פעיל של שבוע...",
-      time: "30 ביולי",
-      date: "30 ביולי",
-      isRead: true,
-      isPriority: false,
-      content: `שלום ד"ר פלג,
-
-חזרתי אתמול משבוע שירות מילואים פעיל. 
-אשמח לקבל הארכה של 4 ימים בהגשת תרגיל 2 במבני נתונים. 
-
-צירפתי את אישור השמ\"פ המאושר מהיחידה.
-
-בברכה,
-נועה לוי`,
-      replies: [
-        {
-          id: "rep-1",
-          sender: "ד\"ר דן פלג",
-          time: "30 ביולי, 16:40",
-          content: "שלום נועה, תודה על השירות. הבקשה מאושרת, מועד ההגשה עודכן במערכת ליום ראשון.",
-          isMe: true
-        }
-      ]
-    },
-    {
-      id: "msg-4",
-      sender: "ד\"ר דן פלג (תפוצה)",
-      senderRole: "מרצה הקורס",
-      targetType: "broadcast",
-      courseCode: "CS303",
-      courseName: "תכנות מונחה עצמים",
-      recipientCount: 45,
-      readCount: 41,
-      isSentByMe: true,
-      subject: "פרסום הנחיות לפרויקט הגמר בסמסטר",
-      snippet: "שלום לכולם, מסמך הדרישות לפרויקט הגמר ב-Java פורסם בלשונית המטלות...",
-      time: "24 ביולי",
-      date: "24 ביולי",
-      isRead: true,
-      isPriority: false,
-      content: `שלום לכולם,
-
-מסמך הדרישות והמחוון לפרויקט הגמר בקורס פורסם כעת בעמוד הקורס.
-חלוקה לצוותים (זוגות) תתבצע עד סוף השבוע הבא דרך הקישור שהועלה.
-
-נא לקרוא בעיון את דרישות ה-Design Patterns והבדיקות האוטומטיות.
-
-שבוע טוב,
-ד"ר דן פלג`,
-      replies: []
-    }
-  ],
-  en: [
-    {
-      id: "msg-1",
-      sender: "Yossi Cohen (Student)",
-      senderRole: "Student • Intro to Computer Science",
-      avatar: "https://i.pravatar.cc/150?img=11",
-      targetType: "direct",
-      courseCode: "CS101",
-      courseName: "Intro to Computer Science",
-      subject: "Question regarding recursive base case in Assignment 2",
-      snippet: "Hello Dr. Peleg, I wanted to ask regarding the base case in question 3 if we can assume input is always positive...",
-      time: "10:15",
-      date: "Today",
-      isRead: false,
-      isPriority: true,
-      content: `Hello Dr. Peleg,
-
-I wanted to ask regarding question 3 in Assignment 2 (Recursion).
-Can we assume in edge cases that the input is always a strictly positive integer, or should we handle 0 and negative inputs?
-
-Also, are we allowed to declare a separate private helper function?
-
-Thank you,
-Yossi Cohen (ID 318294821)`,
-      replies: []
-    },
-    {
-      id: "msg-2",
-      sender: "Dr. Dan Peleg (Broadcast)",
-      senderRole: "Course Lecturer",
-      targetType: "broadcast",
-      courseCode: "CS101",
-      courseName: "Intro to Computer Science",
-      recipientCount: 84,
-      readCount: 76,
-      isSentByMe: true,
-      subject: "Important Clarification & 48h Deadline Extension for Assignment 3",
-      snippet: "Dear students, following questions in class regarding Part B, the guidelines document was updated...",
-      time: "Yesterday",
-      date: "Aug 2",
-      isRead: true,
-      isPriority: true,
-      content: `Dear students,
-
-Following multiple inquiries regarding Part B in Assignment 3 (Binary Search Trees), the guidelines file has been updated with extra test cases.
-
-By popular request, the submission deadline is extended by 48 hours:
-📅 New Deadline: Thursday, 06/08/2026 at 23:59.
-
-Please note: The automated grading pipeline will close promptly at midnight.
-
-Best regards,
-Dr. Dan Peleg`,
-      replies: []
-    },
-    {
-      id: "msg-3",
-      sender: "Noa Levi (Student)",
-      senderRole: "Student • Data Structures",
-      avatar: "https://i.pravatar.cc/150?img=47",
-      targetType: "direct",
-      courseCode: "CS202",
-      courseName: "Data Structures & Algorithms",
-      subject: "Request for extension due to Reserve Military Service",
-      snippet: "Hello Dr. Peleg, attached is Form 3010 for 1 week of active duty military service...",
-      time: "Jul 30",
-      date: "Jul 30",
-      isRead: true,
-      isPriority: false,
-      content: `Hello Dr. Peleg,
-
-I returned yesterday from a week of active military reserve duty. 
-I would appreciate a 4-day extension for submitting Exercise 2 in Data Structures.
-
-I have attached my official service verification form.
-
-Warm regards,
-Noa Levi`,
-      replies: [
-        {
-          id: "rep-1",
-          sender: "Dr. Dan Peleg",
-          time: "Jul 30, 16:40",
-          content: "Hello Noa, thank you for your service. Your extension is approved and updated in the system until Sunday.",
-          isMe: true
-        }
-      ]
-    },
-    {
-      id: "msg-4",
-      sender: "Dr. Dan Peleg (Broadcast)",
-      senderRole: "Course Lecturer",
-      targetType: "broadcast",
-      courseCode: "CS303",
-      courseName: "Object Oriented Programming",
-      recipientCount: 45,
-      readCount: 41,
-      isSentByMe: true,
-      subject: "Final Term Project Guidelines & Team Registration",
-      snippet: "Hello everyone, the final Java project specification has been published on the course page...",
-      time: "Jul 24",
-      date: "Jul 24",
-      isRead: true,
-      isPriority: false,
-      content: `Hello everyone,
-
-The project rubric and specification for the final Java project have been published.
-Pair team registration should be completed by next week.
-
-Please review the Design Patterns requirements carefully.
-
-Best regards,
-Dr. Dan Peleg`,
-      replies: []
-    }
-  ]
-};
 
 export default function LecturerMessages() {
   const { t, i18n } = useTranslation();
   const isEn = i18n.language.startsWith('en');
-  const initialMessages = isEn ? INITIAL_MESSAGES.en : INITIAL_MESSAGES.he;
 
-  const [messages, setMessages] = useState<MessageItem[]>(initialMessages);
-  const [selectedMessageId, setSelectedMessageId] = useState<string | null>(initialMessages[0].id);
+  const lecturerId = import.meta.env.VITE_LECTURER_ID;
+
+  // Real Courses Data for compose modal
+  const { data: courses = [], isLoading: isCoursesLoading } = useLecturerCourses();
+
+  // State
+  const [selectedMessageId, setSelectedMessageId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState<'all' | 'broadcast' | 'direct' | 'sent'>('all');
   
   // Mobile drill-down view state
@@ -321,81 +61,95 @@ export default function LecturerMessages() {
 
   // Compose Modal State
   const [isComposeOpen, setIsComposeOpen] = useState(false);
-  const [selectedCourseId, setSelectedCourseId] = useState("cs101");
+  const [selectedCourseId, setSelectedCourseId] = useState<string>("");
   const [recipientMode, setRecipientMode] = useState<'broadcast' | 'individual'>('broadcast');
   const [studentInput, setStudentInput] = useState("");
   const [composeSubject, setComposeSubject] = useState("");
   const [composeContent, setComposeContent] = useState("");
   const [isHighPriority, setIsHighPriority] = useState(false);
-  const [isSending, setIsSending] = useState(false);
   const [showSentToast, setShowSentToast] = useState(false);
 
   // Reply State
   const [replyContent, setReplyContent] = useState("");
-  const [isReplying, setIsReplying] = useState(false);
 
-  const selectedCourse = COURSES_DATA.find(c => c.id === selectedCourseId) || COURSES_DATA[0];
+  // Debounce search
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
 
-  // Filtering
-  const filteredMessages = messages.filter((m) => {
-    // Filter tab
-    if (activeFilter === 'broadcast' && m.targetType !== 'broadcast') return false;
-    if (activeFilter === 'direct' && (m.targetType !== 'direct' || m.isSentByMe)) return false;
-    if (activeFilter === 'sent' && !m.isSentByMe) return false;
-
-    // Search query
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      const matchSubject = m.subject.toLowerCase().includes(q);
-      const matchSender = m.sender.toLowerCase().includes(q);
-      const matchCourse = m.courseName.toLowerCase().includes(q) || m.courseCode.toLowerCase().includes(q);
-      const matchContent = m.content.toLowerCase().includes(q);
-      return matchSubject || matchSender || matchCourse || matchContent;
+  // Set default course for compose modal
+  useEffect(() => {
+    if (!selectedCourseId && courses.length > 0) {
+      setSelectedCourseId(courses[0].id);
     }
-    return true;
+  }, [courses, selectedCourseId]);
+
+  // Messages Query
+  const folderParam = activeFilter === 'sent' ? 'sent' : 'inbox';
+  const targetTypeParam =
+    activeFilter === 'broadcast' ? 'BROADCAST' : activeFilter === 'direct' ? 'DIRECT' : undefined;
+
+  const {
+    data: messagesData,
+    isLoading: isListLoading,
+    isError: isListError,
+    refetch,
+  } = useMessages(lecturerId, {
+    folder: folderParam,
+    targetType: targetTypeParam,
+    search: debouncedSearch.trim() || undefined,
   });
 
-  const selectedMessage = messages.find(m => m.id === selectedMessageId);
+  const messages: MessageItem[] = messagesData?.messages || [];
 
-  const handleSelectMessage = (id: string) => {
-    setSelectedMessageId(id);
+  // Automatically select first message if none selected
+  useEffect(() => {
+    if (!selectedMessageId && messages.length > 0) {
+      setSelectedMessageId(messages[0].id);
+    }
+  }, [messages, selectedMessageId]);
+
+  // Message Detail Query
+  const {
+    data: messageDetail,
+  } = useMessageDetail(selectedMessageId, lecturerId);
+
+  // Mutations
+  const sendMessageMutation = useSendMessage(lecturerId);
+  const sendReplyMutation = useSendReply(lecturerId);
+  const markAsReadMutation = useMarkMessageAsRead(lecturerId);
+  const archiveMutation = useArchiveMessage(lecturerId);
+  const deleteMutation = useDeleteMessage(lecturerId);
+
+  const selectedMessage = messageDetail || messages.find((m) => m.id === selectedMessageId);
+  const selectedCourse = courses.find((c) => c.id === selectedCourseId) || courses[0];
+
+  const handleSelectMessage = (msg: MessageItem) => {
+    setSelectedMessageId(msg.id);
     setIsMobileDetailOpen(true);
-    // Mark as read
-    setMessages(msgs => msgs.map(m => m.id === id ? { ...m, isRead: true } : m));
+
+    if (!msg.isRead) {
+      markAsReadMutation.mutate({ messageId: msg.id, isRead: true });
+    }
   };
 
-  const handleSendMessage = (e: React.FormEvent) => {
+  const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!composeSubject.trim() || !composeContent.trim()) return;
+    if (!composeSubject.trim() || !composeContent.trim() || !selectedCourseId || sendMessageMutation.isPending) return;
 
-    setIsSending(true);
-
-    setTimeout(() => {
-      const courseName = isEn ? selectedCourse.nameEn : selectedCourse.nameHe;
-      const newMessage: MessageItem = {
-        id: `msg-user-${Date.now()}`,
-        sender: isEn ? "Dr. Dan Peleg (You)" : "ד\"ר דן פלג (אתה)",
-        senderRole: isEn ? "Course Lecturer" : "מרצה הקורס",
-        targetType: recipientMode === 'broadcast' ? 'broadcast' : 'direct',
-        courseCode: selectedCourse.code,
-        courseName: courseName,
-        recipientCount: recipientMode === 'broadcast' ? selectedCourse.studentCount : 1,
-        readCount: 0,
-        recipientName: recipientMode === 'individual' ? studentInput : undefined,
-        subject: composeSubject,
-        snippet: composeContent.substring(0, 100) + '...',
-        time: isEn ? "Just now" : "זה עתה",
-        date: isEn ? "Today" : "היום",
-        isRead: true,
+    try {
+      const created = await sendMessageMutation.mutateAsync({
+        courseId: selectedCourseId,
+        targetType: recipientMode === 'broadcast' ? 'BROADCAST' : 'DIRECT',
+        subject: composeSubject.trim(),
+        content: composeContent.trim(),
         isPriority: isHighPriority,
-        isSentByMe: true,
-        content: composeContent,
-        replies: []
-      };
+      });
 
-      setMessages([newMessage, ...messages]);
-      setSelectedMessageId(newMessage.id);
-      setIsSending(false);
+      setSelectedMessageId(created.id);
       setIsComposeOpen(false);
       setComposeSubject("");
       setComposeContent("");
@@ -403,41 +157,52 @@ export default function LecturerMessages() {
       setIsHighPriority(false);
       setShowSentToast(true);
       setTimeout(() => setShowSentToast(false), 4000);
-    }, 600);
-  };
-
-  const handleSendReply = () => {
-    if (!replyContent.trim() || !selectedMessage) return;
-    setIsReplying(true);
-
-    setTimeout(() => {
-      const updatedReplies = [
-        ...(selectedMessage.replies || []),
-        {
-          id: `rep-${Date.now()}`,
-          sender: isEn ? "Dr. Dan Peleg" : "ד\"ר דן פלג",
-          time: isEn ? "Just now" : "זה עתה",
-          content: replyContent,
-          isMe: true
-        }
-      ];
-
-      setMessages(msgs => msgs.map(m => m.id === selectedMessage.id ? { ...m, replies: updatedReplies } : m));
-      setReplyContent("");
-      setIsReplying(false);
-    }, 400);
-  };
-
-  const handleDelete = (id: string) => {
-    const nextMessages = messages.filter(m => m.id !== id);
-    setMessages(nextMessages);
-    if (selectedMessageId === id) {
-      setSelectedMessageId(nextMessages[0]?.id || null);
-      setIsMobileDetailOpen(false);
+    } catch (err) {
+      console.error("Failed to send message:", err);
     }
   };
 
-  const unreadDirectCount = messages.filter(m => !m.isRead && m.targetType === 'direct').length;
+  const handleSendReply = async () => {
+    if (!replyContent.trim() || !selectedMessage || sendReplyMutation.isPending) return;
+
+    try {
+      await sendReplyMutation.mutateAsync({
+        messageId: selectedMessage.id,
+        content: replyContent.trim(),
+      });
+      setReplyContent("");
+    } catch (err) {
+      console.error("Failed to send reply:", err);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteMutation.mutateAsync(id);
+      const remaining = messages.filter((m) => m.id !== id);
+      if (selectedMessageId === id) {
+        setSelectedMessageId(remaining[0]?.id || null);
+        setIsMobileDetailOpen(false);
+      }
+    } catch (err) {
+      console.error("Failed to delete message:", err);
+    }
+  };
+
+  const handleArchive = async (id: string) => {
+    try {
+      await archiveMutation.mutateAsync({ messageId: id, isArchived: true });
+      const remaining = messages.filter((m) => m.id !== id);
+      if (selectedMessageId === id) {
+        setSelectedMessageId(remaining[0]?.id || null);
+        setIsMobileDetailOpen(false);
+      }
+    } catch (err) {
+      console.error("Failed to archive message:", err);
+    }
+  };
+
+  const unreadDirectCount = messages.filter((m) => !m.isRead && m.targetType === 'DIRECT').length;
 
   return (
     <MainLayout portalName={isEn ? "Lecturer Portal" : "פורטל מרצים"} view="lecturer">
@@ -550,20 +315,49 @@ export default function LecturerMessages() {
 
             {/* Message List Items */}
             <div className="flex-1 overflow-y-auto divide-y divide-gray-100">
-              {filteredMessages.length === 0 ? (
+              {isListLoading ? (
+                <div className="p-6 space-y-4">
+                  {[1, 2, 3, 4].map((n) => (
+                    <div key={n} className="flex gap-3 animate-pulse">
+                      <div className="w-10 h-10 rounded-xl bg-gray-200 shrink-0"></div>
+                      <div className="flex-1 space-y-2">
+                        <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                        <div className="h-3 bg-gray-200 rounded w-3/4"></div>
+                        <div className="h-3 bg-gray-100 rounded w-full"></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : isListError ? (
+                <div className="p-8 text-center text-red-500 space-y-3">
+                  <AlertCircle className="mx-auto h-10 w-10 text-red-400" />
+                  <p className="text-sm font-medium">{isEn ? "Failed to load messages" : "טעינת ההודעות נכשלה"}</p>
+                  <button
+                    onClick={() => refetch()}
+                    className="px-3 py-1.5 bg-red-50 text-red-700 text-xs font-semibold rounded-lg hover:bg-red-100 transition-colors"
+                  >
+                    {isEn ? "Try Again" : "נסה שוב"}
+                  </button>
+                </div>
+              ) : messages.length === 0 ? (
                 <div className="p-10 text-center text-gray-400">
                   <Mail className="mx-auto h-12 w-12 text-gray-300 mb-3" />
                   <p className="text-sm font-medium">{t('messages.noMessagesFound')}</p>
                 </div>
               ) : (
-                filteredMessages.map((msg) => {
+                messages.map((msg) => {
                   const isSelected = selectedMessageId === msg.id;
-                  const isBroadcast = msg.targetType === 'broadcast';
+                  const isBroadcast = msg.targetType === 'BROADCAST';
+                  const formattedTime = formatMessageTime(msg.createdAt, isEn);
+                  const senderName = msg.sender?.name || (isEn ? "Sender" : "שולח");
+                  const avatarUrl =
+                    msg.sender?.avatarUrl ||
+                    `https://ui-avatars.com/api/?name=${encodeURIComponent(senderName)}&background=00857e&color=fff`;
 
                   return (
                     <button
                       key={msg.id}
-                      onClick={() => handleSelectMessage(msg.id)}
+                      onClick={() => handleSelectMessage(msg)}
                       className={`w-full text-start p-4 transition-all hover:bg-gray-100/70 flex items-start gap-3 relative cursor-pointer ${
                         isSelected 
                           ? 'bg-teal-50/70 border-s-4 border-[#00857e]' 
@@ -572,7 +366,7 @@ export default function LecturerMessages() {
                             : 'bg-teal-50/20'
                       }`}
                     >
-                      {/* Priority or Unread Dot */}
+                      {/* Unread Dot */}
                       {!msg.isRead && (
                         <span className={`absolute top-4 ${isEn ? 'right-4' : 'left-4'} w-2.5 h-2.5 bg-[#00857e] rounded-full shadow-xs`}></span>
                       )}
@@ -584,8 +378,8 @@ export default function LecturerMessages() {
                         </div>
                       ) : (
                         <img 
-                          src={msg.avatar || "https://ui-avatars.com/api/?name=User&background=00857e&color=fff"} 
-                          alt={msg.sender} 
+                          src={avatarUrl} 
+                          alt={senderName} 
                           className="w-10 h-10 rounded-xl border border-gray-200 shrink-0 object-cover mt-0.5" 
                         />
                       )}
@@ -593,17 +387,19 @@ export default function LecturerMessages() {
                       <div className="flex-1 min-w-0 pe-2">
                         <div className="flex items-center justify-between gap-2 mb-1">
                           <div className="flex items-center gap-2 truncate">
-                            <span className={`text-xs font-extrabold px-2 py-0.5 rounded-md ${
-                              isBroadcast ? 'bg-purple-50 text-purple-700 border border-purple-200' : 'bg-blue-50 text-blue-700 border border-blue-200'
-                            }`}>
-                              {msg.courseCode}
-                            </span>
+                            {msg.courseCode && (
+                              <span className={`text-xs font-extrabold px-2 py-0.5 rounded-md ${
+                                isBroadcast ? 'bg-purple-50 text-purple-700 border border-purple-200' : 'bg-blue-50 text-blue-700 border border-blue-200'
+                              }`}>
+                                {msg.courseCode}
+                              </span>
+                            )}
                             <h3 className={`text-sm truncate ${!msg.isRead ? 'font-black text-gray-900' : 'font-bold text-gray-800'}`}>
-                              {msg.sender}
+                              {senderName}
                             </h3>
                           </div>
                           <span className="text-[11px] text-gray-400 font-medium whitespace-nowrap shrink-0">
-                            {msg.time}
+                            {formattedTime.time || formattedTime.date}
                           </span>
                         </div>
 
@@ -613,11 +409,11 @@ export default function LecturerMessages() {
                         </h4>
 
                         <p className="text-xs text-gray-500 line-clamp-1">
-                          {msg.snippet}
+                          {msg.snippet || msg.content}
                         </p>
 
-                        {/* Broadcast read stats counter if sent by lecturer */}
-                        {isBroadcast && msg.recipientCount && (
+                        {/* Broadcast read stats counter */}
+                        {isBroadcast && msg.recipientCount !== undefined && msg.recipientCount > 0 && (
                           <div className="mt-2 flex items-center gap-1.5 text-[11px] text-purple-800 font-semibold bg-purple-50/80 px-2 py-0.5 rounded-md w-fit">
                             <Users size={12} />
                             <span>{t('messages.studentsCount', { count: msg.recipientCount })}</span>
@@ -657,27 +453,32 @@ export default function LecturerMessages() {
 
                     <div className="hidden md:flex items-center gap-2">
                       <span className={`px-2.5 py-1 rounded-lg text-xs font-bold ${
-                        selectedMessage.targetType === 'broadcast' 
+                        selectedMessage.targetType === 'BROADCAST' 
                           ? 'bg-purple-100 text-purple-800' 
                           : 'bg-teal-100 text-[#00857e]'
                       }`}>
-                        {selectedMessage.targetType === 'broadcast' ? t('messages.courseBroadcast') : t('messages.directInquiry')}
+                        {selectedMessage.targetType === 'BROADCAST' ? t('messages.courseBroadcast') : t('messages.directInquiry')}
                       </span>
-                      <span className="text-xs text-gray-500 font-medium">
-                        {selectedMessage.courseName} ({selectedMessage.courseCode})
-                      </span>
+                      {selectedMessage.courseName && (
+                        <span className="text-xs text-gray-500 font-medium">
+                          {selectedMessage.courseName} {selectedMessage.courseCode ? `(${selectedMessage.courseCode})` : ''}
+                        </span>
+                      )}
                     </div>
                   </div>
 
                   <div className="flex items-center gap-2">
                     <button 
                       onClick={() => handleDelete(selectedMessage.id)}
+                      disabled={deleteMutation.isPending}
                       className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors cursor-pointer" 
                       title={t('messages.delete')}
                     >
                       <Trash2 size={18} />
                     </button>
                     <button 
+                      onClick={() => handleArchive(selectedMessage.id)}
+                      disabled={archiveMutation.isPending}
                       className="p-2 text-gray-500 hover:text-gray-800 hover:bg-gray-100 rounded-xl transition-colors cursor-pointer" 
                       title={t('messages.archive')}
                     >
@@ -706,21 +507,26 @@ export default function LecturerMessages() {
                     {/* Sender Info Bar */}
                     <div className="flex items-center justify-between pb-5 border-b border-gray-100 gap-4">
                       <div className="flex items-center gap-3.5">
-                        {selectedMessage.targetType === 'broadcast' ? (
+                        {selectedMessage.targetType === 'BROADCAST' ? (
                           <div className="w-12 h-12 rounded-2xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-lg shadow-xs shrink-0">
                             <Megaphone size={22} />
                           </div>
                         ) : (
                           <img 
-                            src={selectedMessage.avatar || "https://ui-avatars.com/api/?name=User&background=00857e&color=fff"} 
-                            alt={selectedMessage.sender} 
+                            src={
+                              selectedMessage.sender?.avatarUrl ||
+                              `https://ui-avatars.com/api/?name=${encodeURIComponent(selectedMessage.sender?.name || 'User')}&background=00857e&color=fff`
+                            } 
+                            alt={selectedMessage.sender?.name || 'User'} 
                             className="w-12 h-12 rounded-2xl border border-gray-200 object-cover shadow-xs shrink-0" 
                           />
                         )}
                         <div>
-                          <div className="font-extrabold text-gray-900 text-base">{selectedMessage.sender}</div>
+                          <div className="font-extrabold text-gray-900 text-base">
+                            {selectedMessage.sender?.name || (isEn ? "Sender" : "שולח")}
+                          </div>
                           <div className="text-xs text-gray-500 mt-0.5">
-                            {selectedMessage.senderRole || selectedMessage.courseName}
+                            {selectedMessage.courseName || (selectedMessage.targetType === 'BROADCAST' ? t('messages.courseBroadcast') : t('messages.directInquiry'))}
                           </div>
                         </div>
                       </div>
@@ -728,14 +534,14 @@ export default function LecturerMessages() {
                       <div className="text-end text-xs text-gray-400 font-medium whitespace-nowrap shrink-0">
                         <div className="flex items-center gap-1.5 text-gray-500 font-semibold justify-end">
                           <Clock size={13} />
-                          <span>{selectedMessage.time}</span>
+                          <span>{formatMessageTime(selectedMessage.createdAt, isEn).time}</span>
                         </div>
-                        <span className="mt-0.5 block">{selectedMessage.date}</span>
+                        <span className="mt-0.5 block">{formatMessageTime(selectedMessage.createdAt, isEn).date}</span>
                       </div>
                     </div>
 
                     {/* Broadcast Reach Statistics Pill */}
-                    {selectedMessage.targetType === 'broadcast' && selectedMessage.recipientCount && (
+                    {selectedMessage.targetType === 'BROADCAST' && selectedMessage.recipientCount !== undefined && selectedMessage.recipientCount > 0 && (
                       <div className="p-4 bg-purple-50/70 border border-purple-100 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div className="flex items-center gap-3">
                           <div className="w-9 h-9 rounded-xl bg-purple-600 text-white flex items-center justify-center shrink-0">
@@ -743,7 +549,7 @@ export default function LecturerMessages() {
                           </div>
                           <div>
                             <div className="text-xs font-bold text-purple-900">
-                              {t('messages.broadcastAlert', { count: selectedMessage.recipientCount, course: selectedMessage.courseName })}
+                              {t('messages.broadcastAlert', { count: selectedMessage.recipientCount, course: selectedMessage.courseName || '' })}
                             </div>
                             <div className="text-xs text-purple-700 mt-0.5">
                               {t('messages.readBy', { count: selectedMessage.readCount || 0, total: selectedMessage.recipientCount })}
@@ -767,43 +573,64 @@ export default function LecturerMessages() {
                         <h4 className="text-xs font-black uppercase tracking-wider text-gray-400">
                           {isEn ? "Conversation History" : "היסטוריית שיחה"}
                         </h4>
-                        {selectedMessage.replies.map((rep) => (
-                          <div key={rep.id} className="p-4 rounded-2xl bg-teal-50/50 border border-teal-100/80 space-y-2">
-                            <div className="flex items-center justify-between text-xs">
-                              <span className="font-extrabold text-teal-900">{rep.sender}</span>
-                              <span className="text-teal-700 font-medium">{rep.time}</span>
+                        {selectedMessage.replies.map((rep) => {
+                          const isMyReply = rep.isMe || rep.senderId === lecturerId;
+                          const replyTime = formatMessageTime(rep.createdAt, isEn);
+
+                          return (
+                            <div
+                              key={rep.id}
+                              className={`p-4 rounded-2xl border space-y-2 ${
+                                isMyReply
+                                  ? 'bg-teal-50/50 border-teal-100/80 ms-6 sm:ms-12'
+                                  : 'bg-gray-50 border-gray-200 me-6 sm:me-12'
+                              }`}
+                            >
+                              <div className="flex items-center justify-between text-xs">
+                                <span className="font-extrabold text-teal-900">
+                                  {rep.sender?.name || (isMyReply ? (isEn ? "You" : "אתה") : (isEn ? "Student" : "סטודנט"))}
+                                </span>
+                                <span className="text-teal-700 font-medium">
+                                  {replyTime.time} {replyTime.date ? `• ${replyTime.date}` : ''}
+                                </span>
+                              </div>
+                              <p className="text-sm text-gray-800 leading-relaxed">{rep.content}</p>
                             </div>
-                            <p className="text-sm text-gray-800 leading-relaxed">{rep.content}</p>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     )}
 
-                    {/* Quick Reply Box for 1-on-1 */}
-                    {selectedMessage.targetType === 'direct' && (
-                      <div className="mt-8 pt-6 border-t border-gray-100">
-                        <div className="border border-gray-200 rounded-2xl p-4 bg-gray-50 focus-within:bg-white focus-within:border-[#00857e] focus-within:ring-2 focus-within:ring-[#00857e]/20 transition-all">
-                          <textarea
-                            rows={3}
-                            placeholder={t('messages.typeReply')}
-                            value={replyContent}
-                            onChange={(e) => setReplyContent(e.target.value)}
-                            className="w-full bg-transparent border-0 resize-none focus:outline-hidden text-sm text-gray-800 placeholder-gray-400"
-                          />
-                          <div className="flex justify-between items-center pt-2 border-t border-gray-100 mt-2">
-                            <span className="text-xs text-gray-400">{t('messages.replyTo')} {selectedMessage.sender}</span>
-                            <button
-                              onClick={handleSendReply}
-                              disabled={!replyContent.trim() || isReplying}
-                              className="inline-flex items-center gap-2 px-4 py-2 bg-[#00857e] hover:bg-[#00706a] text-white text-xs font-bold rounded-xl transition-all disabled:opacity-50 cursor-pointer shadow-xs"
-                            >
+                    {/* Quick Reply Box for Direct Message Thread */}
+                    <div className="mt-8 pt-6 border-t border-gray-100">
+                      <div className="border border-gray-200 rounded-2xl p-4 bg-gray-50 focus-within:bg-white focus-within:border-[#00857e] focus-within:ring-2 focus-within:ring-[#00857e]/20 transition-all">
+                        <textarea
+                          rows={3}
+                          placeholder={t('messages.typeReply')}
+                          value={replyContent}
+                          onChange={(e) => setReplyContent(e.target.value)}
+                          className="w-full bg-transparent border-0 resize-none focus:outline-hidden text-sm text-gray-800 placeholder-gray-400"
+                        />
+                        <div className="flex justify-between items-center pt-2 border-t border-gray-100 mt-2">
+                          <span className="text-xs text-gray-400">
+                            {t('messages.replyTo')} {selectedMessage.sender?.name || (isEn ? "Sender" : "השולח")}
+                          </span>
+                          <button
+                            onClick={handleSendReply}
+                            disabled={!replyContent.trim() || sendReplyMutation.isPending}
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-[#00857e] hover:bg-[#00706a] text-white text-xs font-bold rounded-xl transition-all disabled:opacity-50 cursor-pointer shadow-xs"
+                          >
+                            {sendReplyMutation.isPending ? (
+                              <Loader2 size={14} className="animate-spin" />
+                            ) : (
                               <Send size={14} />
-                              <span>{isReplying ? t('messages.sending') : t('messages.sendReply')}</span>
-                            </button>
-                          </div>
+                            )}
+                            <span>{sendReplyMutation.isPending ? t('messages.sending') : t('messages.sendReply')}</span>
+                          </button>
                         </div>
                       </div>
-                    )}
+                    </div>
+
                   </div>
                 </div>
               </>
@@ -850,31 +677,42 @@ export default function LecturerMessages() {
                   <label className="block text-xs font-extrabold text-gray-700 mb-1.5 uppercase tracking-wide">
                     {t('messages.selectCourse')} *
                   </label>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                    {COURSES_DATA.map((c) => {
-                      const isSelected = selectedCourseId === c.id;
-                      return (
-                        <button
-                          key={c.id}
-                          type="button"
-                          onClick={() => setSelectedCourseId(c.id)}
-                          className={`p-3 rounded-2xl border text-start transition-all cursor-pointer ${
-                            isSelected 
-                              ? 'border-[#00857e] bg-teal-50/70 ring-2 ring-[#00857e]/20' 
-                              : 'border-gray-200 hover:border-gray-300 bg-white'
-                          }`}
-                        >
-                          <span className="text-xs font-black text-teal-800">{c.code}</span>
-                          <p className="text-xs font-bold text-gray-800 truncate mt-0.5">
-                            {isEn ? c.nameEn : c.nameHe}
-                          </p>
-                          <span className="text-[11px] text-gray-400 block mt-1">
-                            {t('messages.studentsCount', { count: c.studentCount })}
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
+                  {isCoursesLoading ? (
+                    <div className="p-4 bg-gray-50 rounded-2xl flex items-center justify-center gap-2 text-xs text-gray-500">
+                      <Loader2 size={16} className="animate-spin text-[#00857e]" />
+                      <span>{isEn ? "Loading courses..." : "טוען קורסים..."}</span>
+                    </div>
+                  ) : courses.length === 0 ? (
+                    <div className="p-4 bg-yellow-50 text-yellow-800 rounded-2xl text-xs">
+                      {isEn ? "No courses found for this lecturer" : "לא נמצאו קורסים למרצה זה"}
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                      {courses.map((c) => {
+                        const isSelected = selectedCourseId === c.id;
+                        return (
+                          <button
+                            key={c.id}
+                            type="button"
+                            onClick={() => setSelectedCourseId(c.id)}
+                            className={`p-3 rounded-2xl border text-start transition-all cursor-pointer ${
+                              isSelected 
+                                ? 'border-[#00857e] bg-teal-50/70 ring-2 ring-[#00857e]/20' 
+                                : 'border-gray-200 hover:border-gray-300 bg-white'
+                            }`}
+                          >
+                            <span className="text-xs font-black text-teal-800">{c.code}</span>
+                            <p className="text-xs font-bold text-gray-800 truncate mt-0.5">
+                              {c.displayTitle || c.name}
+                            </p>
+                            <span className="text-[11px] text-gray-400 block mt-1">
+                              {t('messages.studentsCount', { count: c.studentsCount || 0 })}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
 
                 {/* Recipient Targeting Mode */}
@@ -902,7 +740,7 @@ export default function LecturerMessages() {
                           {t('messages.allStudentsInCourse')}
                         </span>
                         <span className="text-[11px] text-purple-700 font-semibold">
-                          {selectedCourse.studentCount} {isEn ? "students in" : "סטודנטים ב"}-{selectedCourse.code}
+                          {selectedCourse?.studentsCount || 0} {isEn ? "students in" : "סטודנטים ב"}-{selectedCourse?.code || ''}
                         </span>
                       </div>
                     </button>
@@ -1011,11 +849,15 @@ export default function LecturerMessages() {
                   </button>
                   <button
                     type="submit"
-                    disabled={isSending || !composeSubject.trim() || !composeContent.trim()}
+                    disabled={sendMessageMutation.isPending || !composeSubject.trim() || !composeContent.trim()}
                     className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#00857e] hover:bg-[#00706a] text-white font-black text-sm shadow-md hover:shadow-lg transition-all disabled:opacity-50 cursor-pointer"
                   >
-                    <Send size={16} />
-                    <span>{isSending ? t('messages.sending') : t('messages.send')}</span>
+                    {sendMessageMutation.isPending ? (
+                      <Loader2 size={16} className="animate-spin" />
+                    ) : (
+                      <Send size={16} />
+                    )}
+                    <span>{sendMessageMutation.isPending ? t('messages.sending') : t('messages.send')}</span>
                   </button>
                 </div>
               </form>

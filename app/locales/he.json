@@ -19,6 +19,15 @@
       "markAllRead": "סמן הכל כנקרא",
       "viewAll": "הצג את כל ההתראות"
     },
+    "profileMenu": {
+      "syncedFromMoodle": "מסונכרן מ-Moodle",
+      "studentRole": "סטודנט",
+      "lecturerRole": "מרצה",
+      "settings": "הגדרות והעדפות",
+      "help": "עזרה ותמיכה",
+      "returnToMoodle": "חזרה למודל",
+      "userId": "מספר זיהוי"
+    },
     "filterBar": {
       "search": "חיפוש...",
       "filter": "סינון",
@@ -243,7 +252,11 @@
       "messageSentSuccess": "ההודעה נשלחה בהצלחה!",
       "broadcastTag": "תפוצה",
       "directTag": "אישי",
-      "studentsCount": "{{count}} סטודנטים"
+      "studentsCount": "{{count}} סטודנטים",
+      "studentComposeSubtitle": "שליחת פנייה או שאלה למרצה/צוות ההוראה של הקורס",
+      "studentSubjectPlaceholder": "לדוגמה: שאלה בנוגע למטלה 2 שאלה 4...",
+      "studentContentPlaceholder": "תאר כאן את שאלתך או פנייתך בפירוט...",
+      "inquiryToStaff": "פנייה לצוות הקורס"
     },
     "help": {
       "title": "עזרה ותמיכה",
