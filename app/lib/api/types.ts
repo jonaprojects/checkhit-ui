@@ -238,3 +238,167 @@ export interface GetStudentAppealsParams {
   status?: string;
 }
 
+export type StudentAssignmentStatus =
+  | 'NOT_STARTED'
+  | 'DRAFT'
+  | 'SUBMITTED'
+  | 'GRADED'
+  | 'OVERDUE';
+
+export type EvaluationStatus =
+  | 'PENDING'
+  | 'PROCESSING'
+  | 'COMPLETED'
+  | 'FAILED';
+
+export type AppealStatus =
+  | 'SUBMITTED'
+  | 'UNDER_REVIEW'
+  | 'ACCEPTED'
+  | 'REJECTED'
+  | 'CANCELLED';
+
+export interface AssignmentCourse {
+  id: string;
+  name: string;
+  semester: string;
+  academicYear: number;
+}
+
+export interface SubmissionFile {
+  id: string;
+  name?: string;
+  filename?: string;
+  sizeBytes?: number;
+  fileSize?: number;
+  mimeType?: string;
+  downloadUrl?: string;
+  fileUrl?: string;
+}
+
+export interface AssignmentEvaluation {
+  id: string;
+  score: number | null;
+  maxScore: number;
+  feedback: string | null;
+  status: EvaluationStatus;
+  isFinal: boolean;
+  evaluatedAt: string | null;
+}
+
+export interface AssignmentSubmission {
+  id: string;
+  attemptNumber: number;
+  status: 'DRAFT' | 'SUBMITTED';
+  submittedAt: string | null;
+  files: SubmissionFile[];
+  evaluation: AssignmentEvaluation | null;
+}
+
+export interface AssignmentAppeal {
+  id: string;
+  status: AppealStatus;
+  reason: string;
+  resolution: string | null;
+  resolvedAt: string | null;
+  createdAt: string;
+}
+
+export interface StudentAssignmentDetailResponse {
+  id: string;
+  courseId: string;
+  name: string;
+  description: string;
+  type: string;
+  evaluationInstructions: string;
+  maxScore: number;
+  status: 'DRAFT' | 'PUBLISHED' | 'CLOSED';
+  startAt: string | null;
+  dueAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  course: AssignmentCourse;
+  studentStatus: StudentAssignmentStatus;
+  submission: AssignmentSubmission | null;
+  appeal: AssignmentAppeal | null;
+}
+
+export interface LecturerAppealStudent {
+  userId: string;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+  };
+}
+
+export interface LecturerAppealSubmissionAssignment {
+  id: string;
+  name: string;
+  maxScore: number;
+  courseId: string;
+  course: {
+    id: string;
+    name: string;
+    semester: string;
+    academicYear: number;
+  };
+}
+
+export interface LecturerAppealSubmission {
+  id: string;
+  attemptNumber: number;
+  status: string;
+  submittedAt: string;
+  assignment: LecturerAppealSubmissionAssignment;
+}
+
+export interface LecturerAppealReviewer {
+  userId: string;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+  };
+}
+
+export interface LecturerAppeal {
+  id: string;
+  submissionId: string;
+  evaluationId: string;
+  studentId: string;
+  reviewerId?: string | null;
+  reason: string;
+  status: AppealStatus | BackendAppealStatus;
+  resolution?: string | null;
+  resolvedAt?: string | null;
+  createdAt?: string;
+  student: LecturerAppealStudent;
+  submission: LecturerAppealSubmission;
+  evaluation: AssignmentEvaluation;
+  reviewer?: LecturerAppealReviewer | null;
+  files?: SubmissionFile[];
+}
+
+export interface LecturerAppealsStats {
+  pendingCount: number;
+  resolvedCount: number;
+  totalCount: number;
+}
+
+export interface GetLecturerAppealsParams {
+  status?: string;
+  courseId?: string;
+  search?: string;
+  limit?: number;
+}
+
+export interface ResolveAppealDto {
+  status: 'ACCEPTED' | 'REJECTED' | 'UNDER_REVIEW' | 'SUBMITTED' | string;
+  resolution: string;
+  reviewerId?: string;
+  newScore?: number;
+}
+

@@ -377,4 +377,51 @@ export function DashboardAppealsSkeleton() {
   );
 }
 
+/**
+ * Skeleton for Student Assignment Detail Page.
+ */
+export function AssignmentDetailSkeleton() {
+  return (
+    <div className="max-w-4xl mx-auto space-y-6 animate-pulse">
+      {/* Header/Breadcrumb */}
+      <div className="flex items-center gap-4 mb-8">
+        <Skeleton className="w-10 h-10 rounded-xl shrink-0" />
+        <div className="min-w-0 flex-1 space-y-2">
+          <Skeleton className="h-4 w-64 rounded" />
+          <Skeleton className="h-8 w-80 rounded-lg" />
+        </div>
+      </div>
+
+      <div className="bg-white dark:bg-[#17211f] rounded-xl border border-gray-200 dark:border-[#263330] overflow-hidden shadow-xs">
+        {/* Assignment Details Header */}
+        <div className="p-6 md:p-8 border-b border-gray-100 dark:border-gray-800 space-y-4">
+          <div className="flex justify-between items-start">
+            <Skeleton className="h-6 w-36 rounded" />
+            <Skeleton className="h-7 w-28 rounded-md" />
+          </div>
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-full rounded" />
+            <Skeleton className="h-4 w-5/6 rounded" />
+            <Skeleton className="h-4 w-3/4 rounded" />
+          </div>
+          <div className="flex flex-wrap gap-4 pt-2">
+            <Skeleton className="h-10 w-48 rounded-lg" />
+            <Skeleton className="h-10 w-40 rounded-lg" />
+          </div>
+        </div>
+
+        {/* State Placeholder Box */}
+        <div className="p-6 md:p-8 bg-gray-50/50 dark:bg-gray-900/30">
+          <div className="flex flex-col items-center justify-center p-12 border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-xl space-y-4">
+            <Skeleton className="w-16 h-16 rounded-full" />
+            <Skeleton className="h-6 w-48 rounded" />
+            <Skeleton className="h-4 w-72 rounded" />
+            <Skeleton className="h-10 w-36 rounded-lg" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 

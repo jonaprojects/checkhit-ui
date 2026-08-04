@@ -1,140 +1,259 @@
 import { useState, useRef } from 'react';
 import { Link } from 'react-router';
-import { UploadCloud, File, AlertCircle, Bot, CheckCircle2, ChevronLeft, ArrowRight, MessageSquare, Download, X } from 'lucide-react';
+import {
+  UploadCloud,
+  File as FileIcon,
+  AlertCircle,
+  Bot,
+  CheckCircle2,
+  ChevronLeft,
+  ArrowRight,
+  MessageSquare,
+  Download,
+  Clock,
+  Award,
+  Layers,
+  FileCheck,
+  Info,
+  ExternalLink,
+  ShieldCheck,
+  AlertTriangle,
+} from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { StatusBadge } from './ui/StatusBadge';
+import type { ProcessedStudentAssignmentDetail, ProcessedSubmissionFile } from '../hooks/useStudentAssignmentDetail';
+import type { AppealStatus } from '../lib/api/types';
 
-export default function StudentAssignmentDetail({ initialState = 'not-submitted' }) {
+interface StudentAssignmentDetailProps {
+  assignment: ProcessedStudentAssignmentDetail;
+  onRefetch?: () => void;
+}
+
+export default function StudentAssignmentDetail({ assignment }: StudentAssignmentDetailProps) {
   const { t, i18n } = useTranslation();
   const isEn = i18n.language.startsWith('en');
-  // 'not-submitted' | 'checking' | 'checked'
-  const [submissionState, setSubmissionState] = useState(initialState);
-  const [showDemoControl, setShowDemoControl] = useState(true);
-  
+
+  const {
+    id: assignmentId,
+    name,
+    course,
+    courseId,
+    description,
+    evaluationInstructions,
+    maxScore,
+    type: assignmentType,
+    formattedDueDate,
+    formattedStartDate,
+    isOverdue,
+    studentStatus,
+    submission,
+    appeal,
+  } = assignment;
+
+  // Local demo / interactive fallback state if student uploads on the client
+  const [localSubmissionFile, setLocalSubmissionFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [localSuccessSubmitted, setLocalSuccessSubmitted] = useState(false);
+
+  const isGraded = studentStatus === 'GRADED' && Boolean(submission?.evaluation);
+  const isSubmittedNotGraded =
+    localSuccessSubmitted ||
+    (studentStatus === 'SUBMITTED' && (!submission?.evaluation || submission.evaluation.status !== 'COMPLETED'));
+  const isNotSubmitted = !isGraded && !isSubmittedNotGraded;
+
+  // Map API status to StatusBadge status
+  const badgeStatus = isGraded
+    ? 'checked'
+    : isSubmittedNotGraded
+    ? 'checking'
+    : isOverdue
+    ? 'pending'
+    : 'pending';
+
   return (
-    <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in duration-500">
+    <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in duration-500 pb-16">
       {/* Header/Breadcrumb */}
-      <div className="flex items-center gap-4 mb-8">
-        <Link to="/student/assignments" className="w-10 h-10 flex items-center justify-center bg-white rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors">
-          <ArrowRight size={20} />
+      <div className="flex items-center gap-4 mb-6">
+        <Link
+          to="/student/assignments"
+          className="w-10 h-10 flex items-center justify-center bg-white dark:bg-[#17211f] rounded-xl border border-gray-200 dark:border-[#263330] text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors shadow-2xs shrink-0"
+          title={t('assignmentDetail.backToAssignments')}
+        >
+          {isEn ? <ArrowRight size={20} className="rotate-180" /> : <ArrowRight size={20} />}
         </Link>
         <div className="min-w-0 flex-1">
-          <div className="flex items-center text-sm text-gray-500 gap-2 mb-1 w-full max-w-full overflow-hidden">
-            <Link to="/student/courses" className="hover:text-gray-700 cursor-pointer whitespace-nowrap">{isEn ? 'Data Structures & Algorithms' : 'מבני נתונים ואלגוריתמים'}</Link>
+          <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 gap-2 mb-1 w-full max-w-full overflow-hidden">
+            <Link
+              to={`/student/courses/${course?.id || courseId}`}
+              className="hover:text-[#00857e] dark:hover:text-teal-300 transition-colors cursor-pointer whitespace-nowrap font-medium"
+            >
+              {course?.name || (isEn ? 'Course' : 'קורס')}
+            </Link>
             <ChevronLeft size={14} className={`shrink-0 ${isEn ? 'rotate-180' : ''}`} />
-            <span className="text-gray-800 font-medium truncate">{isEn ? 'Homework 3: Binary Search Trees' : 'תרגיל בית 3: עצי חיפוש בינאריים'}</span>
+            <span className="text-gray-800 dark:text-gray-200 font-semibold truncate">{name}</span>
           </div>
-          <h1 className="text-3xl font-extrabold text-gray-900">{isEn ? 'Homework 3: Binary Search Trees' : 'תרגיל בית 3: עצי חיפוש בינאריים'}</h1>
+          <div className="flex flex-wrap items-center gap-3">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white truncate">{name}</h1>
+            <StatusBadge type="assignment" status={badgeStatus} rounded="md" />
+          </div>
         </div>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        {/* Assignment Details */}
-        <div className="p-6 md:p-8 border-b border-gray-100">
-          <div className="flex justify-between items-start mb-4">
-            <h2 className="text-xl font-bold text-gray-900">{t('assignmentDetail.instructions')}</h2>
-            <span className="bg-red-50 text-red-600 px-3 py-1 rounded-md text-sm font-bold">{t('assignmentDetail.gradeWeight')}</span>
+      <div className="bg-white dark:bg-[#17211f] rounded-xl border border-gray-200 dark:border-[#263330] overflow-hidden shadow-xs">
+        {/* Assignment Details Header */}
+        <div className="p-6 md:p-8 border-b border-gray-100 dark:border-gray-800">
+          <div className="flex flex-wrap justify-between items-start gap-4 mb-4">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+              <Layers size={20} className="text-[#00857e] dark:text-teal-400" />
+              {t('assignmentDetail.instructions')}
+            </h2>
+            <div className="flex items-center gap-2">
+              {assignmentType && (
+                <span className="bg-teal-50 dark:bg-teal-950/50 text-[#00857e] dark:text-teal-300 border border-teal-200/70 dark:border-teal-800/60 px-3 py-1 rounded-md text-xs font-bold shadow-2xs">
+                  {assignmentType}
+                </span>
+              )}
+              {maxScore && (
+                <span className="bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 px-3 py-1 rounded-md text-xs font-bold shadow-2xs flex items-center gap-1.5">
+                  <Award size={14} className="text-amber-500" />
+                  {maxScore} {isEn ? 'pts' : 'נקודות'}
+                </span>
+              )}
+            </div>
           </div>
-          <p className="text-gray-600 leading-relaxed mb-6">
-            {isEn ? 'In this exercise you will implement a Binary Search Tree in Java, including insert, delete, and search operations. Please adhere to the required time complexity as learned in class. The code must be submitted in a PDF or Markdown file.' : 'בתרגיל זה תממשו עץ חיפוש בינארי ב-Java, הכולל פעולות הכנסה, מחיקה, וחיפוש. אנא הקפידו על סיבוכיות זמן הריצה הנדרשת כפי שלמדנו בכיתה. את הקוד יש להגיש בקובץ PDF או Markdown.'}
-          </p>
-          <div className="flex flex-wrap gap-4 text-sm">
-            <div className="bg-gray-50 text-gray-700 px-4 py-2 rounded-lg font-medium flex items-center gap-2 border border-gray-200">
-              <AlertCircle size={16} className="text-[#00857e]" /> {t('assignmentDetail.dueDate')} 25.10.2023, 23:59
+
+          {/* Description */}
+          <div className="text-gray-600 dark:text-gray-300 leading-relaxed mb-6 whitespace-pre-line text-sm sm:text-base">
+            {description || (isEn ? 'No instructions provided.' : 'לא הוזנו הנחיות למטלה זו.')}
+          </div>
+
+          {/* Evaluation Instructions / Rubric Note if exists */}
+          {evaluationInstructions && (
+            <div className="mb-6 p-4 rounded-xl bg-teal-50/50 dark:bg-teal-950/20 border border-teal-100 dark:border-teal-900/40">
+              <h3 className="text-sm font-bold text-[#00857e] dark:text-teal-300 mb-1 flex items-center gap-1.5">
+                <Info size={16} />
+                {t('assignmentDetail.evalInstructions')}
+              </h3>
+              <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                {evaluationInstructions}
+              </p>
             </div>
-            <div className="bg-gray-50 text-gray-700 px-4 py-2 rounded-lg font-medium flex items-center gap-2 border border-gray-200 cursor-pointer hover:bg-gray-100 transition">
-              <Download size={16} className="text-[#00857e]" /> {t('assignmentDetail.downloadHelper')}
+          )}
+
+          {/* Metadata Badges */}
+          <div className="flex flex-wrap gap-3 text-xs sm:text-sm">
+            <div
+              className={`px-4 py-2 rounded-lg font-medium flex items-center gap-2 border shadow-2xs ${
+                isOverdue && isNotSubmitted
+                  ? 'bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-300 border-red-200 dark:border-red-900/50'
+                  : 'bg-gray-50 dark:bg-gray-800/60 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700/60'
+              }`}
+            >
+              <Clock size={16} className={isOverdue && isNotSubmitted ? 'text-red-500' : 'text-[#00857e] dark:text-teal-400'} />
+              <span>
+                {t('assignmentDetail.dueDate')} {formattedDueDate}
+              </span>
+              {isOverdue && isNotSubmitted && (
+                <span className="text-xs font-bold bg-red-100 dark:bg-red-900/60 text-red-700 dark:text-red-300 px-1.5 py-0.5 rounded ms-1">
+                  {t('assignmentDetail.overdue')}
+                </span>
+              )}
             </div>
+
+            {formattedStartDate && (
+              <div className="bg-gray-50 dark:bg-gray-800/60 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg font-medium flex items-center gap-2 border border-gray-200 dark:border-gray-700/60 shadow-2xs">
+                <Clock size={16} className="text-gray-400" />
+                <span>
+                  {t('assignmentDetail.startDate')} {formattedStartDate}
+                </span>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* State-dependent UI */}
-        <div className="p-6 md:p-8 bg-gray-50/30">
-          {submissionState === 'not-submitted' && (
-            <NotSubmittedView onUpload={() => setSubmissionState('checking')} />
+        {/* State-dependent Dynamic UI */}
+        <div className="p-6 md:p-8 bg-gray-50/30 dark:bg-[#121c1a]/50">
+          {isGraded && submission && (
+            <GradedView
+              assignment={assignment}
+              submission={submission}
+              appeal={appeal}
+              isEn={isEn}
+              onReset={() => {
+                setLocalSuccessSubmitted(false);
+                setLocalSubmissionFile(null);
+              }}
+            />
           )}
-          {submissionState === 'checking' && (
-            <CheckingView onFinish={() => setSubmissionState('checked')} />
+
+          {isSubmittedNotGraded && (
+            <CheckingView
+              submission={submission}
+              localFile={localSubmissionFile}
+              isEn={isEn}
+              onSimulateGraded={() => setLocalSuccessSubmitted(false)}
+            />
           )}
-          {submissionState === 'checked' && (
-            <CheckedView onReset={() => setSubmissionState('not-submitted')} />
+
+          {isNotSubmitted && (
+            <NotSubmittedView
+              selectedFile={localSubmissionFile}
+              setSelectedFile={setLocalSubmissionFile}
+              isUploading={isUploading}
+              onSubmit={async () => {
+                setIsUploading(true);
+                await new Promise((resolve) => setTimeout(resolve, 800));
+                setIsUploading(false);
+                setLocalSuccessSubmitted(true);
+              }}
+              isOverdue={isOverdue}
+            />
           )}
         </div>
       </div>
-      
-      {/* State Switcher for Demo Purposes */}
-      {showDemoControl && (
-        <div className="fixed bottom-4 start-4 end-4 sm:end-auto bg-white p-4 rounded-xl shadow-lg border border-gray-200 flex flex-wrap gap-2 z-50 items-center max-w-full sm:max-w-none w-fit">
-          <span className="text-xs text-gray-500 font-bold self-center me-2 whitespace-nowrap">{t('assignmentDetail.demoControl')}</span>
-          <button onClick={() => setSubmissionState('not-submitted')} className={`text-xs px-3 py-1.5 rounded-md whitespace-nowrap ${submissionState==='not-submitted' ? 'bg-[#00857e] text-white' : 'bg-gray-100 hover:bg-gray-200'}`}>{t('assignmentDetail.noSubmission')}</button>
-          <button onClick={() => setSubmissionState('checking')} className={`text-xs px-3 py-1.5 rounded-md whitespace-nowrap ${submissionState==='checking' ? 'bg-[#E8B43F] text-white' : 'bg-gray-100 hover:bg-gray-200'}`}>{t('assignmentDetail.checking')}</button>
-          <button onClick={() => setSubmissionState('checked')} className={`text-xs px-3 py-1.5 rounded-md whitespace-nowrap ${submissionState==='checked' ? 'bg-[#00857e] text-white' : 'bg-gray-100 hover:bg-gray-200'}`}>{t('assignmentDetail.checked')}</button>
-          <div className="w-px h-6 bg-gray-200 mx-1 hidden sm:block"></div>
-          <button
-            onClick={() => setShowDemoControl(false)}
-            className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-1 rounded-md transition-colors shrink-0"
-            title="סגור חלונית הדגמה"
-          >
-            <X size={16} />
-          </button>
-        </div>
-      )}
     </div>
   );
 }
 
-function NotSubmittedView({ onUpload }: any) {
+/**
+ * 1. NOT SUBMITTED VIEW (Drag & Drop File Upload)
+ */
+interface NotSubmittedViewProps {
+  selectedFile: File | null;
+  setSelectedFile: (file: File | null) => void;
+  isUploading: boolean;
+  onSubmit: () => void;
+  isOverdue: boolean;
+}
+
+function NotSubmittedView({
+  selectedFile,
+  setSelectedFile,
+  isUploading,
+  onSubmit,
+  isOverdue,
+}: NotSubmittedViewProps) {
   const { t } = useTranslation();
   const [isDragging, setIsDragging] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileSelection = (file: any) => {
+  const handleFileSelection = (file?: File) => {
     if (file) {
       setSelectedFile(file);
     }
   };
 
-  const handleSubmit = async () => {
-    if (!selectedFile) return;
-    
-    setIsUploading(true);
-    
-    const formData = new FormData();
-    formData.append('file', selectedFile);
-    
-    try {
-      const response = await fetch('/exercises', {
-        method: 'POST',
-        body: formData,
-      });
-      
-      if (!response.ok) {
-         console.warn("Dummy endpoint returned an error, proceeding anyway.");
-      }
-      
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      onUpload();
-    } catch (error) {
-      console.error("Error uploading file:", error);
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      onUpload();
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
-  const onDragOver = (e: any) => {
+  const onDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(true);
   };
 
-  const onDragLeave = (e: any) => {
+  const onDragLeave = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
   };
 
-  const onDrop = (e: any) => {
+  const onDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
@@ -142,7 +261,7 @@ function NotSubmittedView({ onUpload }: any) {
     }
   };
 
-  const onFileInputChange = (e: any) => {
+  const onFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       handleFileSelection(e.target.files[0]);
     }
@@ -150,27 +269,38 @@ function NotSubmittedView({ onUpload }: any) {
 
   if (selectedFile) {
     return (
-      <div className="flex flex-col items-center justify-center p-8 border border-gray-200 rounded-xl bg-white shadow-sm max-w-lg mx-auto">
-        <div className="flex items-center gap-4 bg-gray-50 w-full p-4 rounded-lg border border-gray-100 mb-6">
-          <div className="w-12 h-12 bg-teal-50 text-[#00857e] rounded-full flex items-center justify-center shrink-0">
-            <File size={24} />
+      <div className="flex flex-col items-center justify-center p-8 border border-gray-200 dark:border-gray-800 rounded-xl bg-white dark:bg-[#17211f] shadow-sm max-w-lg mx-auto">
+        <div className="flex items-center gap-4 bg-gray-50 dark:bg-gray-800/60 w-full p-4 rounded-lg border border-gray-100 dark:border-gray-800 mb-6">
+          <div className="w-12 h-12 bg-teal-50 dark:bg-teal-950/60 text-[#00857e] dark:text-teal-300 rounded-full flex items-center justify-center shrink-0">
+            <FileIcon size={24} />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-bold text-gray-800 truncate text-start" dir="ltr">{selectedFile.name}</p>
-            <p className="text-sm text-gray-500 text-start">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</p>
+            <p className="font-bold text-gray-800 dark:text-gray-200 truncate text-start" dir="ltr">
+              {selectedFile.name}
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 text-start">
+              {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+            </p>
           </div>
-          <button 
+          <button
             onClick={() => setSelectedFile(null)}
-            className="text-sm text-red-500 hover:text-red-700 font-medium px-3 py-1.5 bg-red-50 hover:bg-red-100 rounded-md transition-colors whitespace-nowrap"
+            className="text-sm text-red-500 hover:text-red-700 dark:text-red-400 font-medium px-3 py-1.5 bg-red-50 dark:bg-red-950/50 hover:bg-red-100 dark:hover:bg-red-900/60 rounded-md transition-colors whitespace-nowrap cursor-pointer"
             disabled={isUploading}
           >
             {t('assignmentDetail.removeFile')}
           </button>
         </div>
-        
-        <button 
-          onClick={handleSubmit}
-          className="w-full bg-[#00857e] text-white px-8 py-3 rounded-lg font-bold shadow-sm hover:bg-teal-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+
+        {isOverdue && (
+          <div className="mb-4 flex items-center gap-2 text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 px-3 py-2 rounded-lg w-full">
+            <AlertTriangle size={16} className="shrink-0" />
+            <span>{t('assignmentDetail.overdueWarning')}</span>
+          </div>
+        )}
+
+        <button
+          onClick={onSubmit}
+          className="w-full bg-[#00857e] dark:bg-teal-600 text-white px-8 py-3 rounded-lg font-bold shadow-sm hover:bg-teal-700 dark:hover:bg-teal-500 transition-colors disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
           disabled={isUploading}
         >
           {isUploading ? t('assignmentDetail.uploading') : t('assignmentDetail.submit')}
@@ -180,150 +310,318 @@ function NotSubmittedView({ onUpload }: any) {
   }
 
   return (
-    <div 
-      className={`flex flex-col items-center justify-center p-12 border-2 border-dashed rounded-xl transition-colors cursor-pointer group ${isDragging ? 'border-[#00857e] bg-teal-50/50' : 'border-gray-300 bg-white hover:border-[#00857e] hover:bg-teal-50/50'}`}
+    <div
+      className={`flex flex-col items-center justify-center p-12 border-2 border-dashed rounded-xl transition-colors cursor-pointer group ${
+        isDragging
+          ? 'border-[#00857e] bg-teal-50/50 dark:bg-teal-950/20'
+          : 'border-gray-300 dark:border-gray-700 bg-white dark:bg-[#17211f] hover:border-[#00857e] dark:hover:border-teal-400 hover:bg-teal-50/40 dark:hover:bg-teal-950/10'
+      }`}
       onClick={() => fileInputRef.current?.click()}
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
       onDrop={onDrop}
     >
-      <input 
-        type="file" 
-        className="hidden" 
-        ref={fileInputRef} 
+      <input
+        type="file"
+        className="hidden"
+        ref={fileInputRef}
         onChange={onFileInputChange}
-        accept=".pdf,.md"
+        accept=".pdf,.md,.zip,.docx"
       />
-      <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 transition-colors ${isDragging ? 'bg-teal-100 text-[#00857e]' : 'bg-gray-50 group-hover:bg-teal-100 text-gray-400 group-hover:text-[#00857e]'}`}>
+      <div
+        className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 transition-colors ${
+          isDragging
+            ? 'bg-teal-100 text-[#00857e]'
+            : 'bg-gray-50 dark:bg-gray-800 group-hover:bg-teal-100 dark:group-hover:bg-teal-900/60 text-gray-400 dark:text-gray-400 group-hover:text-[#00857e] dark:group-hover:text-teal-300'
+        }`}
+      >
         <UploadCloud size={32} />
       </div>
-      <h3 className={`text-xl font-bold mb-2 transition-colors ${isDragging ? 'text-[#00857e]' : 'text-gray-800 group-hover:text-[#00857e]'}`}>{t('assignmentDetail.dragFiles')}</h3>
-      <p className="text-gray-500 text-sm text-center max-w-sm">
+      <h3
+        className={`text-xl font-bold mb-2 transition-colors ${
+          isDragging ? 'text-[#00857e] dark:text-teal-300' : 'text-gray-800 dark:text-gray-200 group-hover:text-[#00857e] dark:group-hover:text-teal-300'
+        }`}
+      >
+        {t('assignmentDetail.dragFiles')}
+      </h3>
+      <p className="text-gray-500 dark:text-gray-400 text-sm text-center max-w-sm">
         {t('assignmentDetail.fileRules')}
       </p>
-      <button 
-        className="mt-8 bg-[#00857e] text-white px-8 py-2.5 rounded-lg font-bold shadow-sm hover:bg-teal-700 transition-colors disabled:opacity-50"
-      >
+      <button className="mt-8 bg-[#00857e] dark:bg-teal-600 text-white px-8 py-2.5 rounded-lg font-bold shadow-sm hover:bg-teal-700 dark:hover:bg-teal-500 transition-colors disabled:opacity-50 cursor-pointer">
         {t('assignmentDetail.chooseFile')}
       </button>
     </div>
   );
 }
 
-function CheckingView({ onFinish }: { onFinish: () => void }) {
+/**
+ * 2. SUBMITTED / CHECKING VIEW (Awaiting grading or in processing)
+ */
+interface CheckingViewProps {
+  submission: ProcessedStudentAssignmentDetail['submission'];
+  localFile: File | null;
+  isEn: boolean;
+  onSimulateGraded?: () => void;
+}
+
+function CheckingView({ submission, localFile, isEn }: CheckingViewProps) {
   const { t } = useTranslation();
+
+  const files = submission?.files || [];
+  const submittedDate = submission?.formattedSubmittedAt;
+
   return (
-    <div className="flex flex-col items-center justify-center p-16 bg-white rounded-xl border border-[#E8B43F]/40 shadow-sm relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#E8B43F]/10 to-transparent animate-[pulse_2s_infinite]"></div>
-      
-      <div className="relative z-10 flex flex-col items-center">
-        <div className="relative">
-          <div className="absolute inset-0 rounded-full bg-[#E8B43F] opacity-30 animate-ping"></div>
-          <div className="w-24 h-24 bg-gradient-to-br from-[#E8B43F] to-yellow-600 text-white rounded-full flex items-center justify-center shadow-lg relative z-10">
-            <Bot size={48} className="animate-pulse" />
+    <div className="space-y-6">
+      <div className="flex flex-col items-center justify-center p-12 bg-white dark:bg-[#17211f] rounded-xl border border-[#E8B43F]/50 dark:border-amber-600/40 shadow-sm relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#E8B43F]/10 dark:via-amber-500/10 to-transparent animate-[pulse_2s_infinite]"></div>
+
+        <div className="relative z-10 flex flex-col items-center text-center">
+          <div className="relative">
+            <div className="absolute inset-0 rounded-full bg-[#E8B43F] opacity-30 animate-ping"></div>
+            <div className="w-20 h-20 bg-gradient-to-br from-[#E8B43F] to-amber-600 text-white rounded-full flex items-center justify-center shadow-lg relative z-10">
+              <Bot size={40} className="animate-pulse" />
+            </div>
+          </div>
+          <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-6 mb-2">
+            {t('assignmentDetail.aiChecking')}
+          </h3>
+          <p className="text-gray-500 dark:text-gray-400 max-w-md leading-relaxed text-sm">
+            {t('assignmentDetail.aiCheckingDesc')}
+          </p>
+
+          <div className="w-full max-w-xs bg-gray-100 dark:bg-gray-800 h-2 rounded-full mt-6 overflow-hidden">
+            <div className="bg-[#E8B43F] h-full w-2/3 rounded-full animate-pulse transition-all duration-1000"></div>
+          </div>
+
+          {submittedDate && (
+            <p className="text-xs text-gray-400 dark:text-gray-400 mt-4 flex items-center gap-1.5">
+              <Clock size={14} />
+              <span>
+                {t('assignmentDetail.submittedAt')} {submittedDate}
+              </span>
+            </p>
+          )}
+        </div>
+      </div>
+
+      {/* Submitted Files List */}
+      {(files.length > 0 || localFile) && (
+        <div className="bg-white dark:bg-[#17211f] rounded-xl p-6 border border-gray-200 dark:border-[#263330] shadow-xs">
+          <h4 className="font-bold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
+            <FileCheck size={18} className="text-[#00857e] dark:text-teal-400" />
+            {t('assignmentDetail.yourFiles')}
+          </h4>
+          <div className="space-y-3">
+            {files.map((file) => (
+              <div
+                key={file.id}
+                className="flex items-center justify-between p-3.5 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-100 dark:border-gray-800"
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-9 h-9 bg-teal-50 dark:bg-teal-950/60 text-[#00857e] dark:text-teal-300 rounded-lg flex items-center justify-center shrink-0">
+                    <FileIcon size={18} />
+                  </div>
+                  <div className="min-w-0 text-start">
+                    <p className="font-semibold text-sm text-gray-800 dark:text-gray-200 truncate" dir="ltr">
+                      {file.name}
+                    </p>
+                    <p className="text-xs text-gray-400">{file.formattedSize}</p>
+                  </div>
+                </div>
+                {file.downloadUrl && (
+                  <a
+                    href={file.downloadUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="p-2 text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
+                  >
+                    <Download size={16} />
+                  </a>
+                )}
+              </div>
+            ))}
+
+            {localFile && files.length === 0 && (
+              <div className="flex items-center justify-between p-3.5 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-100 dark:border-gray-800">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-9 h-9 bg-teal-50 dark:bg-teal-950/60 text-[#00857e] dark:text-teal-300 rounded-lg flex items-center justify-center shrink-0">
+                    <FileIcon size={18} />
+                  </div>
+                  <div className="min-w-0 text-start">
+                    <p className="font-semibold text-sm text-gray-800 dark:text-gray-200 truncate" dir="ltr">
+                      {localFile.name}
+                    </p>
+                    <p className="text-xs text-gray-400">{(localFile.size / 1024 / 1024).toFixed(2)} MB</p>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
-        <h3 className="text-2xl font-bold text-gray-900 mt-8 mb-3">{t('assignmentDetail.aiChecking')}</h3>
-        <p className="text-gray-500 text-center max-w-md leading-relaxed">
-          {t('assignmentDetail.aiCheckingDesc')}
-        </p>
-        
-        <div className="w-full max-w-sm bg-gray-100 h-2 rounded-full mt-8 overflow-hidden">
-          <div className="bg-[#E8B43F] h-full w-2/3 rounded-full animate-pulse transition-all duration-1000"></div>
-        </div>
-        
-        {/* Hidden button to simulate process finishing for the demo */}
-        <button onClick={onFinish} className="mt-8 text-xs text-gray-400 hover:text-gray-600 underline">{t('assignmentDetail.skipDemo')}</button>
-      </div>
+      )}
     </div>
   );
 }
 
-function CheckedView({ onReset }: { onReset: () => void }) {
-  const { t, i18n } = useTranslation();
-  const isEn = i18n.language.startsWith('en');
+/**
+ * 3. GRADED VIEW (Evaluation results, feedback, appeal status/trigger)
+ */
+interface GradedViewProps {
+  assignment: ProcessedStudentAssignmentDetail;
+  submission: NonNullable<ProcessedStudentAssignmentDetail['submission']>;
+  appeal: ProcessedStudentAssignmentDetail['appeal'];
+  isEn: boolean;
+  onReset: () => void;
+}
+
+function GradedView({ assignment, submission, appeal, isEn, onReset }: GradedViewProps) {
+  const { t } = useTranslation();
+  const evaluation = submission.evaluation;
+  const score = evaluation?.score ?? 0;
+  const maxScore = evaluation?.maxScore || assignment.maxScore || 100;
+  const files = submission.files || [];
+
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       {/* Grade Banner */}
-      <div className="bg-[#00857e] rounded-xl p-8 text-white shadow-lg flex flex-col sm:flex-row items-center justify-between gap-6 relative overflow-hidden">
+      <div className="bg-[#00857e] dark:bg-teal-900 rounded-xl p-6 sm:p-8 text-white shadow-md flex flex-col sm:flex-row items-center justify-between gap-6 relative overflow-hidden">
         {/* Decorative pattern */}
-        <div className="absolute top-0 end-0 opacity-10 pointer-events-none text-[150px] font-black leading-none -mt-4 -me-4">
-          95
+        <div className="absolute top-0 end-0 opacity-10 pointer-events-none text-[150px] font-black leading-none -mt-4 -me-4 select-none">
+          {score}
         </div>
+
         <div className="flex items-center gap-5 relative z-10">
-          <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm shadow-inner">
+          <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm shadow-inner shrink-0">
             <CheckCircle2 size={36} className="text-white" />
           </div>
           <div>
-            <h3 className="text-3xl font-extrabold mb-1">{t('assignmentDetail.checkedSuccessfully')}</h3>
-            <p className="text-teal-100 flex items-center gap-2 font-medium">
+            <h3 className="text-2xl sm:text-3xl font-extrabold mb-1">{t('assignmentDetail.checkedSuccessfully')}</h3>
+            <p className="text-teal-100 flex items-center gap-2 font-medium text-sm">
               <Bot size={18} />
               {t('assignmentDetail.aiEvalComplete')}
             </p>
+            {evaluation?.formattedEvaluatedAt && (
+              <p className="text-teal-200/80 text-xs mt-1">
+                {t('assignmentDetail.evaluatedAt')} {evaluation.formattedEvaluatedAt}
+              </p>
+            )}
           </div>
         </div>
-        <div className="text-center bg-white text-[#00857e] px-8 py-4 rounded-xl shadow-sm relative z-10">
-          <span className="block text-sm font-bold text-gray-500 mb-1">{t('assignmentDetail.finalGrade')}</span>
-          <span className="text-5xl font-black">95</span>
-          <span className="text-xl font-bold text-gray-400">/100</span>
+
+        <div className="text-center bg-white dark:bg-[#17211f] text-[#00857e] dark:text-teal-300 px-8 py-4 rounded-xl shadow-sm relative z-10 min-w-[140px]">
+          <span className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">
+            {t('assignmentDetail.finalGrade')}
+          </span>
+          <span className="text-4xl sm:text-5xl font-black text-gray-900 dark:text-white">{score}</span>
+          <span className="text-lg font-bold text-gray-400 ms-0.5">/{maxScore}</span>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Main Feedback */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
+        {/* Main Feedback Column */}
         <div className="lg:col-span-2 space-y-6">
-          <h3 className="text-2xl font-bold text-gray-900">{t('assignmentDetail.evalDetails')}</h3>
-          
-          <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm relative overflow-hidden">
-            <div className="absolute top-0 start-0 w-1 h-full bg-[#E8B43F]"></div>
-            <h4 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+          <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t('assignmentDetail.evalDetails')}</h3>
+
+          {/* Feedback Card */}
+          <div className="bg-white dark:bg-[#17211f] rounded-xl p-6 border border-gray-200 dark:border-[#263330] shadow-xs relative overflow-hidden">
+            <div className="absolute top-0 start-0 w-1.5 h-full bg-[#E8B43F]"></div>
+            <h4 className="text-lg font-bold text-gray-800 dark:text-gray-200 mb-4 flex items-center gap-2">
               <Bot className="text-[#E8B43F]" /> {t('assignmentDetail.aiFeedback')}
             </h4>
-            <div className="space-y-4">
-              <FeedbackItem type="positive" text={isEn ? "The insert function implementation is efficient and correct (O(log n) in average case)." : "מימוש פונקציית ה-insert יעיל ונכון (O(log n) במקרה הממוצע)."} />
-              <FeedbackItem type="positive" text={isEn ? "Correct edge case handling when deleting a node with two children (finding successor and replacing)." : "טיפול נכון במקרי קצה בעת מחיקת צומת בעל שני בנים (מציאת עוקב והחלפה)."} />
-              <FeedbackItem type="warning" text={isEn ? "The variable name `tmpNode` on line 45 does not indicate its role. It's recommended to use more meaningful names like `nodeToDelete`." : "שם המשתנה `tmpNode` בשורה 45 אינו מעיד על תפקידו. מומלץ להשתמש בשמות בעלי משמעות גבוהה יותר כמו `nodeToDelete`."} />
-              <FeedbackItem type="negative" text={isEn ? "Missing documentation (JavaDoc) in some public methods of the class. Documentation is part of the assignment requirements." : "חסר תיעוד (JavaDoc) בחלק מהמתודות הציבוריות של המחלקה. תיעוד הוא חלק מדרישות המטלה."} />
-            </div>
-          </div>
-          
-          <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
-            <h4 className="text-lg font-bold text-gray-800 mb-2">{t('assignmentDetail.lecturerNote')}</h4>
-            <p className="text-gray-600 bg-gray-50 p-4 rounded-lg italic">
-              {isEn ? '"Very nice work. Pay attention to the AI note regarding documentation next time."' : '"עבודה יפה מאוד. שימו לב להערת ה-AI בנושא התיעוד להבא."'}
-            </p>
+
+            {evaluation?.feedback ? (
+              <div className="text-gray-700 dark:text-gray-300 leading-relaxed text-sm sm:text-base whitespace-pre-line bg-gray-50/70 dark:bg-gray-800/40 p-4 rounded-xl border border-gray-100 dark:border-gray-800">
+                {evaluation.feedback}
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <FeedbackItem
+                  type="positive"
+                  text={
+                    isEn
+                      ? 'The implementation meets all core functional requirements and edge cases.'
+                      : 'המימוש עומד בכל דרישות הפונקציונליות ומקרי הקצה.'
+                  }
+                />
+                <FeedbackItem
+                  type="positive"
+                  text={
+                    isEn
+                      ? 'Clean code structure with appropriate naming conventions.'
+                      : 'מבנה קוד נקי ותקני עם שמות משתנים ברורים.'
+                  }
+                />
+              </div>
+            )}
           </div>
         </div>
 
         {/* Action Sidebar */}
-        <div className="space-y-4 pt-2">
-          <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm text-center">
-             <div className="w-12 h-12 bg-teal-50 text-[#00857e] rounded-full flex items-center justify-center mx-auto mb-4">
-               <File size={24} />
-             </div>
-             <h4 className="font-bold text-gray-800 mb-2">{t('assignmentDetail.yourFile')}</h4>
-             <p className="text-sm text-gray-500 mb-4" dir="ltr">
-               binary_tree_submission.zip (1.2 MB)
-             </p>
-             <button className="w-full bg-gray-50 text-gray-700 hover:bg-gray-100 px-4 py-2 rounded-lg font-medium transition-colors text-sm flex items-center justify-center gap-2">
-               <Download size={16} />
-               {t('assignmentDetail.download')}
-             </button>
+        <div className="space-y-4">
+          {/* Submission Files Card */}
+          <div className="bg-white dark:bg-[#17211f] rounded-xl p-5 border border-gray-200 dark:border-[#263330] shadow-xs text-start">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 bg-teal-50 dark:bg-teal-950/60 text-[#00857e] dark:text-teal-300 rounded-lg flex items-center justify-center shrink-0">
+                <FileIcon size={20} />
+              </div>
+              <div>
+                <h4 className="font-bold text-gray-800 dark:text-gray-200 text-sm">
+                  {t('assignmentDetail.yourFiles')}
+                </h4>
+                <p className="text-xs text-gray-400">
+                  {t('assignmentDetail.attempt')} #{submission.attemptNumber || 1}
+                </p>
+              </div>
+            </div>
+
+            {files.length > 0 ? (
+              <div className="space-y-2">
+                {files.map((file) => (
+                  <div
+                    key={file.id}
+                    className="p-2.5 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-100 dark:border-gray-800 flex items-center justify-between text-xs"
+                  >
+                    <span className="font-medium text-gray-700 dark:text-gray-300 truncate max-w-[140px]" dir="ltr">
+                      {file.name}
+                    </span>
+                    <span className="text-gray-400">{file.formattedSize}</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                {isEn ? 'Solution submitted' : 'ההגשה נקלטה במערכת'}
+              </p>
+            )}
           </div>
 
-          <div className="bg-teal-50 rounded-xl p-6 border border-teal-100">
-             <h4 className="font-bold text-gray-800 mb-2">{t('assignmentDetail.unfairGrade')}</h4>
-             <p className="text-sm text-gray-600 mb-4">
-               {t('assignmentDetail.appealDesc')}
-             </p>
-             <Link to="/student/appeal" className="w-full bg-white text-[#00857e] border-2 border-[#00857e] hover:bg-teal-50 px-4 py-2.5 rounded-lg font-bold transition-colors shadow-sm flex items-center justify-center gap-2">
-               <MessageSquare size={18} />
-               {t('assignmentDetail.submitAppeal')}
-             </Link>
-          </div>
-          
-          <button onClick={onReset} className="w-full text-center text-sm text-gray-400 hover:text-gray-600 py-2 transition-colors">
-             {t('assignmentDetail.resubmitPrac')}
+          {/* Appeal Status or Submit Appeal CTA */}
+          {appeal ? (
+            <AppealStatusCard appeal={appeal} isEn={isEn} />
+          ) : (
+            <div className="bg-teal-50/70 dark:bg-teal-950/30 rounded-xl p-5 border border-teal-100 dark:border-teal-900/40">
+              <h4 className="font-bold text-gray-800 dark:text-gray-200 text-sm mb-1.5 flex items-center gap-1.5">
+                <MessageSquare size={16} className="text-[#00857e] dark:text-teal-300" />
+                {t('assignmentDetail.unfairGrade')}
+              </h4>
+              <p className="text-xs text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
+                {t('assignmentDetail.appealDesc')}
+              </p>
+              <Link
+                to={`/student/assignments/${assignment.id}/appeal`}
+                className="w-full bg-white dark:bg-[#17211f] text-[#00857e] dark:text-teal-300 border-2 border-[#00857e] dark:border-teal-500 hover:bg-teal-50 dark:hover:bg-teal-950/50 px-4 py-2.5 rounded-lg font-bold text-sm transition-colors shadow-2xs flex items-center justify-center gap-2"
+              >
+                <MessageSquare size={16} />
+                {t('assignmentDetail.submitAppeal')}
+              </Link>
+            </div>
+          )}
+
+          <button
+            onClick={onReset}
+            className="w-full text-center text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 py-1.5 transition-colors cursor-pointer"
+          >
+            {t('assignmentDetail.resubmitPrac')}
           </button>
         </div>
       </div>
@@ -331,32 +629,107 @@ function CheckedView({ onReset }: { onReset: () => void }) {
   );
 }
 
+/**
+ * 4. APPEAL STATUS CARD (When student already appealed)
+ */
+function AppealStatusCard({
+  appeal,
+  isEn,
+}: {
+  appeal: NonNullable<ProcessedStudentAssignmentDetail['appeal']>;
+  isEn: boolean;
+}) {
+  const { t } = useTranslation();
+
+  const getStatusBadge = (status: AppealStatus) => {
+    switch (status) {
+      case 'ACCEPTED':
+        return {
+          bg: 'bg-green-50 dark:bg-green-950/40 border-green-200 dark:border-green-800/60',
+          text: 'text-green-800 dark:text-green-300',
+          title: t('assignmentDetail.appealAccepted'),
+          icon: <CheckCircle2 size={16} className="text-green-600" />,
+        };
+      case 'REJECTED':
+        return {
+          bg: 'bg-red-50 dark:bg-red-950/40 border-red-200 dark:border-red-800/60',
+          text: 'text-red-800 dark:text-red-300',
+          title: t('assignmentDetail.appealRejected'),
+          icon: <AlertCircle size={16} className="text-red-600" />,
+        };
+      case 'UNDER_REVIEW':
+      case 'SUBMITTED':
+      default:
+        return {
+          bg: 'bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800/60',
+          text: 'text-amber-800 dark:text-amber-300',
+          title: t('assignmentDetail.appealUnderReview'),
+          icon: <Clock size={16} className="text-amber-600" />,
+        };
+    }
+  };
+
+  const style = getStatusBadge(appeal.status);
+
+  return (
+    <div className={`rounded-xl p-5 border ${style.bg} space-y-3`}>
+      <div className="flex items-center justify-between">
+        <span className={`font-bold text-xs flex items-center gap-1.5 ${style.text}`}>
+          {style.icon}
+          {style.title}
+        </span>
+        {appeal.formattedCreatedAt && (
+          <span className="text-[11px] text-gray-500 dark:text-gray-400">{appeal.formattedCreatedAt}</span>
+        )}
+      </div>
+
+      {appeal.reason && (
+        <div className="bg-white/70 dark:bg-gray-800/60 p-3 rounded-lg border border-black/5 dark:border-white/5">
+          <p className="text-[11px] font-bold text-gray-500 dark:text-gray-400 mb-1">
+            {t('assignmentDetail.appealReason')}:
+          </p>
+          <p className="text-xs text-gray-800 dark:text-gray-200 leading-relaxed italic">"{appeal.reason}"</p>
+        </div>
+      )}
+
+      {appeal.resolution && (
+        <div className="bg-white/90 dark:bg-gray-800/90 p-3 rounded-lg border border-black/5 dark:border-white/5">
+          <p className="text-[11px] font-bold text-gray-500 dark:text-gray-400 mb-1">
+            {t('assignmentDetail.appealResolution')}:
+          </p>
+          <p className="text-xs text-gray-800 dark:text-gray-200 leading-relaxed">{appeal.resolution}</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function FeedbackItem({ type, text }: { type: 'positive' | 'warning' | 'negative'; text: string }) {
   const styles = {
     positive: {
-      bg: 'bg-green-50',
-      border: 'border-green-200',
-      text: 'text-green-800',
-      icon: <CheckCircle2 size={18} className="text-green-600 mt-0.5 shrink-0" />
+      bg: 'bg-green-50/80 dark:bg-green-950/30',
+      border: 'border-green-200/80 dark:border-green-900/50',
+      text: 'text-green-800 dark:text-green-300',
+      icon: <CheckCircle2 size={18} className="text-green-600 dark:text-green-400 mt-0.5 shrink-0" />,
     },
     warning: {
-      bg: 'bg-yellow-50',
-      border: 'border-yellow-200',
-      text: 'text-yellow-800',
-      icon: <AlertCircle size={18} className="text-yellow-600 mt-0.5 shrink-0" />
+      bg: 'bg-yellow-50/80 dark:bg-yellow-950/30',
+      border: 'border-yellow-200/80 dark:border-yellow-900/50',
+      text: 'text-yellow-800 dark:text-yellow-300',
+      icon: <AlertCircle size={18} className="text-yellow-600 dark:text-yellow-400 mt-0.5 shrink-0" />,
     },
     negative: {
-      bg: 'bg-red-50',
-      border: 'border-red-200',
-      text: 'text-red-800',
-      icon: <AlertCircle size={18} className="text-red-600 mt-0.5 shrink-0" />
+      bg: 'bg-red-50/80 dark:bg-red-950/30',
+      border: 'border-red-200/80 dark:border-red-900/50',
+      text: 'text-red-800 dark:text-red-300',
+      icon: <AlertCircle size={18} className="text-red-600 dark:text-red-400 mt-0.5 shrink-0" />,
     },
   };
-  
+
   const style = styles[type];
-  
+
   return (
-    <div className={`p-4 rounded-lg border ${style.bg} ${style.border} flex items-start gap-3`}>
+    <div className={`p-3.5 rounded-lg border ${style.bg} ${style.border} flex items-start gap-3`}>
       {style.icon}
       <p className={`text-sm font-medium ${style.text}`}>{text}</p>
     </div>

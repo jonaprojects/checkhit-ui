@@ -155,7 +155,7 @@ export default function StudentDashboardRoute() {
                     course={assignment.courseName}
                     dueDate={assignment.formattedDueDate}
                     actionText={assignment.uiStatus === 'pending' ? texts.toSubmit : texts.view}
-                    linkTo="/student/assignments"
+                    linkTo={`/student/assignments/${assignment.id}`}
                     statusBadge={<StatusBadge type="assignment" status={assignment.uiStatus} rounded="md" />}
                   />
                 ))
