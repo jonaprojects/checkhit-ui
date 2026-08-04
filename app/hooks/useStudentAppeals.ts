@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { getStudentAppeals } from '../lib/api/appeals';
-import type { Appeal, BackendAppealStatus } from '../lib/api/types';
+import type { Appeal, BackendAppealStatus, GetStudentAppealsParams } from '../lib/api/types';
 import type { AppealStatus } from '../components/ui/StatusBadge';
 
 export interface ProcessedStudentAppeal extends Appeal {
@@ -43,17 +43,23 @@ function formatDate(dateStr: string, isEn: boolean): string {
   }
 }
 
-export function useStudentAppeals(isEn: boolean = true) {
+export function useStudentAppeals(
+  optionsOrIsEn: boolean | GetStudentAppealsParams = {},
+  isEnParam: boolean = true
+) {
   const studentId = import.meta.env.VITE_STUDENT_ID;
+  const isBooleanArg = typeof optionsOrIsEn === 'boolean';
+  const isEn = isBooleanArg ? optionsOrIsEn : isEnParam;
+  const params: GetStudentAppealsParams = isBooleanArg ? {} : optionsOrIsEn;
 
   return useQuery({
-    queryKey: ['studentAppeals', studentId],
+    queryKey: ['studentAppeals', studentId, params],
     queryFn: async (): Promise<ProcessedStudentAppeal[]> => {
       if (!studentId) {
         throw new Error('VITE_STUDENT_ID is not configured in environment variables');
       }
 
-      const appeals = await getStudentAppeals(studentId);
+      const appeals = await getStudentAppeals(studentId, params);
 
       return appeals.map((appeal) => {
         const uiStatus = mapAppealStatus(appeal.status);

@@ -343,3 +343,38 @@ export function NotificationListSkeleton({ count = 4, variant = 'full' }: { coun
   );
 }
 
+/**
+ * Skeleton for Student Dashboard Recent Grades card items.
+ */
+export function DashboardRecentGradesSkeleton({ count = 2 }: { count?: number }) {
+  return (
+    <div className="space-y-4">
+      {Array.from({ length: count }).map((_, idx) => (
+        <div key={idx} className="flex justify-between items-center pb-3 border-b border-gray-50 dark:border-gray-800/50">
+          <div className="space-y-1.5 flex-1 me-4">
+            <Skeleton className="h-4 w-32 rounded" />
+            <Skeleton className="h-3 w-44 rounded" />
+          </div>
+          <Skeleton className="h-6 w-10 rounded font-extrabold" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/**
+ * Skeleton for Student Dashboard Appeals in Progress card.
+ */
+export function DashboardAppealsSkeleton() {
+  return (
+    <div className="p-4 bg-gray-50 dark:bg-gray-800/40 rounded-xl border border-gray-100 dark:border-gray-800 space-y-2.5">
+      <Skeleton className="h-4 w-40 rounded" />
+      <Skeleton className="h-3.5 w-28 rounded" />
+      <div className="pt-1">
+        <Skeleton className="h-6 w-28 rounded-md" />
+      </div>
+    </div>
+  );
+}
+
+

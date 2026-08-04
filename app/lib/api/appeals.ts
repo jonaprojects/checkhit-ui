@@ -1,5 +1,5 @@
 import { apiClient } from './client';
-import type { Appeal } from './types';
+import type { Appeal, GetStudentAppealsParams } from './types';
 
 export interface CreateAppealInput {
   submissionId: string;
@@ -10,8 +10,18 @@ export interface CreateAppealInput {
 /**
  * Fetch all appeals submitted by a specific student.
  */
-export async function getStudentAppeals(studentId: string): Promise<Appeal[]> {
-  return apiClient.get<Appeal[]>(`/students/${studentId}/appeals`);
+export async function getStudentAppeals(
+  studentId: string,
+  params: GetStudentAppealsParams = {}
+): Promise<Appeal[]> {
+  const query = new URLSearchParams();
+  if (params.limit) query.append('limit', String(params.limit));
+  if (params.status) query.append('status', params.status);
+
+  const queryString = query.toString();
+  return apiClient.get<Appeal[]>(
+    `/students/${studentId}/appeals${queryString ? `?${queryString}` : ''}`
+  );
 }
 
 /**

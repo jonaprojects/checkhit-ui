@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { getStudentCourses, getCourseAssignments } from '../lib/api/courses';
-import type { Course, Assignment } from '../lib/api/types';
+import { getStudentCourses, getStudentUrgentCourses, getCourseAssignments } from '../lib/api/courses';
+import type { Course, Assignment, GetStudentCoursesParams, UrgentCourse } from '../lib/api/types';
 import type { CourseAccent } from '../components/CourseCard';
 
 export interface EnrichedStudentCourse extends Course {
@@ -11,6 +11,7 @@ export interface EnrichedStudentCourse extends Course {
   assignmentsCount: number;
   activeAssignments: number;
   accent: CourseAccent;
+  nextDueAt?: string | null;
 }
 
 export const COURSE_ACCENTS: CourseAccent[] = [
@@ -48,18 +49,27 @@ function getInstructorId(course: Course): string | undefined {
   return first.lecturer?.userId || first.lecturerId || first.lecturer?.user?.id;
 }
 
-export function useStudentCourses() {
+export interface UseStudentCoursesOptions extends GetStudentCoursesParams {
+  urgent?: boolean;
+}
+
+export function useStudentCourses(options: UseStudentCoursesOptions = {}) {
   const studentId = import.meta.env.VITE_STUDENT_ID;
 
   return useQuery({
-    queryKey: ['studentCourses', studentId],
+    queryKey: ['studentCourses', studentId, options],
     queryFn: async (): Promise<EnrichedStudentCourse[]> => {
       if (!studentId) {
         throw new Error('VITE_STUDENT_ID is not configured in environment variables');
       }
 
-      // 1. Fetch all courses for the enrolled student
-      const rawCourses = await getStudentCourses(studentId);
+      // 1. Fetch raw courses (either urgent or standard enrolled)
+      let rawCourses: (Course | UrgentCourse)[] = [];
+      if (options.urgent) {
+        rawCourses = await getStudentUrgentCourses(studentId, { limit: options.limit });
+      } else {
+        rawCourses = await getStudentCourses(studentId, options);
+      }
 
       // 2. Fetch assignments for each course in parallel to get live counts
       const enrichedCourses = await Promise.all(
@@ -74,7 +84,7 @@ export function useStudentCourses() {
           const { code, displayTitle } = extractCourseCode(course.name, idx);
           const instructorName = getInstructorNames(course);
           const instructorId = getInstructorId(course);
-          const activeAssignments = assignments.filter(
+          const activeAssignments = (course as UrgentCourse).openAssignmentsCount ?? assignments.filter(
             (a) => a.status === 'PUBLISHED'
           ).length;
 
@@ -89,11 +99,13 @@ export function useStudentCourses() {
             assignmentsCount: assignments.length,
             activeAssignments,
             accent,
+            nextDueAt: (course as UrgentCourse).nextDueAt,
           };
         })
       );
 
       return enrichedCourses;
     },
+    enabled: Boolean(studentId),
   });
 }

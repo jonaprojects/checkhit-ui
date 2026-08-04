@@ -216,3 +216,25 @@ export interface UnreadMessagesCountResponse {
   unreadCount: number;
 }
 
+export interface GetStudentAssignmentsParams {
+  limit?: number;
+  status?: string;
+  upcoming?: boolean;
+  sort?: string;
+}
+
+export interface GetStudentCoursesParams {
+  limit?: number;
+  sortBy?: 'urgency' | 'name' | 'recent' | string;
+}
+
+export interface UrgentCourse extends Course {
+  openAssignmentsCount?: number;
+  nextDueAt?: string | null;
+}
+
+export interface GetStudentAppealsParams {
+  limit?: number;
+  status?: string;
+}
+

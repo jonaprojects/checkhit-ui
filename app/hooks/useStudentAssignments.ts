@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { getAllStudentAssignments } from '../lib/api/courses';
-import type { StudentAssignment, StudentTaskStatus } from '../lib/api/types';
+import type { StudentAssignment, StudentTaskStatus, GetStudentAssignmentsParams } from '../lib/api/types';
 import type { AssignmentStatus as UiAssignmentStatus } from '../components/ui/StatusBadge';
 
 export interface ProcessedStudentAssignment extends StudentAssignment {
@@ -51,17 +51,23 @@ function formatDueDate(dueAt?: string | null, isEn: boolean = true): { formatted
   }
 }
 
-export function useStudentAssignments(isEn: boolean = true) {
+export function useStudentAssignments(
+  optionsOrIsEn: boolean | GetStudentAssignmentsParams = {},
+  isEnParam: boolean = true
+) {
   const studentId = import.meta.env.VITE_STUDENT_ID;
+  const isBooleanArg = typeof optionsOrIsEn === 'boolean';
+  const isEn = isBooleanArg ? optionsOrIsEn : isEnParam;
+  const params: GetStudentAssignmentsParams = isBooleanArg ? {} : optionsOrIsEn;
 
   return useQuery({
-    queryKey: ['studentAssignments', studentId],
+    queryKey: ['studentAssignments', studentId, params],
     queryFn: async (): Promise<ProcessedStudentAssignment[]> => {
       if (!studentId) {
         throw new Error('VITE_STUDENT_ID is not configured in environment variables');
       }
 
-      const assignments = await getAllStudentAssignments(studentId);
+      const assignments = await getAllStudentAssignments(studentId, params);
 
       return assignments.map((assignment) => {
         const uiStatus = mapStatusToUi(assignment.studentStatus);
