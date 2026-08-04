@@ -203,11 +203,22 @@ export function AssignmentCardSkeleton() {
 /**
  * Stack of AssignmentCard skeletons.
  */
-export function AssignmentListSkeleton({ count = 4 }: { count?: number }) {
+export function AssignmentListSkeleton({
+  count = 4,
+  responsiveLimit,
+}: {
+  count?: number;
+  responsiveLimit?: number;
+}) {
   return (
     <div className="space-y-4">
       {Array.from({ length: count }).map((_, idx) => (
-        <AssignmentCardSkeleton key={idx} />
+        <div
+          key={idx}
+          className={responsiveLimit && idx >= responsiveLimit ? 'hidden md:block' : 'block'}
+        >
+          <AssignmentCardSkeleton />
+        </div>
       ))}
     </div>
   );
@@ -419,6 +430,86 @@ export function AssignmentDetailSkeleton() {
             <Skeleton className="h-10 w-36 rounded-lg" />
           </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Skeleton for Lecturer Dashboard Metric Card.
+ */
+export function LecturerMetricSkeleton() {
+  return (
+    <div className="bg-white dark:bg-[#17211f] rounded-2xl border border-gray-200/80 dark:border-[#263330] p-4 sm:p-5 flex flex-col justify-between">
+      <div className="flex items-center justify-between mb-3">
+        <Skeleton className="w-10 h-10 rounded-xl" />
+        <Skeleton className="w-12 h-5 rounded-md" />
+      </div>
+      <div className="space-y-1.5">
+        <Skeleton className="h-7 w-16 rounded-md" />
+        <Skeleton className="h-4 w-28 rounded" />
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Skeleton for Requires Attention Strip.
+ */
+export function RequiresAttentionStripSkeleton() {
+  return (
+    <div className="bg-white dark:bg-[#17211f] rounded-2xl border border-amber-200/70 dark:border-amber-900/50 p-6 shadow-xs">
+      <div className="flex justify-between items-center mb-5 border-b border-gray-100 dark:border-gray-800 pb-4">
+        <div className="flex items-center gap-2.5">
+          <Skeleton className="w-9 h-9 rounded-xl" />
+          <Skeleton className="h-6 w-44 rounded-md" />
+        </div>
+        <Skeleton className="h-5 w-24 rounded-full" />
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="p-4 rounded-xl border border-gray-100 dark:border-gray-800/80 space-y-3">
+            <div className="flex items-center gap-2.5">
+              <Skeleton className="w-8 h-8 rounded-lg shrink-0" />
+              <Skeleton className="h-5 w-3/4 rounded" />
+            </div>
+            <Skeleton className="h-4 w-1/2 rounded" />
+            <Skeleton className="h-4 w-24 rounded pt-2" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Skeleton for Dashboard Analytics Charts.
+ */
+export function DashboardChartSkeleton() {
+  return (
+    <div className="bg-white dark:bg-[#17211f] rounded-2xl border border-gray-200 dark:border-[#263330] p-6 flex flex-col justify-between shadow-xs">
+      <div>
+        <div className="flex items-center gap-2.5 mb-4">
+          <Skeleton className="w-9 h-9 rounded-xl shrink-0" />
+          <div className="space-y-1.5 flex-1">
+            <Skeleton className="h-5 w-44 rounded-md" />
+            <Skeleton className="h-3 w-64 rounded" />
+          </div>
+        </div>
+        <Skeleton className="h-9 w-full rounded-xl mb-5" />
+        <div className="flex items-center gap-6 mb-6">
+          <Skeleton className="h-4 w-20 rounded" />
+          <Skeleton className="h-4 w-20 rounded" />
+          <Skeleton className="h-4 w-20 rounded" />
+        </div>
+      </div>
+      <div className="h-56 flex items-end justify-between gap-3 px-4 pt-8">
+        {[40, 65, 85, 95, 70, 50].map((h, idx) => (
+          <div key={idx} className="flex-1 flex flex-col items-center gap-2 h-full justify-end">
+            <Skeleton className="w-full rounded-t-lg" style={{ height: `${h}%` }} />
+            <Skeleton className="h-3 w-8 rounded" />
+          </div>
+        ))}
       </div>
     </div>
   );

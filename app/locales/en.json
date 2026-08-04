@@ -175,7 +175,9 @@
       "assignmentsOverview": "Assignments Overview",
       "assignmentsProgress": "Track the progress of AI checking",
       "allAssignments": "All Assignments",
-      "activeAssignments": "Active Assignments"
+      "activeAssignments": "Active Assignments",
+      "expandView": "Full View",
+      "closeExpanded": "Close Full View"
     },
     "courses": {
       "myCourses": "My Courses",

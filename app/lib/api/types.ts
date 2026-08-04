@@ -402,3 +402,73 @@ export interface ResolveAppealDto {
   newScore?: number;
 }
 
+export interface LecturerDashboardKPIs {
+  activeCourses: number;
+  pendingAppeals: number;
+  readyToPublish: number;
+  averageScore: number;
+}
+
+export interface RequiresAttentionItem {
+  id: string;
+  type: 'appeal' | 'ai-grading' | 'deadline' | string;
+  title: string;
+  subtitle: string;
+  actionText: string;
+  actionHref: string;
+  accentColor: 'rose' | 'teal' | 'amber' | 'indigo' | string;
+}
+
+export interface GradeDistributionBucket {
+  rangeKey: string;
+  label: string;
+  count: number;
+  color?: string;
+  darkColor?: string;
+}
+
+export interface CourseGradeStats {
+  courseId: string;
+  code?: string;
+  courseName: string;
+  average: number;
+  median: number;
+  passRate: number;
+  totalStudents: number;
+  data: GradeDistributionBucket[];
+}
+
+export interface LecturerGradeDistribution {
+  all: CourseGradeStats;
+  byCourse: CourseGradeStats[];
+}
+
+export interface AssignmentCompletionItem {
+  assignmentId: string;
+  name: string;
+  code: string;
+  graded: number;
+  aiChecking: number;
+  submitted: number;
+  missing: number;
+  total: number;
+}
+
+export interface LecturerDashboardRecentCourse {
+  id: string;
+  name: string;
+  code: string;
+  studentsCount: number;
+  activeAssignments: number;
+  academicYear: number;
+  semester: string;
+}
+
+export interface LecturerDashboardData {
+  kpis: LecturerDashboardKPIs;
+  requiresAttention: RequiresAttentionItem[];
+  gradeDistribution: LecturerGradeDistribution;
+  assignmentCompletion: AssignmentCompletionItem[];
+  recentCourses: LecturerDashboardRecentCourse[];
+}
+

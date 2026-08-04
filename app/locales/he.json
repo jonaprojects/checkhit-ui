@@ -175,7 +175,9 @@
       "assignmentsOverview": "סטטוס בדיקות",
       "assignmentsProgress": "מעקב אחר התקדמות הבדיקה",
       "allAssignments": "לכל המטלות",
-      "activeAssignments": "מטלות פעילות"
+      "activeAssignments": "מטלות פעילות",
+      "expandView": "תצוגה מורחבת",
+      "closeExpanded": "סגור תצוגה מורחבת"
     },
     "courses": {
       "myCourses": "הקורסים שלי",

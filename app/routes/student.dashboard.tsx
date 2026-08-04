@@ -82,7 +82,7 @@ export default function StudentDashboardRoute() {
   const {
     data: upcomingAssignments = [],
     isLoading: isLoadingAssignments,
-  } = useStudentAssignments({ upcoming: true, limit: 3 }, isEn);
+  } = useStudentAssignments({ upcoming: true, limit: 4 }, isEn);
 
   // 2. Fetch recent grades
   const {
@@ -140,7 +140,7 @@ export default function StudentDashboardRoute() {
 
             <div className="space-y-4 flex-1 flex flex-col justify-start">
               {isLoadingAssignments ? (
-                <AssignmentListSkeleton count={2} />
+                <AssignmentListSkeleton count={4} responsiveLimit={3} />
               ) : upcomingAssignments.length === 0 ? (
                 <div className="p-8 text-center bg-gray-50/50 dark:bg-gray-800/30 rounded-xl border border-dashed border-gray-200 dark:border-gray-800 flex flex-col items-center justify-center my-auto">
                   <CheckCircle2 className="w-10 h-10 text-emerald-500 mb-2.5 stroke-[1.5]" />
@@ -148,19 +148,39 @@ export default function StudentDashboardRoute() {
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 max-w-sm">{texts.allCaughtUp}</p>
                 </div>
               ) : (
-                upcomingAssignments.map((assignment) => (
-                  <StudentAssignmentCard
+                upcomingAssignments.map((assignment, index) => (
+                  <div
                     key={assignment.id}
-                    title={assignment.name}
-                    course={assignment.courseName}
-                    dueDate={assignment.formattedDueDate}
-                    actionText={assignment.uiStatus === 'pending' ? texts.toSubmit : texts.view}
-                    linkTo={`/student/assignments/${assignment.id}`}
-                    statusBadge={<StatusBadge type="assignment" status={assignment.uiStatus} rounded="md" />}
-                  />
+                    className={index >= 3 ? 'hidden md:block' : 'block'}
+                  >
+                    <StudentAssignmentCard
+                      title={assignment.name}
+                      course={assignment.courseName}
+                      dueDate={assignment.formattedDueDate}
+                      actionText={assignment.uiStatus === 'pending' ? texts.toSubmit : texts.view}
+                      linkTo={`/student/assignments/${assignment.id}`}
+                    />
+                  </div>
                 ))
               )}
             </div>
+
+            {upcomingAssignments.length > 0 && !isLoadingAssignments && (
+              <div className="mt-auto pt-4 border-t border-gray-100 dark:border-[#263330] flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                <span className="font-medium">
+                  {isEn
+                    ? `Showing ${upcomingAssignments.length} upcoming assignments`
+                    : `מציג ${upcomingAssignments.length} מטלות קרובות להגשה`}
+                </span>
+                <Link
+                  to="/student/assignments"
+                  className="inline-flex items-center gap-1 font-bold text-[#00857e] dark:text-teal-400 hover:underline"
+                >
+                  <span>{texts.allAssignments}</span>
+                  {isEn ? <ArrowLeft size={14} className="rotate-180" /> : <ArrowLeft size={14} />}
+                </Link>
+              </div>
+            )}
           </div>
 
           <div className="space-y-6">
