@@ -472,3 +472,84 @@ export interface LecturerDashboardData {
   recentCourses: LecturerDashboardRecentCourse[];
 }
 
+export type LecturerAssignmentStudentStatus =
+  | 'GRADED'
+  | 'EVALUATING'
+  | 'SUBMITTED'
+  | 'NOT_STARTED'
+  | 'OVERDUE'
+  | 'APPEAL';
+
+export interface LecturerAssignmentStudent {
+  student: {
+    userId: string;
+    name: string;
+    email: string;
+    studentNumber?: string;
+  };
+  status: LecturerAssignmentStudentStatus;
+  submission: {
+    id: string;
+    attemptNumber: number;
+    submittedAt: string;
+    filesCount: number;
+  } | null;
+  evaluation: {
+    id: string;
+    score: number;
+    maxScore: number;
+    percentage: number;
+    isFinal: boolean;
+    feedback?: string | null;
+    evaluatedAt: string;
+  } | null;
+  appeal: {
+    id: string;
+    status: string;
+    reason: string;
+    createdAt: string;
+  } | null;
+}
+
+export interface LecturerAssignmentOverviewStats {
+  totalStudents: number;
+  submitted: number;
+  missing: number;
+  graded: number;
+  evaluating: number;
+  appealsCount: number;
+  averageScore: number;
+  submissionRate: number;
+  remainingHours: number | null;
+}
+
+export interface LecturerAssignmentOverviewResponse {
+  id: string;
+  courseId: string;
+  name: string;
+  description: string;
+  type: string;
+  evaluationInstructions: string;
+  maxScore: number;
+  status: 'DRAFT' | 'PUBLISHED' | 'CLOSED';
+  startAt: string | null;
+  dueAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  course: {
+    id: string;
+    name: string;
+    code: string;
+    semester: string;
+    academicYear: number;
+  };
+  stats: LecturerAssignmentOverviewStats;
+  students: LecturerAssignmentStudent[];
+}
+
+export interface GetLecturerAssignmentOverviewParams {
+  search?: string;
+  status?: string;
+}
+
+
