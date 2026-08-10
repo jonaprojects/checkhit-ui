@@ -4,7 +4,6 @@ import { GraduationCap, Users, BookOpen, ChevronLeft } from 'lucide-react';
 import { Link } from 'react-router';
 import { CourseCard } from '../components/CourseCard';
 import { useTranslation } from 'react-i18next';
-import { isRtlLanguage } from '../lib/i18n';
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -20,8 +19,7 @@ const coursesData = [
 ];
 
 export default function StudentCoursesRoute() {
-  const { t, i18n } = useTranslation();
-  const isRtl = isRtlLanguage(i18n.language);
+  const { t } = useTranslation();
   const courses = coursesData;
 
   return (
@@ -54,7 +52,7 @@ export default function StudentCoursesRoute() {
                       </div>
                     )}
                   </div>
-                  <ChevronLeft size={18} className={`text-gray-400 group-hover:${course.accent.text} transition-all duration-300 ${!isRtl ? 'translate-x-2 group-hover:translate-x-0 rotate-180' : '-translate-x-2 group-hover:translate-x-0'}`} />
+                  <ChevronLeft size={18} className={`text-gray-400 group-hover:${course.accent.text} transition-all duration-300 group-hover:translate-x-0 ltr:translate-x-2 ltr:rotate-180 rtl:-translate-x-2`} />
                 </>
               }
             >

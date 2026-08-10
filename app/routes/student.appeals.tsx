@@ -4,7 +4,6 @@ import { FileText, Clock, CheckCircle2, AlertCircle, ChevronLeft } from 'lucide-
 import { Link } from 'react-router';
 import { StatusBadge, appealStatusConfig as statusConfig } from '../components/ui/StatusBadge';
 import { useTranslation } from 'react-i18next';
-import { isRtlLanguage } from '../lib/i18n';
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -49,8 +48,7 @@ const appealsData = [
 ];
 
 export default function StudentAppealsRoute() {
-  const { t, i18n } = useTranslation();
-  const isRtl = isRtlLanguage(i18n.language);
+  const { t } = useTranslation();
   const appeals = appealsData;
 
   return (
@@ -117,7 +115,7 @@ export default function StudentAppealsRoute() {
                     to={`/student/assignments/${appeal.assignmentId}`}
                     className={`w-full md:w-auto text-center md:text-start bg-gray-100 hover:bg-[#00857e] text-gray-700 hover:text-white px-4 py-2 rounded-lg text-sm font-bold transition-colors inline-flex items-center justify-center gap-2`}
                   >
-                    {t('appeals.viewAssignment')} <ChevronLeft size={16} className={!isRtl ? "rotate-180" : ""} />
+                    {t('appeals.viewAssignment')} <ChevronLeft size={16} className="ltr:rotate-180" />
                   </Link>
                 </div>
 

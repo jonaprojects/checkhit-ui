@@ -3,7 +3,6 @@ import MainLayout from "../components/MainLayout";
 import { useState } from "react";
 import { Search, Mail, MailOpen, User, Clock, MoreVertical, Archive, Trash2, Reply } from "lucide-react";
 import { useTranslation } from 'react-i18next';
-import { isRtlLanguage } from '../lib/i18n';
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -49,8 +48,7 @@ const MOCK_MESSAGES_DATA = [
 ];
 
 export default function StudentMessages() {
-  const { t, i18n } = useTranslation();
-  const isRtl = isRtlLanguage(i18n.language);
+  const { t } = useTranslation();
   const [messages, setMessages] = useState(MOCK_MESSAGES_DATA);
   const [selectedMessageId, setSelectedMessageId] = useState<number | null>(MOCK_MESSAGES_DATA[0].id);
   const [searchQuery, setSearchQuery] = useState("");
@@ -87,15 +85,15 @@ export default function StudentMessages() {
             {/* Search Bar */}
             <div className="p-4 border-b border-gray-200 bg-white">
               <div className="relative">
-                <div className={`absolute inset-y-0 ${!isRtl ? 'left-0 pl-3' : 'right-0 pr-3'} flex items-center pointer-events-none`}>
-                  <Search className={`h-5 w-5 text-gray-400 ${!isRtl ? 'mr-3' : 'ms-3'}`} />
+                <div className="absolute inset-y-0 start-0 ps-3 flex items-center pointer-events-none">
+                  <Search className="h-5 w-5 text-gray-400 ltr:mr-3 rtl:ms-3" />
                 </div>
                 <input
                   type="text"
                   placeholder={t('messages.searchMessages')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className={`block w-full ${!isRtl ? 'pl-10 pr-3' : 'ps-10 pe-3'} py-2 border border-gray-200 rounded-lg focus:ring-[#00857e] focus:border-[#00857e] transition-colors text-sm`}
+                  className="block w-full ps-10 pe-3 py-2 border border-gray-200 rounded-lg focus:ring-[#00857e] focus:border-[#00857e] transition-colors text-sm"
                 />
               </div>
             </div>
@@ -119,7 +117,7 @@ export default function StudentMessages() {
                     >
                       {/* Unread Indicator */}
                       {!message.isRead && (
-                        <div className={`absolute top-1/2 -mt-1 ${!isRtl ? 'left-3' : 'end-3'} w-2 h-2 bg-[#00857e] rounded-full`}></div>
+                        <div className="absolute top-1/2 -mt-1 ltr:left-3 rtl:end-3 w-2 h-2 bg-[#00857e] rounded-full"></div>
                       )}
 
                       <img src={message.avatar} alt={t(message.senderKey)} className="w-10 h-10 rounded-full border border-gray-200 mt-1 shrink-0" />

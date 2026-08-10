@@ -1,11 +1,10 @@
 import type { Route } from "./+types/student.course";
 import MainLayout from "../components/MainLayout";
-import { BookOpen, FileText, Download, ChevronRight, ChevronLeft, Clock, PlayCircle } from 'lucide-react';
+import { BookOpen, FileText, Download, ChevronLeft, Clock, PlayCircle } from 'lucide-react';
 import { Link } from 'react-router';
 import { StatusBadge, assignmentStatusConfig as statusConfig } from '../components/ui/StatusBadge';
 import { Card } from '../components/ui/Card';
 import { useTranslation } from 'react-i18next';
-import { isRtlLanguage } from '../lib/i18n';
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -26,8 +25,7 @@ const resourcesData = [
 ];
 
 export default function StudentCourseRoute() {
-  const { t, i18n } = useTranslation();
-  const isRtl = isRtlLanguage(i18n.language);
+  const { t } = useTranslation();
   const assignments = assignmentsData;
   const resources = resourcesData;
 
@@ -36,7 +34,7 @@ export default function StudentCourseRoute() {
       <div className="space-y-8 animate-in fade-in duration-500 max-w-6xl mx-auto pb-12">
         <header className="border-b border-gray-200 pb-6">
           <Link to="/student/courses" className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-[#00857e] transition-colors mb-4">
-            {!isRtl ? <ChevronLeft size={16} /> : <ChevronRight size={16} />} {t('course.backToCourses')}
+            <ChevronLeft size={16} className="rtl:rotate-180" /> {t('course.backToCourses')}
           </Link>
           <div className="flex items-start justify-between">
             <div>
@@ -66,7 +64,7 @@ export default function StudentCourseRoute() {
                       <div className="flex items-center gap-4 text-sm mt-2 sm:mt-0">
                         <StatusBadge type="assignment" status={assignment.status} />
                         {assignment.grade && (
-                          <span className={`font-bold text-gray-900 border-gray-200 ${!isRtl ? 'border-l pl-4' : 'border-r pr-4'}`}>
+                          <span className="font-bold text-gray-900 border-gray-200 border-s ps-4">
                             {t('course.grade')}: {assignment.grade}
                           </span>
                         )}

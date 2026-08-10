@@ -5,7 +5,6 @@ import { Link, useNavigate } from 'react-router';
 import { Button, LinkButton } from '../components/ui/Button';
 import { Input, Textarea, Select, Label } from '../components/ui/Input';
 import { useTranslation } from "react-i18next";
-import { isRtlLanguage } from '../lib/i18n';
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -15,8 +14,7 @@ export function meta({}: Route.MetaArgs) {
 
 export default function NewCourseRoute() {
   const navigate = useNavigate();
-  const { t, i18n } = useTranslation();
-  const isRtl = isRtlLanguage(i18n.language);
+  const { t } = useTranslation();
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,7 +29,7 @@ export default function NewCourseRoute() {
         {/* Header */}
         <div className="mb-8">
           <Link to="/lecturer/courses" className="text-gray-500 hover:text-gray-900 flex items-center gap-2 mb-4 w-fit transition-colors">
-            <ChevronRight size={18} className={!isRtl ? "rotate-180" : ""} /> {t('createCourse.backToCourses')}
+            <ChevronRight size={18} className="ltr:rotate-180" /> {t('createCourse.backToCourses')}
           </Link>
           <h1 className="text-3xl font-extrabold text-gray-900">{t('createCourse.title')}</h1>
           <p className="text-gray-500 mt-2 text-lg">{t('createCourse.subtitle')}</p>

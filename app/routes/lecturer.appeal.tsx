@@ -5,7 +5,6 @@ import { useState } from "react";
 import { Button } from '../components/ui/Button';
 import { ChevronRight, ChevronLeft, FileText, Download, Eye, Bot, Sparkles, CheckCircle2, AlertCircle } from "lucide-react";
 import { useTranslation } from 'react-i18next';
-import { isRtlLanguage } from '../lib/i18n';
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -34,8 +33,7 @@ const MOCK_APPEAL_DATA = {
 };
 
 export default function LecturerAppealReviewRoute() {
-  const { t, i18n } = useTranslation();
-  const isRtl = isRtlLanguage(i18n.language);
+  const { t } = useTranslation();
   const MOCK_APPEAL = {
     ...MOCK_APPEAL_DATA,
     studentName: t(MOCK_APPEAL_DATA.studentNameKey),
@@ -99,7 +97,7 @@ export default function LecturerAppealReviewRoute() {
         {/* Header */}
         <header className="border-b border-gray-200 pb-6">
           <Link to="/lecturer/appeals" className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-[#00857e] transition-colors mb-4 cursor-pointer">
-            <ChevronRight size={16} className={!isRtl ? "rotate-180" : ""} /> {t('appealReview.backToAppeals')}
+            <ChevronRight size={16} className="ltr:rotate-180" /> {t('appealReview.backToAppeals')}
           </Link>
           <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
             <div>
@@ -116,7 +114,7 @@ export default function LecturerAppealReviewRoute() {
               </div>
             </div>
             <div className="flex items-center gap-4 bg-white border border-gray-200 rounded-xl p-3 shadow-sm">
-              <div className={`text-center px-4 ${!isRtl ? 'border-r border-gray-200' : 'border-l border-gray-200'}`}>
+              <div className="text-center px-4 border-e border-gray-200">
                 <div className="text-xs text-gray-500 mb-1">{t('appealReview.originalGrade')}</div>
                 <div className="text-2xl font-black text-[#00857e]">{MOCK_APPEAL.originalGrade}</div>
               </div>
@@ -279,14 +277,14 @@ export default function LecturerAppealReviewRoute() {
                       onChange={(e) => setNewGrade(e.target.value)}
                       className="w-24 text-center font-bold text-xl border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-[#00857e] focus:outline-none"
                     />
-                    <span className={`text-gray-500 font-bold ${!isRtl ? 'mr-2' : 'ml-2'}`}>/ 100</span>
+                    <span className="text-gray-500 font-bold me-2">/ 100</span>
                     {Number(newGrade) > MOCK_APPEAL.originalGrade && (
-                      <span className={`text-green-600 text-sm font-bold bg-green-50 px-2 py-1 rounded-md ${!isRtl ? 'ml-auto' : 'mr-auto'}`}>
+                      <span className="text-green-600 text-sm font-bold bg-green-50 px-2 py-1 rounded-md ms-auto">
                         +{Number(newGrade) - MOCK_APPEAL.originalGrade} {t('appealReview.points')}
                       </span>
                     )}
                     {Number(newGrade) < MOCK_APPEAL.originalGrade && (
-                      <span className={`text-red-600 text-sm font-bold bg-red-50 px-2 py-1 rounded-md ${!isRtl ? 'ml-auto' : 'mr-auto'}`}>
+                      <span className="text-red-600 text-sm font-bold bg-red-50 px-2 py-1 rounded-md ms-auto">
                         {Number(newGrade) - MOCK_APPEAL.originalGrade} {t('appealReview.points')}
                       </span>
                     )}

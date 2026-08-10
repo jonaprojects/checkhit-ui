@@ -13,10 +13,10 @@ export function meta({}: Route.MetaArgs) {
 }
 
 const mockNotificationsData = [
-  { id: 1, titleKey: 'notifications.lecturerMock1Title', descKey: 'notifications.lecturerMock1Desc', timeKey: 'notifications.lecturerMock1Time', unread: true, type: 'assignment' },
-  { id: 2, titleKey: 'notifications.lecturerMock2Title', descKey: 'notifications.lecturerMock2Desc', timeKey: 'notifications.lecturerMock2Time', unread: true, type: 'warning' },
-  { id: 3, titleKey: 'notifications.lecturerMock3Title', descKey: 'notifications.lecturerMock3Desc', timeKey: 'notifications.lecturerMock3Time', unread: false, type: 'warning' },
-  { id: 4, titleKey: 'notifications.lecturerMock4Title', descKey: 'notifications.lecturerMock4Desc', timeKey: 'notifications.lecturerMock4Time', unread: false, type: 'info' },
+  { id: 1, titleKey: 'notifications.lecturerMock1Title', descKey: 'notifications.lecturerMock1Desc', timeKey: 'notifications.lecturerMock1Time', unread: true, type: 'assignment' as const },
+  { id: 2, titleKey: 'notifications.lecturerMock2Title', descKey: 'notifications.lecturerMock2Desc', timeKey: 'notifications.lecturerMock2Time', unread: true, type: 'warning' as const },
+  { id: 3, titleKey: 'notifications.lecturerMock3Title', descKey: 'notifications.lecturerMock3Desc', timeKey: 'notifications.lecturerMock3Time', unread: false, type: 'warning' as const },
+  { id: 4, titleKey: 'notifications.lecturerMock4Title', descKey: 'notifications.lecturerMock4Desc', timeKey: 'notifications.lecturerMock4Time', unread: false, type: 'info' as const },
 ];
 
 export default function LecturerNotifications() {
@@ -65,7 +65,7 @@ export default function LecturerNotifications() {
                 desc={t(notif.descKey)}
                 time={t(notif.timeKey)}
                 unread={notif.unread}
-                type={notif.type as any}
+                type={notif.type}
                 variant="full"
                 onClick={() => notif.unread && markAsRead(notif.id)}
               />

@@ -178,7 +178,7 @@ export default function MainLayout({ children, portalName = "פורטל סטוד
                           desc={notif.desc}
                           time={notif.time}
                           unread={notif.unread}
-                          type={notif.type as any}
+                          type={notif.type}
                           variant="compact"
                         />
                       ))}

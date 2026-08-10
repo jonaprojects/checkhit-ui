@@ -12,12 +12,12 @@ export function meta({}: Route.MetaArgs) {
 }
 
 const mockNotificationsData = [
-  { id: 1, titleKey: 'notifications.studentMock1Title', descKey: 'notifications.studentMock1Desc', timeKey: 'notifications.studentMock1Time', unread: true, type: 'success' },
-  { id: 2, titleKey: 'notifications.studentMock2Title', descKey: 'notifications.studentMock2Desc', timeKey: 'notifications.studentMock2Time', unread: true, type: 'appeal' },
-  { id: 3, titleKey: 'notifications.studentMock3Title', descKey: 'notifications.studentMock3Desc', timeKey: 'notifications.studentMock3Time', unread: false, type: 'assignment' },
-  { id: 4, titleKey: 'notifications.studentMock4Title', descKey: 'notifications.studentMock4Desc', timeKey: 'notifications.studentMock4Time', unread: false, type: 'warning' },
-  { id: 5, titleKey: 'notifications.studentMock5Title', descKey: 'notifications.studentMock5Desc', time: '15/05/2026', unread: false, type: 'info' },
-  { id: 6, titleKey: 'notifications.studentMock6Title', descKey: 'notifications.studentMock6Desc', time: '14/05/2026', unread: false, type: 'system' }
+  { id: 1, titleKey: 'notifications.studentMock1Title', descKey: 'notifications.studentMock1Desc', timeKey: 'notifications.studentMock1Time', unread: true, type: 'success' as const },
+  { id: 2, titleKey: 'notifications.studentMock2Title', descKey: 'notifications.studentMock2Desc', timeKey: 'notifications.studentMock2Time', unread: true, type: 'appeal' as const },
+  { id: 3, titleKey: 'notifications.studentMock3Title', descKey: 'notifications.studentMock3Desc', timeKey: 'notifications.studentMock3Time', unread: false, type: 'assignment' as const },
+  { id: 4, titleKey: 'notifications.studentMock4Title', descKey: 'notifications.studentMock4Desc', timeKey: 'notifications.studentMock4Time', unread: false, type: 'warning' as const },
+  { id: 5, titleKey: 'notifications.studentMock5Title', descKey: 'notifications.studentMock5Desc', time: '15/05/2026', unread: false, type: 'info' as const },
+  { id: 6, titleKey: 'notifications.studentMock6Title', descKey: 'notifications.studentMock6Desc', time: '14/05/2026', unread: false, type: 'system' as const }
 ];
 
 export default function StudentNotifications() {
@@ -66,7 +66,7 @@ export default function StudentNotifications() {
                 desc={t(notif.descKey)}
                 time={notif.timeKey ? t(notif.timeKey) : (notif.time ?? '')}
                 unread={notif.unread}
-                type={notif.type as any}
+                type={notif.type}
                 variant="full"
                 onClick={() => notif.unread && markAsRead(notif.id)}
               />

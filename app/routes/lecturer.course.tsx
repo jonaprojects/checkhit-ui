@@ -1,12 +1,11 @@
 import type { Route } from "./+types/lecturer.course";
 import MainLayout from "../components/MainLayout";
-import { Search, ChevronLeft, Plus, Users, FileText, BarChart3, Clock, AlertCircle, ChevronRight, MoreVertical, Edit2, Trash2 } from 'lucide-react';
+import { Search, ChevronLeft, Plus, Users, FileText, BarChart3, Clock, AlertCircle, MoreVertical, Edit2, Trash2 } from 'lucide-react';
 import { Card } from '../components/ui/Card';
 import { Button, LinkButton } from '../components/ui/Button';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../components/ui/Table';
 import { Link, useParams } from 'react-router';
 import { useTranslation } from 'react-i18next';
-import { isRtlLanguage } from '../lib/i18n';
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -22,8 +21,7 @@ const assignmentsData = [
 
 export default function LecturerCourseRoute() {
   const { courseId } = useParams();
-  const { t, i18n } = useTranslation();
-  const isRtl = isRtlLanguage(i18n.language);
+  const { t } = useTranslation();
   const assignments = assignmentsData;
 
   return (
@@ -31,7 +29,7 @@ export default function LecturerCourseRoute() {
       <div className="space-y-8 animate-in fade-in duration-500 max-w-6xl mx-auto pb-12">
         <header className="border-b border-gray-200 pb-6">
           <Link to="/lecturer/courses" className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-[#00857e] transition-colors mb-4">
-            {!isRtl ? <ChevronLeft size={16} /> : <ChevronRight size={16} />} {t('course.backToCourses')}
+            <ChevronLeft size={16} className="rtl:rotate-180" /> {t('course.backToCourses')}
           </Link>
           <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
             <div>
@@ -56,11 +54,11 @@ export default function LecturerCourseRoute() {
               {t('course.courseAssignments')}
             </h2>
             <div className="relative w-64">
-              <Search className={`absolute ${!isRtl ? 'left-3' : 'right-3'} top-1/2 -translate-y-1/2 text-gray-400`} size={16} />
+              <Search className="absolute start-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
               <input
                 type="text"
                 placeholder={t('course.searchAssignment')}
-                className={`w-full ${!isRtl ? 'pl-10 pr-4' : 'pl-4 pr-10'} py-1.5 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#00857e] transition-all bg-white`}
+                className="w-full ps-10 pe-4 py-1.5 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#00857e] transition-all bg-white"
               />
             </div>
           </div>
@@ -84,7 +82,7 @@ export default function LecturerCourseRoute() {
                         {t(assignment.titleKey)}
                       </Link>
                       {assignment.status === 'active' && (
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-700 ${!isRtl ? 'ml-2' : 'mr-2'}`}>{t('course.active')}</span>
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-700 ms-2">{t('course.active')}</span>
                       )}
                     </TableCell>
                     <TableCell className="text-gray-600">

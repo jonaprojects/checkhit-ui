@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Globe, Check } from 'lucide-react';
-import { SUPPORTED_LANGUAGES, type SupportedLanguage } from '../../lib/i18n';
+import { SUPPORTED_LANGUAGES, getCurrentLanguage, type SupportedLanguage } from '../../lib/i18n';
 
 const LANGUAGE_LABELS: Record<SupportedLanguage, string> = {
   he: 'עברית',
@@ -15,7 +15,7 @@ export function LanguageToggle() {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const currentLang = (i18n.language?.split('-')[0] as SupportedLanguage) || 'he';
+  const currentLang = getCurrentLanguage(i18n.language);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {

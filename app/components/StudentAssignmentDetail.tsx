@@ -2,11 +2,9 @@ import { useState, useRef } from 'react';
 import { Link } from 'react-router';
 import { UploadCloud, File, AlertCircle, Bot, CheckCircle2, ChevronLeft, ArrowRight, MessageSquare, Download, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { isRtlLanguage } from '../lib/i18n';
 
 export default function StudentAssignmentDetail({ initialState = 'not-submitted' }) {
-  const { t, i18n } = useTranslation();
-  const isRtl = isRtlLanguage(i18n.language);
+  const { t } = useTranslation();
   // 'not-submitted' | 'checking' | 'checked'
   const [submissionState, setSubmissionState] = useState(initialState);
   const [showDemoControl, setShowDemoControl] = useState(true);
@@ -21,7 +19,7 @@ export default function StudentAssignmentDetail({ initialState = 'not-submitted'
         <div className="min-w-0 flex-1">
           <div className="flex items-center text-sm text-gray-500 gap-2 mb-1 w-full max-w-full overflow-hidden">
             <Link to="/student/courses" className="hover:text-gray-700 cursor-pointer whitespace-nowrap">{t('courses.coursePlaceholder1')}</Link>
-            <ChevronLeft size={14} className={`shrink-0 ${!isRtl ? 'rotate-180' : ''}`} />
+            <ChevronLeft size={14} className="shrink-0 ltr:rotate-180" />
             <span className="text-gray-800 font-medium truncate">{t('course.assignmentPlaceholder1')}</span>
           </div>
           <h1 className="text-3xl font-extrabold text-gray-900">{t('course.assignmentPlaceholder1')}</h1>

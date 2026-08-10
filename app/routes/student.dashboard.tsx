@@ -8,7 +8,6 @@ import { StatusBadge } from '../components/ui/StatusBadge';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card';
 
 import { useTranslation } from 'react-i18next';
-import { isRtlLanguage } from '../lib/i18n';
 
 const dashboardCoursesData = [
   { id: 1, nameKey: 'courses.coursePlaceholder1', code: 'CS101', instructorKey: 'studentDashboard.instructor1', accent: { bg: 'bg-teal-50', text: 'text-teal-700', groupHoverBg: 'group-hover:bg-teal-600', borderHover: 'hover:border-teal-300' } },
@@ -23,8 +22,7 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function StudentDashboardRoute() {
-  const { t, i18n } = useTranslation();
-  const isRtl = isRtlLanguage(i18n.language);
+  const { t } = useTranslation();
   const dashboardCourses = dashboardCoursesData;
 
   return (
@@ -46,7 +44,7 @@ export default function StudentDashboardRoute() {
                 {t('dashboard.upcomingAssignments')}
               </h2>
               <Link to="/student/assignments" className="text-[#00857e] font-bold flex items-center gap-2 hover:underline">
-                {t('dashboard.allAssignments')} {!isRtl ? <ArrowLeft size={18} className="rotate-180" /> : <ArrowLeft size={18} />}
+                {t('dashboard.allAssignments')} <ArrowLeft size={18} className="ltr:rotate-180" />
               </Link>
             </div>
             <div className="space-y-4 flex-1">
@@ -118,7 +116,7 @@ export default function StudentDashboardRoute() {
                 {t('dashboard.recentCourses')}
               </h2>
               <Link to="/student/courses" className="text-[#00857e] font-bold flex items-center gap-2 hover:underline text-sm">
-                {t('dashboard.allCourses')} {!isRtl ? <ArrowLeft size={16} className="rotate-180" /> : <ArrowLeft size={16} />}
+                {t('dashboard.allCourses')} <ArrowLeft size={16} className="ltr:rotate-180" />
               </Link>
             </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">

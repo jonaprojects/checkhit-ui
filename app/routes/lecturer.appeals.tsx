@@ -7,7 +7,6 @@ import { Card } from '../components/ui/Card';
 import { FilterBar } from '../components/ui/FilterBar';
 import { Select } from '../components/ui/Input';
 import { useTranslation } from 'react-i18next';
-import { isRtlLanguage } from '../lib/i18n';
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -71,8 +70,7 @@ const MOCK_APPEALS_DATA = [
 ];
 
 export default function LecturerAppealsRoute() {
-  const { t, i18n } = useTranslation();
-  const isRtl = isRtlLanguage(i18n.language);
+  const { t } = useTranslation();
   const appeals = MOCK_APPEALS_DATA.map(a => ({
     ...a,
     studentName: t(a.studentNameKey),
@@ -120,9 +118,9 @@ export default function LecturerAppealsRoute() {
           className="mb-6"
         >
           <div className="relative w-full md:w-1/2">
-            <Filter className={`absolute ${!isRtl ? 'left-3' : 'right-3'} top-1/2 -translate-y-1/2 text-gray-400`} size={16} />
+            <Filter className="absolute start-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
             <Select
-              className={`w-full ${!isRtl ? 'pr-4 pl-10' : 'pl-4 pr-10'} py-2.5 !bg-gray-50 border-gray-200`}
+              className="w-full ps-10 pe-4 py-2.5 !bg-gray-50 border-gray-200"
               value={courseFilter}
               onChange={(e) => setCourseFilter(e.target.value)}
             >
@@ -174,8 +172,7 @@ export default function LecturerAppealsRoute() {
 }
 
 function AppealCard({ appeal }: { appeal: any }) {
-  const { t, i18n } = useTranslation();
-  const isRtl = isRtlLanguage(i18n.language);
+  const { t } = useTranslation();
 
   const getCategoryColor = (cat: string) => {
     switch(cat) {
@@ -229,7 +226,7 @@ function AppealCard({ appeal }: { appeal: any }) {
           className="w-full md:w-auto inline-flex items-center justify-center gap-2 bg-white border border-[#00857e] text-[#00857e] hover:bg-teal-50 px-6 py-2 rounded-lg text-sm font-bold transition-colors cursor-pointer"
         >
           {t('appeals.reviewBtn')}
-          <ChevronLeft size={16} className={!isRtl ? "rotate-180" : ""} />
+          <ChevronLeft size={16} className="ltr:rotate-180" />
         </Link>
       </div>
     </div>

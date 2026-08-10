@@ -16,6 +16,10 @@ export function isRtlLanguage(lang: string): boolean {
   return RTL_LANGUAGES.includes(lang.split('-')[0] as SupportedLanguage);
 }
 
+export function getCurrentLanguage(lang: string | undefined): SupportedLanguage {
+  return (lang?.split('-')[0] as SupportedLanguage) || 'he';
+}
+
 i18n
   // Detect user language
   .use(LanguageDetector)

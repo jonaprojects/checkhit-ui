@@ -26,7 +26,6 @@ export const links: Route.LinksFunction = () => [
 
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import "./lib/i18n";
 import { isRtlLanguage } from "./lib/i18n";
 
 export function Layout({ children }: { children: React.ReactNode }) {

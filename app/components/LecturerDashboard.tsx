@@ -2,11 +2,9 @@ import { BookOpen, AlertCircle, Users, CheckCircle2, Clock, FileWarning, ArrowLe
 import { Card } from './ui/Card';
 import { Link } from 'react-router';
 import { useTranslation } from 'react-i18next';
-import { isRtlLanguage } from '../lib/i18n';
 
 export default function LecturerDashboard() {
-  const { t, i18n } = useTranslation();
-  const isRtl = isRtlLanguage(i18n.language);
+  const { t } = useTranslation();
 
   return (
     <div className="space-y-12 animate-in fade-in duration-500 max-w-6xl mx-auto pb-12">
@@ -70,7 +68,7 @@ export default function LecturerDashboard() {
             description={t('lecturerDashboard.activity3Desc')}
           />
           <Link to="/lecturer/appeals" className="text-[#00857e] font-bold mt-6 inline-flex items-center gap-1 hover:underline">
-            {t('lecturerDashboard.viewAll')} {!isRtl ? <ChevronLeft size={18} className="rotate-180" /> : <ChevronLeft size={18} />}
+            {t('lecturerDashboard.viewAll')} <ChevronLeft size={18} className="ltr:rotate-180" />
           </Link>
         </div>
       </Card>
@@ -80,7 +78,7 @@ export default function LecturerDashboard() {
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-extrabold text-gray-900">{t('lecturerDashboard.activeCourses')}</h2>
           <Link to="/lecturer/courses" className="text-[#00857e] font-bold flex items-center gap-2 hover:underline">
-            {t('lecturerDashboard.allCourses')} {!isRtl ? <ArrowLeft size={18} className="rotate-180" /> : <ArrowLeft size={18} />}
+            {t('lecturerDashboard.allCourses')} <ArrowLeft size={18} className="ltr:rotate-180" />
           </Link>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
