@@ -5,6 +5,7 @@ import { Bell, Monitor, Shield, ChevronLeft, Check } from "lucide-react";
 import { useTheme } from "../lib/theme";
 import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
+import { isRtlLanguage, type SupportedLanguage } from "../lib/i18n";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -17,7 +18,8 @@ type TabId = 'notifications' | 'display' | 'privacy';
 
 export default function LecturerSettings() {
   const { t, i18n } = useTranslation();
-  const isEn = i18n.language.startsWith('en');
+  const isRtl = isRtlLanguage(i18n.language);
+  const currentLang = (i18n.language?.split('-')[0] as SupportedLanguage) || 'he';
   const [activeTab, setActiveTab] = useState<TabId>('notifications');
   const { theme, setTheme } = useTheme();
 
@@ -25,15 +27,15 @@ export default function LecturerSettings() {
     notifyAppeals: true,
     notifyAiDone: true,
     notifyLateSubmissions: false,
-    language: i18n.language.startsWith('en') ? 'en' : 'he',
+    language: currentLang,
     allowAiAnalysis: true,
     showEmail: false,
   });
 
   // Sync settings state if language is changed externally
   useEffect(() => {
-    setSettings(s => ({ ...s, language: i18n.language.startsWith('en') ? 'en' : 'he' }));
-  }, [i18n.language]);
+    setSettings(s => ({ ...s, language: currentLang }));
+  }, [currentLang]);
 
   const handleToggle = (key: keyof typeof settings) => {
     if (typeof settings[key] === 'boolean') {
@@ -59,7 +61,7 @@ export default function LecturerSettings() {
   );
 
   return (
-    <MainLayout portalName={isEn ? "Lecturer Portal" : "פורטל מרצים"} view="lecturer">
+    <MainLayout portalName={t('nav.lecturerPortal')} view="lecturer">
       <div className="animate-in fade-in duration-500 max-w-6xl mx-auto pb-12">
         
         {/* Header */}
@@ -82,7 +84,7 @@ export default function LecturerSettings() {
               >
                 <Bell size={20} className={activeTab === 'notifications' ? 'text-[#00857e]' : 'text-gray-400'} />
                 {t('settings.tabNotifications')}
-                <ChevronLeft size={16} className={`${isEn ? 'mr-auto rotate-180' : 'ms-auto'} ${activeTab === 'notifications' ? 'opacity-100' : 'opacity-0'}`} />
+                <ChevronLeft size={16} className={`${!isRtl ? 'mr-auto rotate-180' : 'ms-auto'} ${activeTab === 'notifications' ? 'opacity-100' : 'opacity-0'}`} />
               </button>
               
               <button 
@@ -95,7 +97,7 @@ export default function LecturerSettings() {
               >
                 <Monitor size={20} className={activeTab === 'display' ? 'text-[#00857e]' : 'text-gray-400'} />
                 {t('settings.tabDisplay')}
-                <ChevronLeft size={16} className={`${isEn ? 'mr-auto rotate-180' : 'ms-auto'} ${activeTab === 'display' ? 'opacity-100' : 'opacity-0'}`} />
+                <ChevronLeft size={16} className={`${!isRtl ? 'mr-auto rotate-180' : 'ms-auto'} ${activeTab === 'display' ? 'opacity-100' : 'opacity-0'}`} />
               </button>
               
               <button 
@@ -108,7 +110,7 @@ export default function LecturerSettings() {
               >
                 <Shield size={20} className={activeTab === 'privacy' ? 'text-[#00857e]' : 'text-gray-400'} />
                 {t('settings.tabPrivacy')}
-                <ChevronLeft size={16} className={`${isEn ? 'mr-auto rotate-180' : 'ms-auto'} ${activeTab === 'privacy' ? 'opacity-100' : 'opacity-0'}`} />
+                <ChevronLeft size={16} className={`${!isRtl ? 'mr-auto rotate-180' : 'ms-auto'} ${activeTab === 'privacy' ? 'opacity-100' : 'opacity-0'}`} />
               </button>
             </nav>
           </div>
@@ -188,15 +190,17 @@ export default function LecturerSettings() {
                     <select
                       value={settings.language}
                       onChange={(e) => {
-                        const newLang = e.target.value;
+                        const newLang = e.target.value as SupportedLanguage;
                         setSettings({ ...settings, language: newLang });
                         i18n.changeLanguage(newLang);
                       }}
-                      className={`mt-1 block w-full rounded-lg border-gray-200 py-3 px-4 text-gray-900 focus:border-[#00857e] focus:ring-[#00857e] sm:text-sm bg-gray-50 outline-none ${isEn ? 'text-left' : 'text-right'}`}
+                      className={`mt-1 block w-full rounded-lg border-gray-200 py-3 px-4 text-gray-900 focus:border-[#00857e] focus:ring-[#00857e] sm:text-sm bg-gray-50 outline-none ${isRtl ? 'text-right' : 'text-left'}`}
                       dir="auto"
                     >
                       <option value="he">{t('settings.languageHe')}</option>
                       <option value="en">{t('settings.languageEn')}</option>
+                      <option value="ar">{t('settings.languageAr')}</option>
+                      <option value="ru">{t('settings.languageRu')}</option>
                     </select>
                   </div>
                 </div>

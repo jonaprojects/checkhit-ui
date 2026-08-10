@@ -11,30 +11,18 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-const mockNotificationsData = {
-  he: [
-    { id: 1, title: 'ציון חדש הוקלד', desc: 'הציון שלך במטלה 3 בקורס מבוא למדעי המחשב הוקלד.', time: 'לפני 10 דקות', unread: true, type: 'success' },
-    { id: 2, title: 'הערעור התקבל', desc: 'הערעור שהגשת על שאלה 2 במטלה 1 התקבל. ציונך עודכן.', time: 'לפני שעתיים', unread: true, type: 'appeal' },
-    { id: 3, title: 'מטלה חדשה', desc: 'פורסמה מטלה 4 בקורס תכנות מונחה עצמים.', time: 'אתמול, 14:30', unread: false, type: 'assignment' },
-    { id: 4, title: 'חשד להעתקה', desc: 'נמצא דמיון חריג במטלה 2. נא לפנות למרצה הקורס לבירור.', time: 'לפני יומיים', unread: false, type: 'warning' },
-    { id: 5, title: 'תזכורת: הגשת מטלה', desc: 'המטלה בקורס מסדי נתונים נסגרת להגשה מחר בחצות.', time: '15/05/2026', unread: false, type: 'info' },
-    { id: 6, title: 'עדכון מערכת', desc: 'המערכת תרד לתחזוקה ביום שבת בין השעות 02:00 ל-04:00.', time: '14/05/2026', unread: false, type: 'system' }
-  ],
-  en: [
-    { id: 1, title: 'New Grade Entered', desc: 'Your grade for Assignment 3 in Intro to Computer Science has been entered.', time: '10 mins ago', unread: true, type: 'success' },
-    { id: 2, title: 'Appeal Accepted', desc: 'The appeal you submitted for question 2 in Assignment 1 has been accepted. Your grade was updated.', time: '2 hours ago', unread: true, type: 'appeal' },
-    { id: 3, title: 'New Assignment', desc: 'Assignment 4 in Object Oriented Programming has been published.', time: 'Yesterday, 14:30', unread: false, type: 'assignment' },
-    { id: 4, title: 'Suspected Plagiarism', desc: 'Anomalous similarity found in Assignment 2. Please contact the course lecturer for clarification.', time: '2 days ago', unread: false, type: 'warning' },
-    { id: 5, title: 'Reminder: Assignment Submission', desc: 'The assignment in the Databases course closes for submission tomorrow at midnight.', time: '15/05/2026', unread: false, type: 'info' },
-    { id: 6, title: 'System Update', desc: 'The system will go down for maintenance on Saturday between 02:00 and 04:00.', time: '14/05/2026', unread: false, type: 'system' }
-  ]
-};
+const mockNotificationsData = [
+  { id: 1, titleKey: 'notifications.studentMock1Title', descKey: 'notifications.studentMock1Desc', timeKey: 'notifications.studentMock1Time', unread: true, type: 'success' },
+  { id: 2, titleKey: 'notifications.studentMock2Title', descKey: 'notifications.studentMock2Desc', timeKey: 'notifications.studentMock2Time', unread: true, type: 'appeal' },
+  { id: 3, titleKey: 'notifications.studentMock3Title', descKey: 'notifications.studentMock3Desc', timeKey: 'notifications.studentMock3Time', unread: false, type: 'assignment' },
+  { id: 4, titleKey: 'notifications.studentMock4Title', descKey: 'notifications.studentMock4Desc', timeKey: 'notifications.studentMock4Time', unread: false, type: 'warning' },
+  { id: 5, titleKey: 'notifications.studentMock5Title', descKey: 'notifications.studentMock5Desc', time: '15/05/2026', unread: false, type: 'info' },
+  { id: 6, titleKey: 'notifications.studentMock6Title', descKey: 'notifications.studentMock6Desc', time: '14/05/2026', unread: false, type: 'system' }
+];
 
 export default function StudentNotifications() {
-  const { t, i18n } = useTranslation();
-  const isEn = i18n.language.startsWith('en');
-  const initialNotifications = isEn ? mockNotificationsData.en : mockNotificationsData.he;
-  const [notifications, setNotifications] = useState(initialNotifications);
+  const { t } = useTranslation();
+  const [notifications, setNotifications] = useState(mockNotificationsData);
 
   const markAllAsRead = () => {
     setNotifications(notifications.map(n => ({ ...n, unread: false })));
@@ -47,7 +35,7 @@ export default function StudentNotifications() {
   const unreadCount = notifications.filter(n => n.unread).length;
 
   return (
-    <MainLayout portalName={isEn ? "Student Portal" : "פורטל סטודנטים"} view="student">
+    <MainLayout portalName={t('nav.studentPortal')} view="student">
       <div className="space-y-8 animate-in fade-in duration-500 max-w-6xl mx-auto pb-12 min-h-[101vh]">
         <header className="flex flex-col md:flex-row justify-between items-start md:items-end border-b border-gray-200 pb-6 gap-4">
           <div>
@@ -74,9 +62,9 @@ export default function StudentNotifications() {
               <NotificationItem
                 key={notif.id}
                 id={notif.id}
-                title={notif.title}
-                desc={notif.desc}
-                time={notif.time}
+                title={t(notif.titleKey)}
+                desc={t(notif.descKey)}
+                time={notif.timeKey ? t(notif.timeKey) : (notif.time ?? '')}
                 unread={notif.unread}
                 type={notif.type as any}
                 variant="full"

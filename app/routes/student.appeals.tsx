@@ -4,6 +4,7 @@ import { FileText, Clock, CheckCircle2, AlertCircle, ChevronLeft } from 'lucide-
 import { Link } from 'react-router';
 import { StatusBadge, appealStatusConfig as statusConfig } from '../components/ui/StatusBadge';
 import { useTranslation } from 'react-i18next';
+import { isRtlLanguage } from '../lib/i18n';
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -11,86 +12,49 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-const appealsData = {
-  he: [
-    { 
-      id: 1, 
-      assignmentId: 2,
-      assignmentTitle: 'מטלה 2: מיון מהיר', 
-      courseName: 'מבני נתונים ואלגוריתמים', 
-      submissionDate: 'היום, 09:30', 
-      status: 'pending',
-      originalGrade: 82,
-      newGrade: null,
-      reason: "לדעתי יש טעות בבדיקה של סעיף 3, השתמשתי בפונקציית עזר כנדרש."
-    },
-    { 
-      id: 2, 
-      assignmentId: 3,
-      assignmentTitle: 'תרגיל 1: מודל OSI', 
-      courseName: 'רשתות תקשורת', 
-      submissionDate: 'לפני שבוע', 
-      status: 'accepted',
-      originalGrade: 75,
-      newGrade: 85,
-      reason: "הורד לי ניקוד על חישוב מסכות רשת למרות שהחישוב היה נכון לפי ההרצאה."
-    },
-    { 
-      id: 3, 
-      assignmentId: 5,
-      assignmentTitle: 'תרגיל בית 1: מורכבות', 
-      courseName: 'מבני נתונים ואלגוריתמים', 
-      submissionDate: 'לפני חודש', 
-      status: 'rejected',
-      originalGrade: 90,
-      newGrade: 90,
-      reason: "אני חושב שמגיע לי בונוס על פתרון בסיבוכיות O(n) במקום O(n log n)."
-    }
-  ],
-  en: [
-    { 
-      id: 1, 
-      assignmentId: 2,
-      assignmentTitle: 'Assignment 2: Quick Sort', 
-      courseName: 'Data Structures & Algorithms', 
-      submissionDate: 'Today, 09:30', 
-      status: 'pending',
-      originalGrade: 82,
-      newGrade: null,
-      reason: "I think there is an error checking section 3, I used a helper function as required."
-    },
-    { 
-      id: 2, 
-      assignmentId: 3,
-      assignmentTitle: 'Assignment 1: OSI Model', 
-      courseName: 'Computer Networks', 
-      submissionDate: '1 week ago', 
-      status: 'accepted',
-      originalGrade: 75,
-      newGrade: 85,
-      reason: "Points were deducted for subnet mask calculation although it was correct per the lecture."
-    },
-    { 
-      id: 3, 
-      assignmentId: 5,
-      assignmentTitle: 'Homework 1: Complexity', 
-      courseName: 'Data Structures & Algorithms', 
-      submissionDate: '1 month ago', 
-      status: 'rejected',
-      originalGrade: 90,
-      newGrade: 90,
-      reason: "I think I deserve a bonus for an O(n) solution instead of O(n log n)."
-    }
-  ]
-};
+const appealsData = [
+  {
+    id: 1,
+    assignmentId: 2,
+    titleKey: 'course.assignmentPlaceholder2',
+    courseKey: 'courses.coursePlaceholder1',
+    dateKey: 'appeals.mockAppeal1Date',
+    status: 'pending',
+    originalGrade: 82,
+    newGrade: null,
+    reasonKey: 'appeals.mockAppeal1Reason',
+  },
+  {
+    id: 2,
+    assignmentId: 3,
+    titleKey: 'appeals.mockAppeal2Title',
+    courseKey: 'courses.coursePlaceholder2',
+    dateKey: 'appeals.mockAppeal2Date',
+    status: 'accepted',
+    originalGrade: 75,
+    newGrade: 85,
+    reasonKey: 'appeals.mockAppeal2Reason',
+  },
+  {
+    id: 3,
+    assignmentId: 5,
+    titleKey: 'appeals.mockAppeal3Title',
+    courseKey: 'courses.coursePlaceholder1',
+    dateKey: 'appeals.mockAppeal3Date',
+    status: 'rejected',
+    originalGrade: 90,
+    newGrade: 90,
+    reasonKey: 'appeals.mockAppeal3Reason',
+  },
+];
 
 export default function StudentAppealsRoute() {
   const { t, i18n } = useTranslation();
-  const isEn = i18n.language.startsWith('en');
-  const appeals = isEn ? appealsData.en : appealsData.he;
+  const isRtl = isRtlLanguage(i18n.language);
+  const appeals = appealsData;
 
   return (
-    <MainLayout portalName={isEn ? "Student Portal" : "פורטל סטודנטים"} view="student">
+    <MainLayout portalName={t('nav.studentPortal')} view="student">
       <div className="space-y-8 animate-in fade-in duration-500 max-w-6xl mx-auto pb-12">
         <header className="border-b border-gray-200 pb-6 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
           <div>
@@ -114,13 +78,13 @@ export default function StudentAppealsRoute() {
                   </div>
                   <div>
                     <div className="flex items-center gap-3 mb-1">
-                      <h3 className="text-lg font-bold text-gray-900">{appeal.assignmentTitle}</h3>
+                      <h3 className="text-lg font-bold text-gray-900">{t(appeal.titleKey)}</h3>
                       <StatusBadge type="appeal" status={appeal.status} />
                     </div>
                     <div className="text-gray-500 text-sm mb-3">
-                      <span>{appeal.courseName}</span>
+                      <span>{t(appeal.courseKey)}</span>
                       <span className="mx-2">•</span>
-                      <span>{t('appeals.submitted')} {appeal.submissionDate}</span>
+                      <span>{t('appeals.submitted')} {t(appeal.dateKey)}</span>
                     </div>
                   </div>
                 </div>
@@ -153,7 +117,7 @@ export default function StudentAppealsRoute() {
                     to={`/student/assignments/${appeal.assignmentId}`}
                     className={`w-full md:w-auto text-center md:text-start bg-gray-100 hover:bg-[#00857e] text-gray-700 hover:text-white px-4 py-2 rounded-lg text-sm font-bold transition-colors inline-flex items-center justify-center gap-2`}
                   >
-                    {t('appeals.viewAssignment')} <ChevronLeft size={16} className={isEn ? "rotate-180" : ""} />
+                    {t('appeals.viewAssignment')} <ChevronLeft size={16} className={!isRtl ? "rotate-180" : ""} />
                   </Link>
                 </div>
 

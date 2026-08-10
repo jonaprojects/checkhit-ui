@@ -11,26 +11,17 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-const faqsData = {
-  he: [
-    { q: "איך מגישים ערעור על מטלה?", a: "כדי להגיש ערעור, היכנס לעמוד המטלה הספציפית דרך רשימת המטלות, ולחץ על כפתור ״הגש ערעור״. הזן את פירוט הערעור ושלח." },
-    { q: "מתי אקבל ציון על המטלה שלי?", a: "לאחר הגשת המטלה, היא תעבור בדיקה אוטומטית של AI שתיקח מספר דקות. לאחר מכן, המרצה יוכל לאשר או לשנות את הציון." },
-    { q: "האם אני יכול להגיש מטלה באיחור?", a: "הגשה באיחור תלויה בהגדרות הקורס והמרצה. בחלק מהקורסים יש קנס על איחור, ובחלקם לא ניתן להגיש כלל." },
-    { q: "איך מתחברים למערכת?", a: "ניתן להתחבר באמצעות שם המשתמש והסיסמה האוניברסיטאיים שלך." },
-  ],
-  en: [
-    { q: "How do I submit an appeal for an assignment?", a: "To submit an appeal, go to the specific assignment page through the assignments list, and click on the 'Submit Appeal' button. Enter the appeal details and submit." },
-    { q: "When will I get a grade on my assignment?", a: "After submitting the assignment, it will undergo automatic AI grading which takes a few minutes. Then, the lecturer can approve or change the grade." },
-    { q: "Can I submit an assignment late?", a: "Late submission depends on the course and lecturer settings. Some courses have a late penalty, and some do not allow late submissions at all." },
-    { q: "How do I log in to the system?", a: "You can log in using your university username and password." },
-  ]
-};
+const faqsData = [
+  { qKey: 'help.faqStudentQ1', aKey: 'help.faqStudentA1' },
+  { qKey: 'help.faqStudentQ2', aKey: 'help.faqStudentA2' },
+  { qKey: 'help.faqStudentQ3', aKey: 'help.faqStudentA3' },
+  { qKey: 'help.faqStudentQ4', aKey: 'help.faqStudentA4' },
+];
 
 export default function StudentHelp() {
-  const { t, i18n } = useTranslation();
-  const isEn = i18n.language.startsWith('en');
-  const faqs = isEn ? faqsData.en : faqsData.he;
-  
+  const { t } = useTranslation();
+  const faqs = faqsData;
+
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [message, setMessage] = useState('');
   const [chatHistory, setChatHistory] = useState([
@@ -85,14 +76,14 @@ export default function StudentHelp() {
                     onClick={() => toggleFaq(idx)}
                     className={`w-full flex items-center justify-between p-4 text-start font-bold transition-colors ${openFaq === idx ? 'bg-teal-50 text-[#00857e]' : 'bg-white text-gray-800 hover:bg-gray-50'}`}
                   >
-                    {faq.q}
+                    {t(faq.qKey)}
                     <ChevronDown size={20} className={`transition-transform duration-300 ${openFaq === idx ? 'rotate-180' : ''}`} />
                   </button>
-                  <div 
+                  <div
                     className={`transition-all duration-300 overflow-hidden ${openFaq === idx ? 'max-h-40 border-t border-gray-100' : 'max-h-0'}`}
                   >
                     <div className="p-4 text-gray-600 leading-relaxed bg-white">
-                      {faq.a}
+                      {t(faq.aKey)}
                     </div>
                   </div>
                 </div>

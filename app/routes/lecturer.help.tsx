@@ -11,26 +11,17 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-const faqsData = {
-  he: [
-    { q: "איך פותחים קורס חדש?", a: "ניתן לפתוח קורס חדש מלשונית ״הקורסים שלי״ על ידי לחיצה על כפתור ״הוסף קורס״." },
-    { q: "איך מאשרים ציונים ממודל ה-AI?", a: "הכנס למטלה הרצויה, עבור על הציונים המוצעים ולחץ על כפתור ״אשר ציונים״ או ערוך ידנית במידת הצורך." },
-    { q: "האם אפשר להאריך מועד הגשה?", a: "כן. במסך הגדרות המטלה ניתן לשנות את תאריך היעד או לאפשר הגשות באיחור תחת סעיף ״מדיניות איחורים״." },
-    { q: "איך מגיבים לערעור סטודנט?", a: "בערעורים פתוחים תראה התראה. כנס למטלה דרך לשונית ערעורים, קרא את טענת הסטודנט, הוסף משוב ואשר/דחה את הערעור." },
-  ],
-  en: [
-    { q: "How do I open a new course?", a: "You can open a new course from the 'My Courses' tab by clicking the 'Add Course' button." },
-    { q: "How do I approve AI-generated grades?", a: "Enter the desired assignment, review the suggested grades and click 'Approve Grades' or edit manually if needed." },
-    { q: "Can I extend a submission deadline?", a: "Yes. In the assignment settings screen you can change the due date or allow late submissions under the 'Late Policy' section." },
-    { q: "How do I respond to a student appeal?", a: "You will see a notification for open appeals. Enter the assignment via the appeals tab, read the student's claim, add feedback and approve/reject the appeal." },
-  ]
-};
+const faqsData = [
+  { qKey: 'help.faqLecturerQ1', aKey: 'help.faqLecturerA1' },
+  { qKey: 'help.faqLecturerQ2', aKey: 'help.faqLecturerA2' },
+  { qKey: 'help.faqLecturerQ3', aKey: 'help.faqLecturerA3' },
+  { qKey: 'help.faqLecturerQ4', aKey: 'help.faqLecturerA4' },
+];
 
 export default function LecturerHelp() {
-  const { t, i18n } = useTranslation();
-  const isEn = i18n.language.startsWith('en');
-  const faqs = isEn ? faqsData.en : faqsData.he;
-  
+  const { t } = useTranslation();
+  const faqs = faqsData;
+
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [message, setMessage] = useState('');
   const [chatHistory, setChatHistory] = useState([
@@ -85,14 +76,14 @@ export default function LecturerHelp() {
                     onClick={() => toggleFaq(idx)}
                     className={`w-full flex items-center justify-between p-4 text-start font-bold transition-colors ${openFaq === idx ? 'bg-teal-50 text-[#00857e]' : 'bg-white text-gray-800 hover:bg-gray-50'}`}
                   >
-                    {faq.q}
+                    {t(faq.qKey)}
                     <ChevronDown size={20} className={`transition-transform duration-300 ${openFaq === idx ? 'rotate-180' : ''}`} />
                   </button>
-                  <div 
+                  <div
                     className={`transition-all duration-300 overflow-hidden ${openFaq === idx ? 'max-h-40 border-t border-gray-100' : 'max-h-0'}`}
                   >
                     <div className="p-4 text-gray-600 leading-relaxed bg-white">
-                      {faq.a}
+                      {t(faq.aKey)}
                     </div>
                   </div>
                 </div>

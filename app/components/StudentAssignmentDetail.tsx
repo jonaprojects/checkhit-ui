@@ -2,10 +2,11 @@ import { useState, useRef } from 'react';
 import { Link } from 'react-router';
 import { UploadCloud, File, AlertCircle, Bot, CheckCircle2, ChevronLeft, ArrowRight, MessageSquare, Download, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { isRtlLanguage } from '../lib/i18n';
 
 export default function StudentAssignmentDetail({ initialState = 'not-submitted' }) {
   const { t, i18n } = useTranslation();
-  const isEn = i18n.language.startsWith('en');
+  const isRtl = isRtlLanguage(i18n.language);
   // 'not-submitted' | 'checking' | 'checked'
   const [submissionState, setSubmissionState] = useState(initialState);
   const [showDemoControl, setShowDemoControl] = useState(true);
@@ -19,11 +20,11 @@ export default function StudentAssignmentDetail({ initialState = 'not-submitted'
         </Link>
         <div className="min-w-0 flex-1">
           <div className="flex items-center text-sm text-gray-500 gap-2 mb-1 w-full max-w-full overflow-hidden">
-            <Link to="/student/courses" className="hover:text-gray-700 cursor-pointer whitespace-nowrap">{isEn ? 'Data Structures & Algorithms' : 'מבני נתונים ואלגוריתמים'}</Link>
-            <ChevronLeft size={14} className={`shrink-0 ${isEn ? 'rotate-180' : ''}`} />
-            <span className="text-gray-800 font-medium truncate">{isEn ? 'Homework 3: Binary Search Trees' : 'תרגיל בית 3: עצי חיפוש בינאריים'}</span>
+            <Link to="/student/courses" className="hover:text-gray-700 cursor-pointer whitespace-nowrap">{t('courses.coursePlaceholder1')}</Link>
+            <ChevronLeft size={14} className={`shrink-0 ${!isRtl ? 'rotate-180' : ''}`} />
+            <span className="text-gray-800 font-medium truncate">{t('course.assignmentPlaceholder1')}</span>
           </div>
-          <h1 className="text-3xl font-extrabold text-gray-900">{isEn ? 'Homework 3: Binary Search Trees' : 'תרגיל בית 3: עצי חיפוש בינאריים'}</h1>
+          <h1 className="text-3xl font-extrabold text-gray-900">{t('course.assignmentPlaceholder1')}</h1>
         </div>
       </div>
 
@@ -35,7 +36,7 @@ export default function StudentAssignmentDetail({ initialState = 'not-submitted'
             <span className="bg-red-50 text-red-600 px-3 py-1 rounded-md text-sm font-bold">{t('assignmentDetail.gradeWeight')}</span>
           </div>
           <p className="text-gray-600 leading-relaxed mb-6">
-            {isEn ? 'In this exercise you will implement a Binary Search Tree in Java, including insert, delete, and search operations. Please adhere to the required time complexity as learned in class. The code must be submitted in a PDF or Markdown file.' : 'בתרגיל זה תממשו עץ חיפוש בינארי ב-Java, הכולל פעולות הכנסה, מחיקה, וחיפוש. אנא הקפידו על סיבוכיות זמן הריצה הנדרשת כפי שלמדנו בכיתה. את הקוד יש להגיש בקובץ PDF או Markdown.'}
+            {t('assignmentDetail.exerciseDescription')}
           </p>
           <div className="flex flex-wrap gap-4 text-sm">
             <div className="bg-gray-50 text-gray-700 px-4 py-2 rounded-lg font-medium flex items-center gap-2 border border-gray-200">
@@ -240,8 +241,7 @@ function CheckingView({ onFinish }) {
 }
 
 function CheckedView({ onReset }) {
-  const { t, i18n } = useTranslation();
-  const isEn = i18n.language.startsWith('en');
+  const { t } = useTranslation();
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       {/* Grade Banner */}
@@ -280,17 +280,17 @@ function CheckedView({ onReset }) {
               <Bot className="text-[#E8B43F]" /> {t('assignmentDetail.aiFeedback')}
             </h4>
             <div className="space-y-4">
-              <FeedbackItem type="positive" text={isEn ? "The insert function implementation is efficient and correct (O(log n) in average case)." : "מימוש פונקציית ה-insert יעיל ונכון (O(log n) במקרה הממוצע)."} />
-              <FeedbackItem type="positive" text={isEn ? "Correct edge case handling when deleting a node with two children (finding successor and replacing)." : "טיפול נכון במקרי קצה בעת מחיקת צומת בעל שני בנים (מציאת עוקב והחלפה)."} />
-              <FeedbackItem type="warning" text={isEn ? "The variable name `tmpNode` on line 45 does not indicate its role. It's recommended to use more meaningful names like `nodeToDelete`." : "שם המשתנה `tmpNode` בשורה 45 אינו מעיד על תפקידו. מומלץ להשתמש בשמות בעלי משמעות גבוהה יותר כמו `nodeToDelete`."} />
-              <FeedbackItem type="negative" text={isEn ? "Missing documentation (JavaDoc) in some public methods of the class. Documentation is part of the assignment requirements." : "חסר תיעוד (JavaDoc) בחלק מהמתודות הציבוריות של המחלקה. תיעוד הוא חלק מדרישות המטלה."} />
+              <FeedbackItem type="positive" text={t('assignmentDetail.feedbackPositive1')} />
+              <FeedbackItem type="positive" text={t('assignmentDetail.feedbackPositive2')} />
+              <FeedbackItem type="warning" text={t('assignmentDetail.feedbackWarning1')} />
+              <FeedbackItem type="negative" text={t('assignmentDetail.feedbackNegative1')} />
             </div>
           </div>
           
           <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
             <h4 className="text-lg font-bold text-gray-800 mb-2">{t('assignmentDetail.lecturerNote')}</h4>
             <p className="text-gray-600 bg-gray-50 p-4 rounded-lg italic">
-              {isEn ? '"Very nice work. Pay attention to the AI note regarding documentation next time."' : '"עבודה יפה מאוד. שימו לב להערת ה-AI בנושא התיעוד להבא."'}
+              {t('assignmentDetail.lecturerNoteQuote')}
             </p>
           </div>
         </div>

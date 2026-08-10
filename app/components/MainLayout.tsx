@@ -27,26 +27,16 @@ export default function MainLayout({ children, portalName = "פורטל סטוד
   const location = useLocation();
   const currentPath = location.pathname;
 
-  const isEn = i18n.language.startsWith('en');
-
   // Mock notifications based on view
-  const notifications = view === 'lecturer' ? (isEn ? [
-    { id: 1, title: 'Assignments pending grading', desc: 'You have 15 assignments to grade in the "Interface Design" course', time: '2 hours ago', unread: true, type: 'assignment' as const },
-    { id: 2, title: 'New Appeal', desc: 'Yossi Cohen submitted an appeal for the grade in Assignment 2', time: '4 hours ago', unread: true, type: 'appeal' as const },
-    { id: 3, title: 'System Reminder', desc: 'Grade entry for "Intro to Computer Science" closes tomorrow', time: 'Yesterday', unread: false, type: 'system' as const },
+  const notifications = view === 'lecturer' ? [
+    { id: 1, title: t('layoutNotifications.lecturer1Title'), desc: t('layoutNotifications.lecturer1Desc'), time: t('layoutNotifications.lecturer1Time'), unread: true, type: 'assignment' as const },
+    { id: 2, title: t('layoutNotifications.lecturer2Title'), desc: t('layoutNotifications.lecturer2Desc'), time: t('layoutNotifications.lecturer2Time'), unread: true, type: 'appeal' as const },
+    { id: 3, title: t('layoutNotifications.lecturer3Title'), desc: t('layoutNotifications.lecturer3Desc'), time: t('layoutNotifications.lecturer3Time'), unread: false, type: 'system' as const },
   ] : [
-    { id: 1, title: 'מטלות ממתינות לבדיקה', desc: 'יש לך 15 מטלות להעריך בקורס "עיצוב ממשקים"', time: 'לפני שעתיים', unread: true, type: 'assignment' as const },
-    { id: 2, title: 'ערעור חדש', desc: 'יוסי כהן הגיש ערעור על הציון במטלה 2', time: 'לפני 4 שעות', unread: true, type: 'appeal' as const },
-    { id: 3, title: 'תזכורת מערכת', desc: 'הזנת ציונים לקורס "מבוא למדעי המחשב" נסגרת מחר', time: 'אתמול', unread: false, type: 'system' as const },
-  ]) : (isEn ? [
-    { id: 1, title: 'Submission Reminder', desc: 'Assignment 3 in Intro to Computer Science ends in 12 hours!', time: '1 hour ago', unread: true, type: 'assignment' as const },
-    { id: 2, title: 'New Grade', desc: 'The grade and AI feedback for Assignment 2 are now available', time: '3 hours ago', unread: true, type: 'success' as const },
-    { id: 3, title: 'Course Update', desc: 'New supplementary material has been uploaded to the system', time: '1 day ago', unread: false, type: 'system' as const },
-  ] : [
-    { id: 1, title: 'תזכורת הגשה', desc: 'מטלה 3 במבוא למדעי המחשב מסתיימת בעוד 12 שעות!', time: 'לפני שעה', unread: true, type: 'assignment' as const },
-    { id: 2, title: 'ציון חדש', desc: 'הציון ומשוב ה-AI למטלה 2 זמינים כעת', time: 'לפני 3 שעות', unread: true, type: 'success' as const },
-    { id: 3, title: 'עדכון קורס', desc: 'חומר עזר חדש הועלה למערכת', time: 'לפני יום', unread: false, type: 'system' as const },
-  ]);
+    { id: 1, title: t('layoutNotifications.student1Title'), desc: t('layoutNotifications.student1Desc'), time: t('layoutNotifications.student1Time'), unread: true, type: 'assignment' as const },
+    { id: 2, title: t('layoutNotifications.student2Title'), desc: t('layoutNotifications.student2Desc'), time: t('layoutNotifications.student2Time'), unread: true, type: 'success' as const },
+    { id: 3, title: t('layoutNotifications.student3Title'), desc: t('layoutNotifications.student3Desc'), time: t('layoutNotifications.student3Time'), unread: false, type: 'system' as const },
+  ];
 
   // Click outside to close notifications
   useEffect(() => {

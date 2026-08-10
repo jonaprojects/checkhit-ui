@@ -8,19 +8,13 @@ import { StatusBadge } from '../components/ui/StatusBadge';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card';
 
 import { useTranslation } from 'react-i18next';
+import { isRtlLanguage } from '../lib/i18n';
 
-const dashboardCoursesData = {
-  he: [
-    { id: 1, name: 'מבני נתונים ואלגוריתמים', code: 'CS101', instructor: 'פרופ׳ כהן', accent: { bg: 'bg-teal-50', text: 'text-teal-700', groupHoverBg: 'group-hover:bg-teal-600', borderHover: 'hover:border-teal-300' } },
-    { id: 2, name: 'רשתות תקשורת', code: 'CS202', instructor: 'ד״ר לוי', accent: { bg: 'bg-blue-50', text: 'text-blue-700', groupHoverBg: 'group-hover:bg-blue-600', borderHover: 'hover:border-blue-300' } },
-    { id: 3, name: 'תכנות מונחה עצמים', code: 'CS303', instructor: 'ד״ר ישראלי', accent: { bg: 'bg-purple-50', text: 'text-purple-700', groupHoverBg: 'group-hover:bg-purple-600', borderHover: 'hover:border-purple-300' } },
-  ],
-  en: [
-    { id: 1, name: 'Data Structures & Algorithms', code: 'CS101', instructor: 'Prof. Cohen', accent: { bg: 'bg-teal-50', text: 'text-teal-700', groupHoverBg: 'group-hover:bg-teal-600', borderHover: 'hover:border-teal-300' } },
-    { id: 2, name: 'Computer Networks', code: 'CS202', instructor: 'Dr. Levi', accent: { bg: 'bg-blue-50', text: 'text-blue-700', groupHoverBg: 'group-hover:bg-blue-600', borderHover: 'hover:border-blue-300' } },
-    { id: 3, name: 'Object Oriented Programming', code: 'CS303', instructor: 'Dr. Israeli', accent: { bg: 'bg-purple-50', text: 'text-purple-700', groupHoverBg: 'group-hover:bg-purple-600', borderHover: 'hover:border-purple-300' } },
-  ]
-};
+const dashboardCoursesData = [
+  { id: 1, nameKey: 'courses.coursePlaceholder1', code: 'CS101', instructorKey: 'studentDashboard.instructor1', accent: { bg: 'bg-teal-50', text: 'text-teal-700', groupHoverBg: 'group-hover:bg-teal-600', borderHover: 'hover:border-teal-300' } },
+  { id: 2, nameKey: 'courses.coursePlaceholder2', code: 'CS202', instructorKey: 'studentDashboard.instructor2', accent: { bg: 'bg-blue-50', text: 'text-blue-700', groupHoverBg: 'group-hover:bg-blue-600', borderHover: 'hover:border-blue-300' } },
+  { id: 3, nameKey: 'courses.coursePlaceholder3', code: 'CS303', instructorKey: 'studentDashboard.instructor3', accent: { bg: 'bg-purple-50', text: 'text-purple-700', groupHoverBg: 'group-hover:bg-purple-600', borderHover: 'hover:border-purple-300' } },
+];
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -30,8 +24,8 @@ export function meta({}: Route.MetaArgs) {
 
 export default function StudentDashboardRoute() {
   const { t, i18n } = useTranslation();
-  const isEn = i18n.language.startsWith('en');
-  const dashboardCourses = isEn ? dashboardCoursesData.en : dashboardCoursesData.he;
+  const isRtl = isRtlLanguage(i18n.language);
+  const dashboardCourses = dashboardCoursesData;
 
   return (
     <MainLayout portalName={t('nav.dashboard')} view="student">
@@ -52,22 +46,22 @@ export default function StudentDashboardRoute() {
                 {t('dashboard.upcomingAssignments')}
               </h2>
               <Link to="/student/assignments" className="text-[#00857e] font-bold flex items-center gap-2 hover:underline">
-                {t('dashboard.allAssignments')} {isEn ? <ArrowLeft size={18} className="rotate-180" /> : <ArrowLeft size={18} />}
+                {t('dashboard.allAssignments')} {!isRtl ? <ArrowLeft size={18} className="rotate-180" /> : <ArrowLeft size={18} />}
               </Link>
             </div>
             <div className="space-y-4 flex-1">
               <StudentAssignmentCard
-                title={isEn ? "Assignment 3 - Recursion" : "תרגיל 3 - רקורסיה"}
-                course={isEn ? "Intro to Computer Science" : "מבוא למדעי המחשב"}
+                title={t('studentDashboard.assignment3Title')}
+                course={t('studentDashboard.courseIntroCS')}
                 dueDate="2026-07-14"
                 actionText={t('dashboard.toSubmit')}
                 linkTo="/student/assignments"
                 statusBadge={<StatusBadge type="assignment" status="pending" rounded="md" />}
               />
-              
+
               <StudentAssignmentCard
-                title={isEn ? "Assignment 4" : "תרגיל 4"}
-                course={isEn ? "Data Structures & Algorithms" : "מבני נתונים ואלגוריתמים"}
+                title={t('studentDashboard.assignment4Title')}
+                course={t('courses.coursePlaceholder1')}
                 dueDate="2026-07-20"
                 actionText={t('dashboard.view')}
                 linkTo="/student/assignments"
@@ -85,15 +79,15 @@ export default function StudentDashboardRoute() {
               <div className="space-y-4">
                 <div className="flex justify-between items-center pb-3 border-b border-gray-50">
                   <div>
-                    <div className="font-bold text-sm">{isEn ? 'Assignment 2' : 'תרגיל 2'}</div>
-                    <div className="text-xs text-gray-500">{isEn ? 'Intro to Computer Science' : 'מבוא למדעי המחשב'}</div>
+                    <div className="font-bold text-sm">{t('studentDashboard.assignment2Title')}</div>
+                    <div className="text-xs text-gray-500">{t('studentDashboard.courseIntroCS')}</div>
                   </div>
                   <div className="font-extrabold text-lg text-gray-900">95</div>
                 </div>
                 <div className="flex justify-between items-center pb-3 border-b border-gray-50">
                   <div>
-                    <div className="font-bold text-sm">{isEn ? 'Midterm Project' : 'פרויקט אמצע'}</div>
-                    <div className="text-xs text-gray-500">{isEn ? 'Object Oriented Programming' : 'תכנות מונחה עצמים'}</div>
+                    <div className="font-bold text-sm">{t('studentDashboard.midtermProjectTitle')}</div>
+                    <div className="text-xs text-gray-500">{t('courses.coursePlaceholder3')}</div>
                   </div>
                   <div className="font-extrabold text-lg text-gray-900">88</div>
                 </div>
@@ -107,10 +101,10 @@ export default function StudentDashboardRoute() {
                 <AlertCircle className="text-orange-500" /> {t('dashboard.appealsInProgress')}
               </h2>
               <div className="p-4 bg-orange-50 rounded-xl border border-orange-100">
-                <div className="font-bold text-orange-900 text-sm">{isEn ? 'Assignment 1: OSI Model' : 'מטלה 1: מודל OSI'}</div>
-                <div className="text-sm text-orange-700 mt-1">{isEn ? 'Computer Networks' : 'רשתות תקשורת'}</div>
+                <div className="font-bold text-orange-900 text-sm">{t('studentDashboard.osiModelAssignmentTitle')}</div>
+                <div className="text-sm text-orange-700 mt-1">{t('courses.coursePlaceholder2')}</div>
                 <div className="mt-3 flex items-center gap-2 text-xs font-bold text-orange-600 bg-white px-2 py-1 rounded-md w-fit">
-                  {isEn ? 'Pending Lecturer Review' : 'ממתין לתשובת מרצה'}
+                  {t('studentDashboard.pendingLecturerReview')}
                 </div>
               </div>
             </Card>
@@ -124,20 +118,20 @@ export default function StudentDashboardRoute() {
                 {t('dashboard.recentCourses')}
               </h2>
               <Link to="/student/courses" className="text-[#00857e] font-bold flex items-center gap-2 hover:underline text-sm">
-                {t('dashboard.allCourses')} {isEn ? <ArrowLeft size={16} className="rotate-180" /> : <ArrowLeft size={16} />}
+                {t('dashboard.allCourses')} {!isRtl ? <ArrowLeft size={16} className="rotate-180" /> : <ArrowLeft size={16} />}
               </Link>
             </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {dashboardCourses.map(course => (
               <CourseCard
                 key={course.id}
-                name={course.name}
+                name={t(course.nameKey)}
                 code={course.code}
                 accent={course.accent}
                 to={`/student/courses/${course.id}`}
                 variant="compact"
               >
-                {course.code} • {course.instructor}
+                {course.code} • {t(course.instructorKey)}
               </CourseCard>
             ))}
           </div>

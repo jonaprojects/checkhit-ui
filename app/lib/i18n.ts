@@ -4,6 +4,17 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 
 import heTranslations from '../locales/he.json';
 import enTranslations from '../locales/en.json';
+import arTranslations from '../locales/ar.json';
+import ruTranslations from '../locales/ru.json';
+
+export const SUPPORTED_LANGUAGES = ['he', 'en', 'ar', 'ru'] as const;
+export type SupportedLanguage = typeof SUPPORTED_LANGUAGES[number];
+
+export const RTL_LANGUAGES: SupportedLanguage[] = ['he', 'ar'];
+
+export function isRtlLanguage(lang: string): boolean {
+  return RTL_LANGUAGES.includes(lang.split('-')[0] as SupportedLanguage);
+}
 
 i18n
   // Detect user language
@@ -14,11 +25,14 @@ i18n
   .init({
     resources: {
       he: heTranslations,
-      en: enTranslations
+      en: enTranslations,
+      ar: arTranslations,
+      ru: ruTranslations
     },
+    supportedLngs: SUPPORTED_LANGUAGES,
     fallbackLng: 'he',
     debug: false,
-    
+
     interpolation: {
       escapeValue: false, // React already escapes values
     }

@@ -7,6 +7,7 @@ import { Card } from '../components/ui/Card';
 import { FilterBar } from '../components/ui/FilterBar';
 import { Select } from '../components/ui/Input';
 import { useTranslation } from 'react-i18next';
+import { isRtlLanguage } from '../lib/i18n';
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -14,121 +15,72 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-const MOCK_APPEALS = {
-  he: [
-    {
-      id: "app_1",
-      studentName: "ישראל ישראלי",
-      studentId: "123456789",
-      courseName: "מבני נתונים ואלגוריתמים",
-      assignmentName: "תרגיל בית 3: עצי חיפוש",
-      date: "28.10.2023, 14:30",
-      grade: "82/100",
-      category: "grading_error",
-      categoryLabel: "טעות בבדיקה",
-      preview: "ה-AI הוריד לי נקודות על יעילות זמן הריצה, אבל המימוש שלי הוא O(log n) כמו שלמדנו...",
-      status: "pending",
-    },
-    {
-      id: "app_2",
-      studentName: "שיר כהן",
-      studentId: "987654321",
-      courseName: "מבוא למדעי המחשב",
-      assignmentName: "מטלה 1: משתנים ולולאות",
-      date: "27.10.2023, 09:15",
-      grade: "65/100",
-      category: "misunderstanding",
-      categoryLabel: "חוסר הבנה של הקוד",
-      preview: "לדעתי המערכת לא הבינה את הלוגיקה של פונקציית העזר שלי שסופרת את האיברים...",
-      status: "pending",
-    },
-    {
-      id: "app_3",
-      studentName: "נועם לוי",
-      studentId: "333444555",
-      courseName: "עיצוב ממשקים",
-      assignmentName: "פרויקט אמצע",
-      date: "25.10.2023, 18:45",
-      grade: "90/100",
-      category: "technical",
-      categoryLabel: "בעיה טכנית",
-      preview: "הקובץ לא עלה כראוי ולכן חסר חלק מהקוד בבדיקה.",
-      status: "resolved",
-    },
-    {
-      id: "app_4",
-      studentName: "רועי גבאי",
-      studentId: "111222333",
-      courseName: "מבני נתונים ואלגוריתמים",
-      assignmentName: "תרגיל 1: רשימות מקושרות",
-      date: "24.10.2023, 10:00",
-      grade: "75/100",
-      category: "other",
-      categoryLabel: "אחר",
-      preview: "אני חושב שמגיעות לי עוד נקודות על הבונוס שעשיתי בסוף.",
-      status: "resolved",
-    }
-  ],
-  en: [
-    {
-      id: "app_1",
-      studentName: "Israel Israeli",
-      studentId: "123456789",
-      courseName: "Data Structures & Algorithms",
-      assignmentName: "Homework 3: Search Trees",
-      date: "28.10.2023, 14:30",
-      grade: "82/100",
-      category: "grading_error",
-      categoryLabel: "Grading Error",
-      preview: "The AI deducted points for time efficiency, but my implementation is O(log n) as we learned...",
-      status: "pending",
-    },
-    {
-      id: "app_2",
-      studentName: "Shir Cohen",
-      studentId: "987654321",
-      courseName: "Introduction to Computer Science",
-      assignmentName: "Assignment 1: Variables and Loops",
-      date: "27.10.2023, 09:15",
-      grade: "65/100",
-      category: "misunderstanding",
-      categoryLabel: "Code Misunderstanding",
-      preview: "I think the system didn't understand the logic of my helper function that counts elements...",
-      status: "pending",
-    },
-    {
-      id: "app_3",
-      studentName: "Noam Levi",
-      studentId: "333444555",
-      courseName: "Interface Design",
-      assignmentName: "Midterm Project",
-      date: "25.10.2023, 18:45",
-      grade: "90/100",
-      category: "technical",
-      categoryLabel: "Technical Issue",
-      preview: "The file didn't upload properly so part of the code is missing in the check.",
-      status: "resolved",
-    },
-    {
-      id: "app_4",
-      studentName: "Roei Gabay",
-      studentId: "111222333",
-      courseName: "Data Structures & Algorithms",
-      assignmentName: "Exercise 1: Linked Lists",
-      date: "24.10.2023, 10:00",
-      grade: "75/100",
-      category: "other",
-      categoryLabel: "Other",
-      preview: "I think I deserve more points for the bonus I did at the end.",
-      status: "resolved",
-    }
-  ]
-};
+const MOCK_APPEALS_DATA = [
+  {
+    id: "app_1",
+    studentNameKey: 'appealReview.mockStudentName',
+    studentId: "123456789",
+    courseNameKey: 'courses.coursePlaceholder1',
+    assignmentNameKey: 'appealReview.mockAssignmentName',
+    date: "28.10.2023, 14:30",
+    grade: "82/100",
+    category: "grading_error",
+    categoryLabelKey: 'appealReview.mockCategoryLabel',
+    previewKey: 'appeals.mockAppeal1Preview',
+    status: "pending",
+  },
+  {
+    id: "app_2",
+    studentNameKey: 'appeals.mockAppeal2StudentName',
+    studentId: "987654321",
+    courseNameKey: 'appeals.mockAppeal2CourseName',
+    assignmentNameKey: 'appeals.mockAppeal2AssignmentName',
+    date: "27.10.2023, 09:15",
+    grade: "65/100",
+    category: "misunderstanding",
+    categoryLabelKey: 'appeals.mockAppeal2CategoryLabel',
+    previewKey: 'appeals.mockAppeal2Preview',
+    status: "pending",
+  },
+  {
+    id: "app_3",
+    studentNameKey: 'appeals.mockAppeal3StudentName',
+    studentId: "333444555",
+    courseNameKey: 'appeals.mockAppeal3CourseName',
+    assignmentNameKey: 'studentDashboard.midtermProjectTitle',
+    date: "25.10.2023, 18:45",
+    grade: "90/100",
+    category: "technical",
+    categoryLabelKey: 'appeals.mockAppeal3CategoryLabel',
+    previewKey: 'appeals.mockAppeal3Preview',
+    status: "resolved",
+  },
+  {
+    id: "app_4",
+    studentNameKey: 'appeals.mockAppeal4StudentName',
+    studentId: "111222333",
+    courseNameKey: 'courses.coursePlaceholder1',
+    assignmentNameKey: 'appeals.mockAppeal4AssignmentName',
+    date: "24.10.2023, 10:00",
+    grade: "75/100",
+    category: "other",
+    categoryLabelKey: 'appeals.mockAppeal4CategoryLabel',
+    previewKey: 'appeals.mockAppeal4Preview',
+    status: "resolved",
+  }
+];
 
 export default function LecturerAppealsRoute() {
   const { t, i18n } = useTranslation();
-  const isEn = i18n.language.startsWith('en');
-  const appeals = isEn ? MOCK_APPEALS.en : MOCK_APPEALS.he;
+  const isRtl = isRtlLanguage(i18n.language);
+  const appeals = MOCK_APPEALS_DATA.map(a => ({
+    ...a,
+    studentName: t(a.studentNameKey),
+    courseName: t(a.courseNameKey),
+    assignmentName: t(a.assignmentNameKey),
+    categoryLabel: t(a.categoryLabelKey),
+    preview: t(a.previewKey),
+  }));
 
   const [searchTerm, setSearchTerm] = useState("");
   const [courseFilter, setCourseFilter] = useState("all");
@@ -145,7 +97,7 @@ export default function LecturerAppealsRoute() {
   const uniqueCourses = Array.from(new Set(appeals.map(a => a.courseName)));
 
   return (
-    <MainLayout portalName={isEn ? "Lecturer Portal" : "פורטל מרצים"} view="lecturer">
+    <MainLayout portalName={t('nav.lecturerPortal')} view="lecturer">
       <div className="space-y-6 animate-in fade-in duration-500 max-w-6xl mx-auto pb-12">
         
         {/* Header */}
@@ -168,9 +120,9 @@ export default function LecturerAppealsRoute() {
           className="mb-6"
         >
           <div className="relative w-full md:w-1/2">
-            <Filter className={`absolute ${isEn ? 'left-3' : 'right-3'} top-1/2 -translate-y-1/2 text-gray-400`} size={16} />
-            <Select 
-              className={`w-full ${isEn ? 'pr-4 pl-10' : 'pl-4 pr-10'} py-2.5 !bg-gray-50 border-gray-200`}
+            <Filter className={`absolute ${!isRtl ? 'left-3' : 'right-3'} top-1/2 -translate-y-1/2 text-gray-400`} size={16} />
+            <Select
+              className={`w-full ${!isRtl ? 'pr-4 pl-10' : 'pl-4 pr-10'} py-2.5 !bg-gray-50 border-gray-200`}
               value={courseFilter}
               onChange={(e) => setCourseFilter(e.target.value)}
             >
@@ -223,7 +175,7 @@ export default function LecturerAppealsRoute() {
 
 function AppealCard({ appeal }: { appeal: any }) {
   const { t, i18n } = useTranslation();
-  const isEn = i18n.language.startsWith('en');
+  const isRtl = isRtlLanguage(i18n.language);
 
   const getCategoryColor = (cat: string) => {
     switch(cat) {
@@ -277,7 +229,7 @@ function AppealCard({ appeal }: { appeal: any }) {
           className="w-full md:w-auto inline-flex items-center justify-center gap-2 bg-white border border-[#00857e] text-[#00857e] hover:bg-teal-50 px-6 py-2 rounded-lg text-sm font-bold transition-colors cursor-pointer"
         >
           {t('appeals.reviewBtn')}
-          <ChevronLeft size={16} className={isEn ? "rotate-180" : ""} />
+          <ChevronLeft size={16} className={!isRtl ? "rotate-180" : ""} />
         </Link>
       </div>
     </div>

@@ -6,6 +6,7 @@ import { Button } from '../components/ui/Button';
 import { Select, Textarea, Label } from '../components/ui/Input';
 import { useState } from "react";
 import { useTranslation } from 'react-i18next';
+import { isRtlLanguage } from '../lib/i18n';
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -15,7 +16,7 @@ export function meta({}: Route.MetaArgs) {
 
 export default function StudentAppealRoute() {
   const { t, i18n } = useTranslation();
-  const isEn = i18n.language.startsWith('en');
+  const isRtl = isRtlLanguage(i18n.language);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -38,7 +39,7 @@ export default function StudentAppealRoute() {
 
   if (isSubmitted) {
     return (
-      <MainLayout portalName={isEn ? "Student Portal" : "פורטל סטודנטים"} view="student">
+      <MainLayout portalName={t('nav.studentPortal')} view="student">
         <div className="flex flex-col items-center justify-center min-h-[70vh] animate-in fade-in zoom-in duration-500">
           <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-6">
             <AlertCircle size={40} className="transform rotate-180" />
@@ -54,14 +55,14 @@ export default function StudentAppealRoute() {
   }
 
   return (
-    <MainLayout portalName={isEn ? "Student Portal" : "פורטל סטודנטים"} view="student">
+    <MainLayout portalName={t('nav.studentPortal')} view="student">
       <div className="space-y-8 animate-in fade-in duration-500 max-w-3xl mx-auto pb-12">
         <header className="border-b border-gray-200 pb-6">
           <Link to="/student/assignments" className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-[#00857e] transition-colors mb-4">
-            <ChevronRight size={16} className={isEn ? "rotate-180" : ""} /> {t('appealForm.cancelAndReturn')}
+            <ChevronRight size={16} className={!isRtl ? "rotate-180" : ""} /> {t('appealForm.cancelAndReturn')}
           </Link>
           <h1 className="text-3xl font-extrabold text-gray-900">{t('appealForm.title')}</h1>
-          <p className="text-gray-500 mt-2">{isEn ? 'Assignment 2: Quick Sort (Grade: 82)' : 'מטלה 2: מיון מהיר (ציון: 82)'}</p>
+          <p className="text-gray-500 mt-2">{t('course.assignmentPlaceholder2')} {t('appealForm.gradeSuffix', { grade: 82 })}</p>
         </header>
 
         <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-gray-200 p-8 space-y-6">

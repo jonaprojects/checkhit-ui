@@ -16,25 +16,16 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-const assignmentsData = {
-  he: [
-    { id: 1, title: 'תרגיל בית 3: עצי חיפוש בינאריים', course: 'מבני נתונים ואלגוריתמים', dueDate: 'מחר, 23:59', status: 'pending' },
-    { id: 2, title: 'מטלה 2: מיון מהיר', course: 'מבני נתונים ואלגוריתמים', dueDate: 'הוגש לפני יומיים', status: 'checked', grade: 95 },
-    { id: 3, title: 'תרגיל 1: מודל OSI', course: 'רשתות תקשורת', dueDate: 'הוגש לפני שבוע', status: 'appeal', grade: 82 },
-    { id: 4, title: 'פרויקט גמר - שלב א', course: 'תכנות מונחה עצמים', dueDate: 'הוגש אתמול', status: 'checking' },
-  ],
-  en: [
-    { id: 1, title: 'Homework 3: Binary Search Trees', course: 'Data Structures & Algorithms', dueDate: 'Tomorrow, 23:59', status: 'pending' },
-    { id: 2, title: 'Assignment 2: Quick Sort', course: 'Data Structures & Algorithms', dueDate: 'Submitted 2 days ago', status: 'checked', grade: 95 },
-    { id: 3, title: 'Assignment 1: OSI Model', course: 'Computer Networks', dueDate: 'Submitted 1 week ago', status: 'appeal', grade: 82 },
-    { id: 4, title: 'Final Project - Phase A', course: 'Object Oriented Programming', dueDate: 'Submitted yesterday', status: 'checking' },
-  ]
-};
+const assignmentsData = [
+  { id: 1, titleKey: 'course.assignmentPlaceholder1', courseKey: 'courses.coursePlaceholder1', dueDateKey: 'course.dueDateTomorrow', status: 'pending' },
+  { id: 2, titleKey: 'course.assignmentPlaceholder2', courseKey: 'courses.coursePlaceholder1', dueDateKey: 'course.submitted2DaysAgo', status: 'checked', grade: 95 },
+  { id: 3, titleKey: 'appeals.mockAppeal2Title', courseKey: 'courses.coursePlaceholder2', dueDateKey: 'course.submitted1WeekAgo', status: 'appeal', grade: 82 },
+  { id: 4, titleKey: 'course.assignmentPlaceholder4', courseKey: 'courses.coursePlaceholder3', dueDateKey: 'course.submittedYesterday', status: 'checking' },
+];
 
 export default function StudentAssignmentsRoute() {
-  const { t, i18n } = useTranslation();
-  const isEn = i18n.language.startsWith('en');
-  const assignments = isEn ? assignmentsData.en : assignmentsData.he;
+  const { t } = useTranslation();
+  const assignments = assignmentsData.map(a => ({ ...a, title: t(a.titleKey), course: t(a.courseKey), dueDate: t(a.dueDateKey) }));
 
   const [searchQuery, setSearchQuery] = useState('');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -182,19 +173,19 @@ export default function StudentAssignmentsRoute() {
               <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4 text-gray-400">
                 <Search size={32} />
               </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-2">{isEn ? 'No results found' : 'לא נמצאו תוצאות'}</h3>
+              <h3 className="text-xl font-bold text-gray-800 mb-2">{t('course.noResultsTitle')}</h3>
               <p className="text-gray-500 max-w-sm mb-6">
-                {isEn ? 'No assignments match your search or filters. Try changing your selection.' : 'לא מצאנו מטלות שמתאימות לסינון או לחיפוש שלך. כדאי לנסות לשנות את הבחירה.'}
+                {t('course.noResultsDesc')}
               </p>
               {(activeFiltersCount > 0 || searchQuery) && (
-                <button 
+                <button
                   onClick={() => {
                     clearFilters();
                     setSearchQuery('');
-                  }} 
+                  }}
                   className="text-[#00857e] hover:underline font-medium"
                 >
-                  {isEn ? 'Clear all filters' : 'נקה את כל הסינונים'}
+                  {t('course.clearAllFilters')}
                 </button>
               )}
             </div>

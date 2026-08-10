@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Button } from '../components/ui/Button';
 import { ChevronRight, ChevronLeft, FileText, Download, Eye, Bot, Sparkles, CheckCircle2, AlertCircle } from "lucide-react";
 import { useTranslation } from 'react-i18next';
+import { isRtlLanguage } from '../lib/i18n';
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -13,50 +14,37 @@ export function meta({}: Route.MetaArgs) {
 }
 
 const MOCK_APPEAL_DATA = {
-  he: {
-    id: "app_1",
-    studentName: "ישראל ישראלי",
-    studentId: "123456789",
-    courseName: "מבני נתונים ואלגוריתמים",
-    assignmentName: "תרגיל בית 3: עצי חיפוש",
-    date: "28.10.2023, 14:30",
-    originalGrade: 82,
-    categoryLabel: "טעות בבדיקה",
-    studentClaim: "ה-AI הוריד לי 18 נקודות על יעילות זמן הריצה בפונקציית המחיקה. אולם, כפי שניתן לראות בקובץ המצורף, המימוש שלי משתמש במציאת העוקב (Successor) בצורה נכונה ולכן הוא רץ בזמן O(log n) במקרה הממוצע כמו שלמדנו בכיתה. אשמח להערכה מחדש של סעיף זה.",
-    attachments: [
-      { name: "binary_tree_submission.pdf", size: "1.2 MB" },
-      { name: "explanation_diagram.pdf", size: "0.5 MB" }
-    ],
-    originalFeedback: [
-      { type: "positive", text: "מימוש פונקציית ה-insert יעיל ונכון (O(log n) במקרה הממוצע)." },
-      { type: "negative", text: "פונקציית המחיקה אינה יעילה במקרי קצה מסוימים ועשויה לחרוג מ-O(log n)." }
-    ]
-  },
-  en: {
-    id: "app_1",
-    studentName: "Israel Israeli",
-    studentId: "123456789",
-    courseName: "Data Structures & Algorithms",
-    assignmentName: "Homework 3: Search Trees",
-    date: "28.10.2023, 14:30",
-    originalGrade: 82,
-    categoryLabel: "Grading Error",
-    studentClaim: "The AI deducted 18 points for runtime efficiency in the delete function. However, as can be seen in the attached file, my implementation correctly uses finding the Successor and therefore runs in O(log n) time on average as we learned in class. I would appreciate a re-evaluation of this section.",
-    attachments: [
-      { name: "binary_tree_submission.pdf", size: "1.2 MB" },
-      { name: "explanation_diagram.pdf", size: "0.5 MB" }
-    ],
-    originalFeedback: [
-      { type: "positive", text: "The implementation of the insert function is efficient and correct (O(log n) on average)." },
-      { type: "negative", text: "The delete function is inefficient in some edge cases and may exceed O(log n)." }
-    ]
-  }
+  id: "app_1",
+  studentNameKey: 'appealReview.mockStudentName',
+  studentId: "123456789",
+  courseNameKey: 'courses.coursePlaceholder1',
+  assignmentNameKey: 'appealReview.mockAssignmentName',
+  date: "28.10.2023, 14:30",
+  originalGrade: 82,
+  categoryLabelKey: 'appealReview.mockCategoryLabel',
+  studentClaimKey: 'appealReview.mockStudentClaim',
+  attachments: [
+    { name: "binary_tree_submission.pdf", size: "1.2 MB" },
+    { name: "explanation_diagram.pdf", size: "0.5 MB" }
+  ],
+  originalFeedback: [
+    { type: "positive", textKey: 'appealReview.mockFeedbackPositive' },
+    { type: "negative", textKey: 'appealReview.mockFeedbackNegative' }
+  ]
 };
 
 export default function LecturerAppealReviewRoute() {
   const { t, i18n } = useTranslation();
-  const isEn = i18n.language.startsWith('en');
-  const MOCK_APPEAL = isEn ? MOCK_APPEAL_DATA.en : MOCK_APPEAL_DATA.he;
+  const isRtl = isRtlLanguage(i18n.language);
+  const MOCK_APPEAL = {
+    ...MOCK_APPEAL_DATA,
+    studentName: t(MOCK_APPEAL_DATA.studentNameKey),
+    courseName: t(MOCK_APPEAL_DATA.courseNameKey),
+    assignmentName: t(MOCK_APPEAL_DATA.assignmentNameKey),
+    categoryLabel: t(MOCK_APPEAL_DATA.categoryLabelKey),
+    studentClaim: t(MOCK_APPEAL_DATA.studentClaimKey),
+    originalFeedback: MOCK_APPEAL_DATA.originalFeedback.map(f => ({ ...f, text: t(f.textKey) })),
+  };
   const { appealId } = useParams();
   
   // AI Assistant State: 'idle' | 'analyzing' | 'done'
@@ -75,9 +63,7 @@ export default function LecturerAppealReviewRoute() {
 
   const handleApplyAiRecommendation = () => {
     setNewGrade(95); // Example AI recommendation
-    setLecturerFeedback(isEn 
-      ? "After a re-evaluation with the help of AI, it seems you are correct. The implementation of finding the successor indeed guarantees logarithmic running time on average. The grade has been updated accordingly."
-      : "לאחר בדיקה חוזרת בעזרת ה-AI, נראה שהצדק איתך. המימוש של מציאת העוקב אכן מבטיח זמן ריצה לוגריתמי בממוצע. הציון תוקן בהתאם.");
+    setLecturerFeedback(t('appealReview.aiAppliedFeedback'));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -91,7 +77,7 @@ export default function LecturerAppealReviewRoute() {
 
   if (isSubmitted) {
     return (
-      <MainLayout portalName={isEn ? "Lecturer Portal" : "פורטל מרצים"} view="lecturer">
+      <MainLayout portalName={t('nav.lecturerPortal')} view="lecturer">
         <div className="flex flex-col items-center justify-center min-h-[70vh] animate-in fade-in zoom-in duration-500">
           <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-6">
             <CheckCircle2 size={40} />
@@ -107,18 +93,18 @@ export default function LecturerAppealReviewRoute() {
   }
 
   return (
-    <MainLayout portalName={isEn ? "Lecturer Portal" : "פורטל מרצים"} view="lecturer">
+    <MainLayout portalName={t('nav.lecturerPortal')} view="lecturer">
       <div className="space-y-6 animate-in fade-in duration-500 max-w-7xl mx-auto pb-12">
         
         {/* Header */}
         <header className="border-b border-gray-200 pb-6">
           <Link to="/lecturer/appeals" className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-[#00857e] transition-colors mb-4 cursor-pointer">
-            <ChevronRight size={16} className={isEn ? "rotate-180" : ""} /> {t('appealReview.backToAppeals')}
+            <ChevronRight size={16} className={!isRtl ? "rotate-180" : ""} /> {t('appealReview.backToAppeals')}
           </Link>
           <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
             <div>
               <h1 className="text-3xl font-extrabold text-gray-900 flex items-center gap-3">
-                בדיקת ערעור: {MOCK_APPEAL.studentName}
+                {t('appealReview.reviewingLabel')} {MOCK_APPEAL.studentName}
                 <span className="text-lg font-normal text-gray-400 font-mono mt-1">({MOCK_APPEAL.studentId})</span>
               </h1>
               <div className="flex flex-wrap items-center gap-3 mt-3">
@@ -130,7 +116,7 @@ export default function LecturerAppealReviewRoute() {
               </div>
             </div>
             <div className="flex items-center gap-4 bg-white border border-gray-200 rounded-xl p-3 shadow-sm">
-              <div className={`text-center px-4 ${isEn ? 'border-r border-gray-200' : 'border-l border-gray-200'}`}>
+              <div className={`text-center px-4 ${!isRtl ? 'border-r border-gray-200' : 'border-l border-gray-200'}`}>
                 <div className="text-xs text-gray-500 mb-1">{t('appealReview.originalGrade')}</div>
                 <div className="text-2xl font-black text-[#00857e]">{MOCK_APPEAL.originalGrade}</div>
               </div>
@@ -255,7 +241,7 @@ export default function LecturerAppealReviewRoute() {
                   <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
                     <div className="bg-white rounded-lg border border-teal-100 p-4 mb-4 shadow-sm">
                       <p className="text-sm text-gray-700 mb-3 leading-relaxed">
-                        <strong>{t('appealReview.aiConclusionTitle')}</strong> {isEn ? "The student's claim is correct. A re-evaluation shows that the helper function prevents overflow in edge cases, and the complexity remains O(log n)." : "טענת הסטודנט נכונה. בבדיקה חוזרת עולה כי פונקציית העזר מונעת גלישה במקרי קצה, והסיבוכיות נשמרת על O(log n)."}
+                        <strong>{t('appealReview.aiConclusionTitle')}</strong> {t('appealReview.aiConclusionText')}
                       </p>
                       <div className="flex items-center justify-between bg-green-50 px-3 py-2 rounded border border-green-100">
                          <span className="text-sm font-bold text-green-800">{t('appealReview.aiRecommendation')}</span>
@@ -293,14 +279,14 @@ export default function LecturerAppealReviewRoute() {
                       onChange={(e) => setNewGrade(e.target.value)}
                       className="w-24 text-center font-bold text-xl border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-[#00857e] focus:outline-none"
                     />
-                    <span className={`text-gray-500 font-bold ${isEn ? 'mr-2' : 'ml-2'}`}>/ 100</span>
+                    <span className={`text-gray-500 font-bold ${!isRtl ? 'mr-2' : 'ml-2'}`}>/ 100</span>
                     {Number(newGrade) > MOCK_APPEAL.originalGrade && (
-                      <span className={`text-green-600 text-sm font-bold bg-green-50 px-2 py-1 rounded-md ${isEn ? 'ml-auto' : 'mr-auto'}`}>
+                      <span className={`text-green-600 text-sm font-bold bg-green-50 px-2 py-1 rounded-md ${!isRtl ? 'ml-auto' : 'mr-auto'}`}>
                         +{Number(newGrade) - MOCK_APPEAL.originalGrade} {t('appealReview.points')}
                       </span>
                     )}
                     {Number(newGrade) < MOCK_APPEAL.originalGrade && (
-                      <span className={`text-red-600 text-sm font-bold bg-red-50 px-2 py-1 rounded-md ${isEn ? 'ml-auto' : 'mr-auto'}`}>
+                      <span className={`text-red-600 text-sm font-bold bg-red-50 px-2 py-1 rounded-md ${!isRtl ? 'ml-auto' : 'mr-auto'}`}>
                         {Number(newGrade) - MOCK_APPEAL.originalGrade} {t('appealReview.points')}
                       </span>
                     )}
@@ -336,9 +322,7 @@ export default function LecturerAppealReviewRoute() {
                     className="w-full text-red-600 hover:text-red-700 hover:bg-red-50 border-gray-200 hover:border-red-200"
                     onClick={() => {
                       setNewGrade(MOCK_APPEAL.originalGrade);
-                      setLecturerFeedback(isEn 
-                        ? "After a thorough review of your claims, the implementation still does not meet the efficiency requirements. The original grade remains."
-                        : "לאחר בדיקה מעמיקה של טענותיך, המימוש עדיין לא עומד בדרישות היעילות. הציון נותר בעינו.");
+                      setLecturerFeedback(t('appealReview.aiRejectFeedback'));
                     }}
                   >
                     {t('appealReview.rejectAppealBtn')}

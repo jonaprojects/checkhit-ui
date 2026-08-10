@@ -3,6 +3,7 @@ import MainLayout from "../components/MainLayout";
 import { useState } from "react";
 import { Search, Mail, MailOpen, User, Clock, MoreVertical, Archive, Trash2, Reply } from "lucide-react";
 import { useTranslation } from 'react-i18next';
+import { isRtlLanguage } from '../lib/i18n';
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -11,139 +12,55 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-const MOCK_MESSAGES_DATA = {
-  he: [
-    {
-      id: 1,
-      sender: "מערכת Check Hit",
-      avatar: "https://ui-avatars.com/api/?name=System&background=00857e&color=fff",
-      subject: "עדכון גרסה למערכת הגשת המטלות",
-      snippet: "שים לב, בלילה שבין שני לשלישי המערכת תרד לשדרוג שרתים...",
-      time: "08:30",
-      date: "היום",
-      isRead: false,
-      content: `סטודנטים יקרים,
-      
-ברצוננו לעדכן אתכם כי בלילה שבין יום שני ליום שלישי הקרוב, בין השעות 02:00 ל-06:00 בבוקר, תתבצע תחזוקת שרתים ושדרוג גרסה למערכת הגשת המטלות. 
-
-במהלך שעות אלו ייתכנו שיבושים בגישה לאתר ולא יתאפשר להעלות קבצים. אנו ממליצים לתכנן את זמני ההגשה בהתאם ולהימנע מהגשות ברגע האחרון.
-
-בברכה,
-צוות התמיכה הטכנית
-Check Hit`
-    },
-    {
-      id: 2,
-      sender: "ד\"ר עמית שפירא",
-      avatar: "https://i.pravatar.cc/150?img=33",
-      subject: "הערות על מטלה 3 - מבוא למדעי המחשב",
-      snippet: "בדקתי את המטלה שהגשת, יש לשים לב ליעילות האלגוריתם בחלק ב'...",
-      time: "אתמול",
-      date: "10 באוקטובר",
-      isRead: true,
-      content: `שלום רב,
-
-הבדיקה של מטלה 3 הסתיימה. בסך הכל העבודה הייתה טובה מאוד, אך שמתי לב שבחלק ב' השתמשת בלולאות מקוננות שמעלות את סיבוכיות הזמן ל-O(n^2). 
-
-ניתן לשפר את היעילות על ידי שימוש במבנה נתונים מסוג מילון (Hash Map) שיוריד את הסיבוכיות ל-O(n). אני ממליץ לעבור על החומר של הרצאה 4 שוב.
-
-בהצלחה בהמשך,
-ד"ר עמית שפירא`
-    },
-    {
-      id: 3,
-      sender: "מזכירות הפקולטה",
-      avatar: "https://ui-avatars.com/api/?name=Admin&background=E8B43F&color=fff",
-      subject: "רישום לקורסי בחירה סמסטר ב'",
-      snippet: "תזכורת: חלון הרישום לקורסי הבחירה ייסגר בעוד כיומיים. אנא ודאו...",
-      time: "8 באוקט",
-      date: "8 באוקטובר",
-      isRead: true,
-      content: `תזכורת חשובה,
-
-חלון הרישום לקורסי הבחירה של סמסטר ב' עומד להיסגר בעוד כיומיים (12 באוקטובר בחצות).
-סטודנטים שטרם השלימו את מערכת השעות מתבקשים לעשות זאת בהקדם דרך הפורטל האישי.
-
-שימו לב: לאחר סגירת החלון, שינויים במערכת יתאפשרו רק באישור ועדה חריגים.
-
-בברכה,
-מזכירות הפקולטה למדעים מדויקים`
-    },
-  ],
-  en: [
-    {
-      id: 1,
-      sender: "Check Hit System",
-      avatar: "https://ui-avatars.com/api/?name=System&background=00857e&color=fff",
-      subject: "Version Update for Assignment System",
-      snippet: "Please note, Monday night the system will be down for server upgrades...",
-      time: "08:30",
-      date: "Today",
-      isRead: false,
-      content: `Dear students,
-      
-We want to update you that between Monday night and Tuesday morning, between 02:00 and 06:00, there will be server maintenance and version upgrade to the assignment submission system.
-
-During these hours there may be disruptions accessing the site and it will not be possible to upload files. We recommend planning submission times accordingly and avoiding last-minute submissions.
-
-Best regards,
-Technical Support Team
-Check Hit`
-    },
-    {
-      id: 2,
-      sender: "Dr. Amit Shapira",
-      avatar: "https://i.pravatar.cc/150?img=33",
-      subject: "Notes on Assignment 3 - Intro to CS",
-      snippet: "I checked your submitted assignment, pay attention to the algorithm efficiency in part B...",
-      time: "Yesterday",
-      date: "Oct 10",
-      isRead: true,
-      content: `Hello,
-
-The grading for Assignment 3 is complete. Overall the work was very good, but I noticed that in part B you used nested loops which increases time complexity to O(n^2).
-
-Efficiency can be improved by using a Hash Map data structure which will lower complexity to O(n). I recommend reviewing the material from lecture 4 again.
-
-Good luck ahead,
-Dr. Amit Shapira`
-    },
-    {
-      id: 3,
-      sender: "Faculty Secretariat",
-      avatar: "https://ui-avatars.com/api/?name=Admin&background=E8B43F&color=fff",
-      subject: "Registration for Spring Semester Electives",
-      snippet: "Reminder: The registration window for elective courses closes in two days. Please ensure...",
-      time: "Oct 8",
-      date: "Oct 8",
-      isRead: true,
-      content: `Important reminder,
-
-The registration window for spring semester elective courses is about to close in two days (October 12 at midnight).
-Students who have not yet completed their schedule are requested to do so promptly through the personal portal.
-
-Note: After the window closes, changes to the schedule will only be possible with exceptions committee approval.
-
-Best regards,
-Faculty of Exact Sciences Secretariat`
-    },
-  ]
-};
+const MOCK_MESSAGES_DATA = [
+  {
+    id: 1,
+    senderKey: 'messages.mock1Sender',
+    avatar: "https://ui-avatars.com/api/?name=System&background=00857e&color=fff",
+    subjectKey: 'messages.mock1Subject',
+    snippetKey: 'messages.mock1Snippet',
+    time: "08:30",
+    dateKey: 'messages.mock1Date',
+    isRead: false,
+    contentKey: 'messages.mock1Content',
+  },
+  {
+    id: 2,
+    senderKey: 'messages.mock2Sender',
+    avatar: "https://i.pravatar.cc/150?img=33",
+    subjectKey: 'messages.mock2Subject',
+    snippetKey: 'messages.mock2Snippet',
+    timeKey: 'messages.mock2Time',
+    dateKey: 'messages.mock2Date',
+    isRead: true,
+    contentKey: 'messages.mock2Content',
+  },
+  {
+    id: 3,
+    senderKey: 'messages.mock3Sender',
+    avatar: "https://ui-avatars.com/api/?name=Admin&background=E8B43F&color=fff",
+    subjectKey: 'messages.mock3Subject',
+    snippetKey: 'messages.mock3Snippet',
+    timeKey: 'messages.mock3Time',
+    dateKey: 'messages.mock3Date',
+    isRead: true,
+    contentKey: 'messages.mock3Content',
+  },
+];
 
 export default function StudentMessages() {
   const { t, i18n } = useTranslation();
-  const isEn = i18n.language.startsWith('en');
-  const messagesList = isEn ? MOCK_MESSAGES_DATA.en : MOCK_MESSAGES_DATA.he;
-  const [messages, setMessages] = useState(messagesList);
-  const [selectedMessageId, setSelectedMessageId] = useState<number | null>(messagesList[0].id);
+  const isRtl = isRtlLanguage(i18n.language);
+  const [messages, setMessages] = useState(MOCK_MESSAGES_DATA);
+  const [selectedMessageId, setSelectedMessageId] = useState<number | null>(MOCK_MESSAGES_DATA[0].id);
   const [searchQuery, setSearchQuery] = useState("");
 
   const selectedMessage = messages.find(m => m.id === selectedMessageId);
 
-  const filteredMessages = messages.filter(m => 
-    m.subject.includes(searchQuery) || 
-    m.sender.includes(searchQuery) ||
-    m.content.includes(searchQuery)
+  const filteredMessages = messages.filter(m =>
+    t(m.subjectKey).includes(searchQuery) ||
+    t(m.senderKey).includes(searchQuery) ||
+    t(m.contentKey).includes(searchQuery)
   );
 
   const handleMessageClick = (id: number) => {
@@ -170,15 +87,15 @@ export default function StudentMessages() {
             {/* Search Bar */}
             <div className="p-4 border-b border-gray-200 bg-white">
               <div className="relative">
-                <div className={`absolute inset-y-0 ${isEn ? 'left-0 pl-3' : 'right-0 pr-3'} flex items-center pointer-events-none`}>
-                  <Search className={`h-5 w-5 text-gray-400 ${isEn ? 'mr-3' : 'ms-3'}`} />
+                <div className={`absolute inset-y-0 ${!isRtl ? 'left-0 pl-3' : 'right-0 pr-3'} flex items-center pointer-events-none`}>
+                  <Search className={`h-5 w-5 text-gray-400 ${!isRtl ? 'mr-3' : 'ms-3'}`} />
                 </div>
                 <input
                   type="text"
                   placeholder={t('messages.searchMessages')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className={`block w-full ${isEn ? 'pl-10 pr-3' : 'ps-10 pe-3'} py-2 border border-gray-200 rounded-lg focus:ring-[#00857e] focus:border-[#00857e] transition-colors text-sm`}
+                  className={`block w-full ${!isRtl ? 'pl-10 pr-3' : 'ps-10 pe-3'} py-2 border border-gray-200 rounded-lg focus:ring-[#00857e] focus:border-[#00857e] transition-colors text-sm`}
                 />
               </div>
             </div>
@@ -202,24 +119,24 @@ export default function StudentMessages() {
                     >
                       {/* Unread Indicator */}
                       {!message.isRead && (
-                        <div className={`absolute top-1/2 -mt-1 ${isEn ? 'left-3' : 'end-3'} w-2 h-2 bg-[#00857e] rounded-full`}></div>
+                        <div className={`absolute top-1/2 -mt-1 ${!isRtl ? 'left-3' : 'end-3'} w-2 h-2 bg-[#00857e] rounded-full`}></div>
                       )}
-                      
-                      <img src={message.avatar} alt={message.sender} className="w-10 h-10 rounded-full border border-gray-200 mt-1 shrink-0" />
+
+                      <img src={message.avatar} alt={t(message.senderKey)} className="w-10 h-10 rounded-full border border-gray-200 mt-1 shrink-0" />
                       <div className="flex-1 min-w-0 pe-4">
                         <div className="flex justify-between items-baseline mb-1">
                           <h3 className={`text-sm truncate pe-2 ${!message.isRead ? 'font-bold text-gray-900' : 'font-medium text-gray-700'}`}>
-                            {message.sender}
+                            {t(message.senderKey)}
                           </h3>
                           <span className={`text-xs shrink-0 ${!message.isRead ? 'text-[#00857e] font-semibold' : 'text-gray-500'}`}>
-                            {message.time}
+                            {message.timeKey ? t(message.timeKey) : message.time}
                           </span>
                         </div>
                         <h4 className={`text-sm truncate mb-1 ${!message.isRead ? 'font-bold text-gray-800' : 'font-medium text-gray-800'}`}>
-                          {message.subject}
+                          {t(message.subjectKey)}
                         </h4>
                         <p className="text-xs text-gray-500 truncate">
-                          {message.snippet}
+                          {t(message.snippetKey)}
                         </p>
                       </div>
                     </button>
@@ -254,13 +171,13 @@ export default function StudentMessages() {
                 {/* Detail Content Scrollable Area */}
                 <div className="flex-1 overflow-y-auto p-6 md:p-10">
                   <div className="max-w-3xl mx-auto">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-6">{selectedMessage.subject}</h2>
-                    
+                    <h2 className="text-2xl font-bold text-gray-900 mb-6">{t(selectedMessage.subjectKey)}</h2>
+
                     <div className="flex items-center justify-between mb-8 pb-6 border-b border-gray-100">
                       <div className="flex items-center gap-4">
-                        <img src={selectedMessage.avatar} alt={selectedMessage.sender} className="w-12 h-12 rounded-full border border-gray-200" />
+                        <img src={selectedMessage.avatar} alt={t(selectedMessage.senderKey)} className="w-12 h-12 rounded-full border border-gray-200" />
                         <div>
-                          <div className="font-bold text-gray-900">{selectedMessage.sender}</div>
+                          <div className="font-bold text-gray-900">{t(selectedMessage.senderKey)}</div>
                           <div className="text-sm text-gray-500 flex items-center gap-1 mt-0.5">
                             <span>{t('messages.toMe')}</span>
                           </div>
@@ -268,12 +185,12 @@ export default function StudentMessages() {
                       </div>
                       <div className="text-sm text-gray-500 flex items-center gap-2">
                         <Clock size={14} />
-                        {selectedMessage.date}, {selectedMessage.time}
+                        {t(selectedMessage.dateKey)}, {selectedMessage.timeKey ? t(selectedMessage.timeKey) : selectedMessage.time}
                       </div>
                     </div>
 
                     <div className="prose prose-gray max-w-none prose-p:leading-relaxed text-gray-800 whitespace-pre-wrap">
-                      {selectedMessage.content}
+                      {t(selectedMessage.contentKey)}
                     </div>
 
                     {/* Reply Box Placeholder */}
@@ -281,7 +198,7 @@ export default function StudentMessages() {
                       <div className="border border-gray-200 rounded-xl p-4 bg-gray-50">
                         <div className="text-gray-500 mb-3 flex items-center gap-2">
                           <Reply size={16} />
-                          {t('messages.replyTo')} {selectedMessage.sender}...
+                          {t('messages.replyTo')} {t(selectedMessage.senderKey)}...
                         </div>
                         <div className="h-12 bg-white border border-gray-200 rounded-lg cursor-text hover:border-gray-300 transition-colors"></div>
                       </div>

@@ -4,6 +4,7 @@ import { GraduationCap, Users, BookOpen, ChevronLeft } from 'lucide-react';
 import { Link } from 'react-router';
 import { CourseCard } from '../components/CourseCard';
 import { useTranslation } from 'react-i18next';
+import { isRtlLanguage } from '../lib/i18n';
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -11,25 +12,17 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-const coursesData = {
-  he: [
-    { id: 1, name: 'מבני נתונים ואלגוריתמים', code: 'CS101', instructor: 'פרופ׳ כהן', assignmentsCount: 5, activeAssignments: 1, accent: { bg: 'bg-teal-50', text: 'text-teal-700', groupHoverBg: 'group-hover:bg-teal-600', borderHover: 'hover:border-teal-300' } },
-    { id: 2, name: 'רשתות תקשורת', code: 'CS202', instructor: 'ד״ר לוי', assignmentsCount: 3, activeAssignments: 0, accent: { bg: 'bg-blue-50', text: 'text-blue-700', groupHoverBg: 'group-hover:bg-blue-600', borderHover: 'hover:border-blue-300' } },
-    { id: 3, name: 'תכנות מונחה עצמים', code: 'CS303', instructor: 'ד״ר ישראלי', assignmentsCount: 4, activeAssignments: 2, accent: { bg: 'bg-purple-50', text: 'text-purple-700', groupHoverBg: 'group-hover:bg-purple-600', borderHover: 'hover:border-purple-300' } },
-    { id: 4, name: 'מערכות הפעלה', code: 'CS404', instructor: 'פרופ׳ אהרוני', assignmentsCount: 2, activeAssignments: 0, accent: { bg: 'bg-emerald-50', text: 'text-emerald-700', groupHoverBg: 'group-hover:bg-emerald-600', borderHover: 'hover:border-emerald-300' } },
-  ],
-  en: [
-    { id: 1, name: 'Data Structures & Algorithms', code: 'CS101', instructor: 'Prof. Cohen', assignmentsCount: 5, activeAssignments: 1, accent: { bg: 'bg-teal-50', text: 'text-teal-700', groupHoverBg: 'group-hover:bg-teal-600', borderHover: 'hover:border-teal-300' } },
-    { id: 2, name: 'Computer Networks', code: 'CS202', instructor: 'Dr. Levi', assignmentsCount: 3, activeAssignments: 0, accent: { bg: 'bg-blue-50', text: 'text-blue-700', groupHoverBg: 'group-hover:bg-blue-600', borderHover: 'hover:border-blue-300' } },
-    { id: 3, name: 'Object Oriented Programming', code: 'CS303', instructor: 'Dr. Israeli', assignmentsCount: 4, activeAssignments: 2, accent: { bg: 'bg-purple-50', text: 'text-purple-700', groupHoverBg: 'group-hover:bg-purple-600', borderHover: 'hover:border-purple-300' } },
-    { id: 4, name: 'Operating Systems', code: 'CS404', instructor: 'Prof. Aharoni', assignmentsCount: 2, activeAssignments: 0, accent: { bg: 'bg-emerald-50', text: 'text-emerald-700', groupHoverBg: 'group-hover:bg-emerald-600', borderHover: 'hover:border-emerald-300' } },
-  ]
-};
+const coursesData = [
+  { id: 1, nameKey: 'courses.coursePlaceholder1', code: 'CS101', instructorKey: 'studentDashboard.instructor1', assignmentsCount: 5, activeAssignments: 1, accent: { bg: 'bg-teal-50', text: 'text-teal-700', groupHoverBg: 'group-hover:bg-teal-600', borderHover: 'hover:border-teal-300' } },
+  { id: 2, nameKey: 'courses.coursePlaceholder2', code: 'CS202', instructorKey: 'studentDashboard.instructor2', assignmentsCount: 3, activeAssignments: 0, accent: { bg: 'bg-blue-50', text: 'text-blue-700', groupHoverBg: 'group-hover:bg-blue-600', borderHover: 'hover:border-blue-300' } },
+  { id: 3, nameKey: 'courses.coursePlaceholder3', code: 'CS303', instructorKey: 'studentDashboard.instructor3', assignmentsCount: 4, activeAssignments: 2, accent: { bg: 'bg-purple-50', text: 'text-purple-700', groupHoverBg: 'group-hover:bg-purple-600', borderHover: 'hover:border-purple-300' } },
+  { id: 4, nameKey: 'courses.coursePlaceholder4', code: 'CS404', instructorKey: 'studentDashboard.instructor4', assignmentsCount: 2, activeAssignments: 0, accent: { bg: 'bg-emerald-50', text: 'text-emerald-700', groupHoverBg: 'group-hover:bg-emerald-600', borderHover: 'hover:border-emerald-300' } },
+];
 
 export default function StudentCoursesRoute() {
   const { t, i18n } = useTranslation();
-  const isEn = i18n.language.startsWith('en');
-  const courses = isEn ? coursesData.en : coursesData.he;
+  const isRtl = isRtlLanguage(i18n.language);
+  const courses = coursesData;
 
   return (
     <MainLayout portalName={t('nav.dashboard')} view="student">
@@ -43,7 +36,7 @@ export default function StudentCoursesRoute() {
           {courses.map(course => (
             <CourseCard
               key={course.id}
-              name={course.name}
+              name={t(course.nameKey)}
               code={course.code}
               accent={course.accent}
               to={`/student/courses/${course.id}`}
@@ -61,12 +54,12 @@ export default function StudentCoursesRoute() {
                       </div>
                     )}
                   </div>
-                  <ChevronLeft size={18} className={`text-gray-400 group-hover:${course.accent.text} transition-all duration-300 ${isEn ? 'translate-x-2 group-hover:translate-x-0 rotate-180' : '-translate-x-2 group-hover:translate-x-0'}`} />
+                  <ChevronLeft size={18} className={`text-gray-400 group-hover:${course.accent.text} transition-all duration-300 ${!isRtl ? 'translate-x-2 group-hover:translate-x-0 rotate-180' : '-translate-x-2 group-hover:translate-x-0'}`} />
                 </>
               }
             >
               <div className="text-gray-500 text-sm flex items-center gap-2 mb-6">
-                <Users size={14} /> {course.instructor}
+                <Users size={14} /> {t(course.instructorKey)}
               </div>
             </CourseCard>
           ))}

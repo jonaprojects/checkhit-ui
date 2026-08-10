@@ -12,26 +12,16 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-const mockNotificationsData = {
-  he: [
-    { id: 1, title: 'מטלות ממתינות לבדיקה', desc: 'יש לך 15 מטלות להעריך בקורס "עיצוב ממשקים" תרגיל 2', time: 'לפני שעתיים', unread: true, type: 'assignment' },
-    { id: 2, title: 'ערעור חדש', desc: 'יוסי כהן הגיש ערעור על הציון במטלה 2 במבוא למדעי המחשב', time: 'לפני 4 שעות', unread: true, type: 'warning' },
-    { id: 3, title: 'תזכורת מערכת', desc: 'הזנת ציונים לקורס "מבוא למדעי המחשב" נסגרת מחר ב-23:59', time: 'אתמול', unread: false, type: 'warning' },
-    { id: 4, title: 'הגשה מאוחרת', desc: 'דנה ישראלי הגישה את המטלה באיחור של יומיים באישור רפואי', time: 'לפני 3 ימים', unread: false, type: 'info' },
-  ],
-  en: [
-    { id: 1, title: 'Assignments pending grading', desc: 'You have 15 assignments to grade in the "Interface Design" course Exercise 2', time: '2 hours ago', unread: true, type: 'assignment' },
-    { id: 2, title: 'New Appeal', desc: 'Yossi Cohen submitted an appeal for the grade in Assignment 2 in Intro to Computer Science', time: '4 hours ago', unread: true, type: 'warning' },
-    { id: 3, title: 'System Reminder', desc: 'Grade entry for "Intro to Computer Science" closes tomorrow at 23:59', time: 'Yesterday', unread: false, type: 'warning' },
-    { id: 4, title: 'Late Submission', desc: 'Dana Israeli submitted the assignment two days late with medical approval', time: '3 days ago', unread: false, type: 'info' },
-  ]
-};
+const mockNotificationsData = [
+  { id: 1, titleKey: 'notifications.lecturerMock1Title', descKey: 'notifications.lecturerMock1Desc', timeKey: 'notifications.lecturerMock1Time', unread: true, type: 'assignment' },
+  { id: 2, titleKey: 'notifications.lecturerMock2Title', descKey: 'notifications.lecturerMock2Desc', timeKey: 'notifications.lecturerMock2Time', unread: true, type: 'warning' },
+  { id: 3, titleKey: 'notifications.lecturerMock3Title', descKey: 'notifications.lecturerMock3Desc', timeKey: 'notifications.lecturerMock3Time', unread: false, type: 'warning' },
+  { id: 4, titleKey: 'notifications.lecturerMock4Title', descKey: 'notifications.lecturerMock4Desc', timeKey: 'notifications.lecturerMock4Time', unread: false, type: 'info' },
+];
 
 export default function LecturerNotifications() {
-  const { t, i18n } = useTranslation();
-  const isEn = i18n.language.startsWith('en');
-  const initialNotifications = isEn ? mockNotificationsData.en : mockNotificationsData.he;
-  const [notifications, setNotifications] = useState(initialNotifications);
+  const { t } = useTranslation();
+  const [notifications, setNotifications] = useState(mockNotificationsData);
 
   const markAllAsRead = () => {
     setNotifications(notifications.map(n => ({ ...n, unread: false })));
@@ -44,7 +34,7 @@ export default function LecturerNotifications() {
   const unreadCount = notifications.filter(n => n.unread).length;
 
   return (
-    <MainLayout portalName={isEn ? "Lecturer Portal" : "פורטל מרצים"} view="lecturer">
+    <MainLayout portalName={t('nav.lecturerPortal')} view="lecturer">
       <div className="space-y-8 animate-in fade-in duration-500 max-w-6xl mx-auto pb-12 min-h-[101vh]">
         <header className="flex flex-col md:flex-row justify-between items-start md:items-end border-b border-gray-200 pb-6 gap-4">
           <div>
@@ -71,9 +61,9 @@ export default function LecturerNotifications() {
               <NotificationItem
                 key={notif.id}
                 id={notif.id}
-                title={notif.title}
-                desc={notif.desc}
-                time={notif.time}
+                title={t(notif.titleKey)}
+                desc={t(notif.descKey)}
+                time={t(notif.timeKey)}
                 unread={notif.unread}
                 type={notif.type as any}
                 variant="full"

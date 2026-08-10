@@ -2,10 +2,11 @@ import { BookOpen, AlertCircle, Users, CheckCircle2, Clock, FileWarning, ArrowLe
 import { Card } from './ui/Card';
 import { Link } from 'react-router';
 import { useTranslation } from 'react-i18next';
+import { isRtlLanguage } from '../lib/i18n';
 
 export default function LecturerDashboard() {
   const { t, i18n } = useTranslation();
-  const isEn = i18n.language.startsWith('en');
+  const isRtl = isRtlLanguage(i18n.language);
 
   return (
     <div className="space-y-12 animate-in fade-in duration-500 max-w-6xl mx-auto pb-12">
@@ -47,29 +48,29 @@ export default function LecturerDashboard() {
           <h2 className="text-2xl font-extrabold text-gray-900">{t('lecturerDashboard.recentActivity')}</h2>
         </div>
         <div className="space-y-6 relative before:absolute before:inset-y-0 before:start-5 before:w-0.5 before:bg-gray-100">
-          <ActivityItem 
+          <ActivityItem
             active={true}
             iconBg="bg-white border-4 border-teal-200"
-            title={isEn ? "AI Checking Complete" : "סיום בדיקת AI"}
-            time={isEn ? "An hour ago" : "לפני שעה"}
-            description={isEn ? "The system finished checking 85 submissions for 'Assignment 3 - Recursion'. Grades are ready for approval." : "המערכת סיימה לבדוק 85 הגשות עבור 'תרגיל 3 - רקורסיה'. הציונים מוכנים לאישור."}
+            title={t('lecturerDashboard.activity1Title')}
+            time={t('lecturerDashboard.activity1Time')}
+            description={t('lecturerDashboard.activity1Desc')}
           />
-          <ActivityItem 
+          <ActivityItem
             active={false}
             iconBg="bg-white border-2 border-gray-200"
-            title={isEn ? "New Appeal Received" : "ערעור חדש התקבל"}
-            time={isEn ? "Today, 10:30" : "היום, 10:30"}
-            description={isEn ? "Yossi Cohen submitted an appeal for 'Assignment 2'. Reason: 'Calculation error in part B'." : "יוסי כהן הגיש ערעור על הציון ב'מטלה 2'. סיבה: 'טעות בחישוב ניקוד סעיף ב'."}
+            title={t('lecturerDashboard.activity2Title')}
+            time={t('lecturerDashboard.activity2Time')}
+            description={t('lecturerDashboard.activity2Desc')}
           />
-          <ActivityItem 
+          <ActivityItem
             active={false}
             iconBg="bg-white border-2 border-gray-200"
-            title={isEn ? "Late Submission" : "הגשה באיחור"}
-            time={isEn ? "Yesterday, 23:45" : "אתמול, 23:45"}
-            description={isEn ? "Michal Raz submitted the Midterm Project 2 days late." : "מיכל רז הגישה את פרויקט האמצע באיחור של יומיים."}
+            title={t('lecturerDashboard.activity3Title')}
+            time={t('lecturerDashboard.activity3Time')}
+            description={t('lecturerDashboard.activity3Desc')}
           />
           <Link to="/lecturer/appeals" className="text-[#00857e] font-bold mt-6 inline-flex items-center gap-1 hover:underline">
-            {t('lecturerDashboard.viewAll')} {isEn ? <ChevronLeft size={18} className="rotate-180" /> : <ChevronLeft size={18} />}
+            {t('lecturerDashboard.viewAll')} {!isRtl ? <ChevronLeft size={18} className="rotate-180" /> : <ChevronLeft size={18} />}
           </Link>
         </div>
       </Card>
@@ -79,12 +80,12 @@ export default function LecturerDashboard() {
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-extrabold text-gray-900">{t('lecturerDashboard.activeCourses')}</h2>
           <Link to="/lecturer/courses" className="text-[#00857e] font-bold flex items-center gap-2 hover:underline">
-            {t('lecturerDashboard.allCourses')} {isEn ? <ArrowLeft size={18} className="rotate-180" /> : <ArrowLeft size={18} />}
+            {t('lecturerDashboard.allCourses')} {!isRtl ? <ArrowLeft size={18} className="rotate-180" /> : <ArrowLeft size={18} />}
           </Link>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <CourseCard 
-            title={isEn ? "Object Oriented Programming" : "תכנות מונחה עצמים"}
+          <CourseCard
+            title={t('courses.coursePlaceholder3')}
             code="CS303"
             semester={t('lecturerDashboard.semester')}
             students={85}
@@ -99,8 +100,8 @@ export default function LecturerDashboard() {
               topBorder: 'border-purple-500'
             }}
           />
-          <CourseCard 
-            title={isEn ? "Data Structures & Algorithms" : "מבני נתונים ואלגוריתמים"}
+          <CourseCard
+            title={t('courses.coursePlaceholder1')}
             code="CS101"
             semester={t('lecturerDashboard.semester')}
             students={120}

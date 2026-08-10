@@ -6,6 +6,7 @@ import { Button, LinkButton } from '../components/ui/Button';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../components/ui/Table';
 import { Link, useParams } from 'react-router';
 import { useTranslation } from 'react-i18next';
+import { isRtlLanguage } from '../lib/i18n';
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -13,37 +14,30 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-const assignmentsData = {
-  he: [
-    { id: 1, title: 'תרגיל בית 3: עצי חיפוש בינאריים', dueDate: 'מחר, 23:59', submissions: 85, totalStudents: 120, status: 'active' },
-    { id: 2, title: 'מטלה 2: מיון מהיר', dueDate: 'לפני שבועיים', submissions: 115, totalStudents: 120, status: 'closed' },
-    { id: 3, title: 'מטלה 1: סיבוכיות זמן ריצה', dueDate: 'לפני חודש', submissions: 118, totalStudents: 120, status: 'closed' },
-  ],
-  en: [
-    { id: 1, title: 'Homework 3: Binary Search Trees', dueDate: 'Tomorrow, 23:59', submissions: 85, totalStudents: 120, status: 'active' },
-    { id: 2, title: 'Assignment 2: Quick Sort', dueDate: '2 weeks ago', submissions: 115, totalStudents: 120, status: 'closed' },
-    { id: 3, title: 'Assignment 1: Time Complexity', dueDate: '1 month ago', submissions: 118, totalStudents: 120, status: 'closed' },
-  ]
-};
+const assignmentsData = [
+  { id: 1, titleKey: 'course.assignmentPlaceholder1', dueDateKey: 'course.dueDateTomorrow', submissions: 85, totalStudents: 120, status: 'active' },
+  { id: 2, titleKey: 'course.assignmentPlaceholder2', dueDateKey: 'course.dueDate2WeeksAgo', submissions: 115, totalStudents: 120, status: 'closed' },
+  { id: 3, titleKey: 'course.assignmentPlaceholder3', dueDateKey: 'course.dueDate1MonthAgo', submissions: 118, totalStudents: 120, status: 'closed' },
+];
 
 export default function LecturerCourseRoute() {
   const { courseId } = useParams();
   const { t, i18n } = useTranslation();
-  const isEn = i18n.language.startsWith('en');
-  const assignments = isEn ? assignmentsData.en : assignmentsData.he;
+  const isRtl = isRtlLanguage(i18n.language);
+  const assignments = assignmentsData;
 
   return (
     <MainLayout portalName={t('nav.dashboard')} view="lecturer">
       <div className="space-y-8 animate-in fade-in duration-500 max-w-6xl mx-auto pb-12">
         <header className="border-b border-gray-200 pb-6">
           <Link to="/lecturer/courses" className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-[#00857e] transition-colors mb-4">
-            {isEn ? <ChevronLeft size={16} /> : <ChevronRight size={16} />} {t('course.backToCourses')}
+            {!isRtl ? <ChevronLeft size={16} /> : <ChevronRight size={16} />} {t('course.backToCourses')}
           </Link>
           <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
             <div>
               <div className="flex items-center gap-3 mb-2">
                 <span className="bg-teal-50 text-[#00857e] px-2 py-1 rounded text-sm font-bold tracking-widest">CS101</span>
-                <h1 className="text-3xl font-extrabold text-gray-900">{isEn ? 'Data Structures & Algorithms' : 'מבני נתונים ואלגוריתמים'}</h1>
+                <h1 className="text-3xl font-extrabold text-gray-900">{t('courses.coursePlaceholder1')}</h1>
               </div>
               <p className="text-gray-500">{t('course.manageCourseAssignments')} (120 {t('course.studentsRegistered')})</p>
             </div>
@@ -62,11 +56,11 @@ export default function LecturerCourseRoute() {
               {t('course.courseAssignments')}
             </h2>
             <div className="relative w-64">
-              <Search className={`absolute ${isEn ? 'left-3' : 'right-3'} top-1/2 -translate-y-1/2 text-gray-400`} size={16} />
-              <input 
-                type="text" 
-                placeholder={t('course.searchAssignment')} 
-                className={`w-full ${isEn ? 'pl-10 pr-4' : 'pl-4 pr-10'} py-1.5 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#00857e] transition-all bg-white`}
+              <Search className={`absolute ${!isRtl ? 'left-3' : 'right-3'} top-1/2 -translate-y-1/2 text-gray-400`} size={16} />
+              <input
+                type="text"
+                placeholder={t('course.searchAssignment')}
+                className={`w-full ${!isRtl ? 'pl-10 pr-4' : 'pl-4 pr-10'} py-1.5 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#00857e] transition-all bg-white`}
               />
             </div>
           </div>
@@ -87,14 +81,14 @@ export default function LecturerCourseRoute() {
                   <TableRow key={assignment.id}>
                     <TableCell>
                       <Link to={`/lecturer/assignments/${assignment.id}`} className="font-bold text-gray-900 group-hover:text-[#00857e] transition-colors">
-                        {assignment.title}
+                        {t(assignment.titleKey)}
                       </Link>
                       {assignment.status === 'active' && (
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-700 ${isEn ? 'ml-2' : 'mr-2'}`}>{t('course.active')}</span>
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-700 ${!isRtl ? 'ml-2' : 'mr-2'}`}>{t('course.active')}</span>
                       )}
                     </TableCell>
                     <TableCell className="text-gray-600">
-                      {assignment.dueDate}
+                      {t(assignment.dueDateKey)}
                     </TableCell>
                     <TableCell className="text-center text-gray-600">
                       <span className="font-bold text-gray-900">{assignment.submissions}</span> / {assignment.totalStudents}
