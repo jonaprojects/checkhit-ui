@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, Filter } from 'lucide-react';
-import { Input } from './Input';
+import { Filter } from 'lucide-react';
+import { SearchBar } from './SearchBar';
 import { useTranslation } from 'react-i18next';
 
 export interface FilterBarProps {
@@ -41,16 +41,15 @@ export function FilterBar({
   }, []);
 
   return (
-    <div className={`flex gap-3 md:gap-4 items-center w-full ${compact ? 'flex-row' : 'flex-col md:flex-row bg-white p-3 md:p-4 rounded-xl border border-gray-200 shadow-sm'} ${className}`}>
+    <div className={`flex gap-3 md:gap-4 items-center w-full ${compact ? 'flex-row' : 'flex-col md:flex-row bg-white dark:bg-[#17211f] p-3 md:p-4 rounded-xl border border-gray-200 dark:border-[#263330] shadow-xs'} ${className}`}>
       {onSearchChange !== undefined && (
-        <div className={`relative ${children || filterContent ? (compact ? 'flex-1 md:flex-none w-full md:w-64' : 'w-full md:w-1/3 lg:w-1/4') : 'w-full md:max-w-md'}`}>
-          <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-          <Input
-            type="text"
-            placeholder={searchPlaceholder === 'חיפוש...' ? t('filterBar.search') : searchPlaceholder}
+        <div className={children || filterContent ? (compact ? 'flex-1 md:flex-none w-full md:w-64' : 'w-full md:w-1/3 lg:w-1/4') : 'w-full md:max-w-md'}>
+          <SearchBar
             value={searchQuery || ''}
-            onChange={(e) => onSearchChange(e.target.value)}
-            className={`w-full px-4 py-2 ${compact ? 'bg-white border-gray-200 focus:border-[#00857e]' : '!bg-gray-50'}`}
+            onChange={onSearchChange}
+            placeholder={searchPlaceholder === 'חיפוש...' ? t('filterBar.search') : searchPlaceholder}
+            variant={compact ? 'default' : 'filled'}
+            size="md"
           />
         </div>
       )}

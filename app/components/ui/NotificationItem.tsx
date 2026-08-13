@@ -4,7 +4,7 @@ import { BookOpen, Scale, Bell, CheckCircle2, AlertCircle, Info } from 'lucide-r
 export type NotificationType = 'assignment' | 'appeal' | 'system' | 'success' | 'warning' | 'info';
 
 export interface NotificationItemProps {
-  id: number;
+  id: string | number;
   title: string;
   desc: string;
   time: string;
