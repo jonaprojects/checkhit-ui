@@ -13,17 +13,17 @@ interface StatusConfig {
 }
 
 export const assignmentStatusConfig: Record<AssignmentStatus, Omit<StatusConfig, 'label'>> = {
-  'pending': { color: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300', icon: Clock },
-  'checking': { color: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-400', icon: Clock },
-  'checked': { color: 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400', icon: CheckCircle2 },
-  'appeal': { color: 'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-400', icon: AlertCircle },
+  'pending': { color: 'bg-slate-100 text-slate-700 border border-slate-200/60 dark:bg-slate-800/80 dark:text-slate-300 dark:border-slate-700/60', icon: Clock },
+  'checking': { color: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-950/60 dark:text-yellow-300', icon: Clock },
+  'checked': { color: 'bg-green-100 text-green-700 dark:bg-green-950/60 dark:text-emerald-300', icon: CheckCircle2 },
+  'appeal': { color: 'bg-orange-100 text-orange-700 dark:bg-orange-950/60 dark:text-orange-300', icon: AlertCircle },
 };
 
 export const appealStatusConfig: Record<AppealStatus, Omit<StatusConfig, 'label'>> = {
-  'pending': { color: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-400', icon: Clock },
-  'accepted': { color: 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400', icon: CheckCircle2 },
-  'rejected': { color: 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400', icon: AlertCircle },
-  'resolved': { color: 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400', icon: CheckCircle2 },
+  'pending': { color: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-950/60 dark:text-yellow-300', icon: Clock },
+  'accepted': { color: 'bg-green-100 text-green-700 dark:bg-green-950/60 dark:text-emerald-300', icon: CheckCircle2 },
+  'rejected': { color: 'bg-red-100 text-red-700 dark:bg-red-950/60 dark:text-red-300', icon: AlertCircle },
+  'resolved': { color: 'bg-green-100 text-green-700 dark:bg-green-950/60 dark:text-emerald-300', icon: CheckCircle2 },
 };
 
 interface StatusBadgeProps {
