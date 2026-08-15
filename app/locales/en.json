@@ -29,7 +29,8 @@
       "userId": "User ID"
     },
     "dashboard": {
-      "welcome": "Welcome Back!",
+      "welcome": "Hello, {{name}}",
+      "welcomeFallback": "Hello",
       "subtitle": "Here is your academic overview, upcoming deadlines, and recent performance.",
       "upcomingAssignments": "Upcoming Assignments",
       "allAssignments": "All Assignments",
@@ -98,7 +99,8 @@
       }
     },
     "dashboard": {
-      "welcome": "Hello, Yossi",
+      "welcome": "Hello, {{name}}",
+      "welcomeFallback": "Hello",
       "subtitle": "Here is an overview of your academic status for today",
       "myAssignments": "My Assignments",
       "upcomingAssignments": "Upcoming Assignments",
@@ -112,7 +114,8 @@
       "appealsInProgress": "Appeals In Progress"
     },
     "lecturerDashboard": {
-      "welcome": "Hello, Dr. Shapira",
+      "welcome": "Hello, {{name}}",
+      "welcomeFallback": "Hello",
       "subtitle": "Here is an overview of your academic status for today.",
       "activeCourses": "Active Courses",
       "semester": "Fall Semester 2026",

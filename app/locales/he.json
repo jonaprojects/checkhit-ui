@@ -29,7 +29,8 @@
       "userId": "מספר זיהוי"
     },
     "dashboard": {
-      "welcome": "ברוך שובך!",
+      "welcome": "שלום, {{name}}",
+      "welcomeFallback": "שלום",
       "subtitle": "סקירה כללית על המטלות הקרובות, הציונים והקורסים הפעילים שלך.",
       "upcomingAssignments": "מטלות קרובות להגשה",
       "allAssignments": "לכל המטלות",
@@ -98,7 +99,8 @@
       }
     },
     "dashboard": {
-      "welcome": "שלום, יוסי",
+      "welcome": "שלום, {{name}}",
+      "welcomeFallback": "שלום",
       "subtitle": "לפניך תמונת מצב אקדמית להיום",
       "myAssignments": "המטלות שלי",
       "upcomingAssignments": "מטלות קרובות",
@@ -112,7 +114,8 @@
       "appealsInProgress": "ערעורים בטיפול"
     },
     "lecturerDashboard": {
-      "welcome": "שלום, ד\"ר שפירא",
+      "welcome": "שלום, {{name}}",
+      "welcomeFallback": "שלום",
       "subtitle": "הנה סקירת המצב האקדמי העדכנית שלך להיום.",
       "activeCourses": "קורסים פעילים",
       "semester": "סמסטר א' תשפ״ו",

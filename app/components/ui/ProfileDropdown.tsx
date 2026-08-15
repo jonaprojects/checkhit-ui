@@ -3,6 +3,7 @@ import { Link } from 'react-router';
 import { Settings, HelpCircle, ExternalLink, ShieldCheck } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { UserAvatar } from './UserAvatar';
+import { useCurrentUser } from '../../hooks/useCurrentUser';
 
 export interface ProfileDropdownProps {
   isOpen: boolean;
@@ -17,25 +18,12 @@ export function ProfileDropdown({
   view,
   className = '',
 }: ProfileDropdownProps) {
-  const { t, i18n } = useTranslation();
-  const isEn = i18n.language.startsWith('en');
+  const { t } = useTranslation();
+  const { data: currentUser } = useCurrentUser(view);
+  const displayName = currentUser?.name?.trim() || '';
+  const displayEmail = currentUser?.email?.trim() || '';
 
   if (!isOpen) return null;
-
-  // Role-based static demo data
-  const userData = view === 'lecturer'
-    ? {
-        name: isEn ? "Dr. Dan Peleg" : "ד״ר דן פלג",
-        email: "dan.peleg@univ.ac.il",
-        id: "L-5092",
-        role: t('profileMenu.lecturerRole'),
-      }
-    : {
-        name: isEn ? "Jonathan Israeli" : "יונתן ישראלי",
-        email: "yonatan@student.ac.il",
-        id: "318294821",
-        role: t('profileMenu.studentRole'),
-      };
 
   const handleReturnToMoodle = () => {
     onClose();
@@ -50,17 +38,17 @@ export function ProfileDropdown({
       {/* User Identity Header */}
       <div className="p-4 bg-gray-50/80 dark:bg-[#131d1b]/90 border-b border-gray-100 dark:border-[#263330]">
         <div className="flex items-center gap-3">
-          <UserAvatar name={userData.name} size="lg" className="ring-2 ring-[#00857e]/20 shrink-0" />
+          <UserAvatar name={displayName} size="lg" className="ring-2 ring-[#00857e]/20 shrink-0" />
           <div className="min-w-0 flex-1">
             <h3 className="font-extrabold text-sm text-gray-900 dark:text-white truncate">
-              {userData.name}
+              {displayName}
             </h3>
             <p className="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">
-              {userData.email}
+              {displayEmail}
             </p>
             <div className="flex items-center gap-1.5 mt-2 flex-wrap">
               <span className="bg-teal-50 dark:bg-teal-950/60 text-[#00857e] dark:text-teal-300 border border-teal-200/60 dark:border-teal-800/60 text-[10px] font-bold px-2 py-0.5 rounded-md">
-                {userData.role}
+                {view === 'lecturer' ? t('profileMenu.lecturerRole') : t('profileMenu.studentRole')}
               </span>
               <span className="bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/60 text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1">
                 <ShieldCheck size={11} />
