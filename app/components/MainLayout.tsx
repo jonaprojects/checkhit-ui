@@ -25,6 +25,7 @@ import {
   useMarkAllNotificationsAsRead 
 } from '../hooks/useNotifications';
 import { useUnreadMessageCount } from '../hooks/useMessages';
+import { useCurrentUser } from '../hooks/useCurrentUser';
 
 export default function MainLayout({ children, portalName = "פורטל סטודנטים", view }: any) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -42,6 +43,7 @@ export default function MainLayout({ children, portalName = "פורטל סטוד
   const userId = view === 'lecturer' 
     ? import.meta.env.VITE_LECTURER_ID 
     : import.meta.env.VITE_STUDENT_ID;
+  const { data: currentUser } = useCurrentUser(view);
 
   // Live Notifications via TanStack Query
   const { data: notifications = [] } = useNotifications(userId, { limit: 5 }, isEn);
@@ -268,7 +270,7 @@ export default function MainLayout({ children, portalName = "פורטל סטוד
                 aria-label={t('profileMenu.settings')}
               >
                 <UserAvatar 
-                  name={view === 'lecturer' ? (isEn ? "Dr. Dan Peleg" : "ד״ר דן פלג") : (isEn ? "Jonathan Israeli" : "יונתן ישראלי")}
+                  name={currentUser?.name?.trim() || ''}
                   className="transition-transform" 
                 />
               </button>

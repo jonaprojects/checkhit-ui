@@ -19,6 +19,7 @@ import { AssignmentCompletionChart } from './charts/AssignmentCompletionChart';
 import { CourseCard } from './CourseCard';
 import { RequiresAttentionStrip } from './RequiresAttentionStrip';
 import { useLecturerDashboard } from '../hooks/useLecturerDashboard';
+import { useCurrentUser } from '../hooks/useCurrentUser';
 import { LecturerMetricSkeleton, CourseCardSkeleton } from './ui/Skeleton';
 import { COURSE_ACCENTS } from '../hooks/useStudentCourses';
 
@@ -26,6 +27,8 @@ export default function LecturerDashboard() {
   const { t, i18n } = useTranslation();
   const isEn = i18n.language.startsWith('en');
   const { data: dashboard, isLoading } = useLecturerDashboard();
+  const { data: currentUser } = useCurrentUser('lecturer');
+  const welcomeName = currentUser?.name?.trim();
 
   const kpis = dashboard?.kpis;
   const activeCoursesCount = kpis?.activeCourses ?? (isLoading ? '—' : 0);
@@ -48,7 +51,9 @@ export default function LecturerDashboard() {
         <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
           <div>
             <h1 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white mb-2">
-              {t('lecturerDashboard.welcome')}
+              {welcomeName
+                ? t('lecturerDashboard.welcome', { name: welcomeName })
+                : t('lecturerDashboard.welcomeFallback')}
             </h1>
             <p className="text-gray-600 dark:text-gray-300 text-base md:text-lg">
               {t('lecturerDashboard.subtitle')}

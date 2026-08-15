@@ -16,11 +16,11 @@ import { useStudentAssignments } from '../hooks/useStudentAssignments';
 import { useStudentGrades } from '../hooks/useStudentGrades';
 import { useStudentAppeals } from '../hooks/useStudentAppeals';
 import { useStudentCourses } from '../hooks/useStudentCourses';
+import { useCurrentUser } from '../hooks/useCurrentUser';
 import { useTranslation } from 'react-i18next';
 
 const DASHBOARD_TEXTS = {
   he: {
-    welcome: "ברוך שובך!",
     subtitle: "סקירה כללית על המטלות הקרובות, הציונים והקורסים הפעילים שלך.",
     upcomingAssignments: "מטלות קרובות להגשה",
     allAssignments: "לכל המטלות",
@@ -43,7 +43,6 @@ const DASHBOARD_TEXTS = {
     viewCalendar: "צפה בלוח שנה",
   },
   en: {
-    welcome: "Welcome Back!",
     subtitle: "Here is your academic overview, upcoming deadlines, and recent performance.",
     upcomingAssignments: "Upcoming Assignments",
     allAssignments: "All Assignments",
@@ -77,6 +76,8 @@ export default function StudentDashboardRoute() {
   const { t, i18n } = useTranslation();
   const isEn = i18n.language.startsWith('en');
   const texts = isEn ? DASHBOARD_TEXTS.en : DASHBOARD_TEXTS.he;
+  const { data: currentUser } = useCurrentUser('student');
+  const welcomeName = currentUser?.name?.trim();
 
   // 1. Fetch upcoming active assignments
   const {
@@ -108,7 +109,11 @@ export default function StudentDashboardRoute() {
         {/* Welcome Header */}
         <header className="flex justify-between items-end border-b border-gray-200 dark:border-gray-800 pb-6">
           <div>
-            <h1 className="text-4xl font-extrabold text-gray-900 dark:text-gray-100">{texts.welcome}</h1>
+            <h1 className="text-4xl font-extrabold text-gray-900 dark:text-gray-100">
+              {welcomeName
+                ? t('dashboard.welcome', { name: welcomeName })
+                : t('dashboard.welcomeFallback')}
+            </h1>
             <p className="text-gray-500 dark:text-gray-400 mt-2 text-lg">{texts.subtitle}</p>
           </div>
         </header>

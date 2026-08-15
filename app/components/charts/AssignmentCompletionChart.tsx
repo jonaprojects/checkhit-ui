@@ -72,7 +72,7 @@ export function AssignmentCompletionChart({ completionData, isLoading }: Assignm
     return <DashboardChartSkeleton />;
   }
 
-  const chartData = completionData !== undefined ? completionData : DEFAULT_PROGRESS_DATA;
+  const chartData = completionData !== undefined ? completionData : []
 
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
