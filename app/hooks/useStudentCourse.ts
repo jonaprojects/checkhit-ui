@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { getCourseById, getStudentCourseAssignments } from '../lib/api/courses';
 import type { Course, StudentAssignment, StudentTaskStatus } from '../lib/api/types';
+import { getLtiUserId } from '../lib/lti-session';
 
 export interface ProcessedStudentAssignment extends StudentAssignment {
   uiStatus: 'pending' | 'checking' | 'checked' | 'appeal';
@@ -73,7 +74,7 @@ function formatDueDate(dueAt?: string | null, isEn: boolean = true): { formatted
 }
 
 export function useStudentCourse(courseId?: string, isEn: boolean = true) {
-  const studentId = import.meta.env.VITE_STUDENT_ID;
+  const studentId = getLtiUserId(import.meta.env.VITE_STUDENT_ID);
 
   return useQuery({
     queryKey: ['studentCourse', courseId, studentId],
@@ -82,7 +83,7 @@ export function useStudentCourse(courseId?: string, isEn: boolean = true) {
         throw new Error('Course ID is missing');
       }
       if (!studentId) {
-        throw new Error('VITE_STUDENT_ID is not configured in environment variables');
+        throw new Error('Student ID is unavailable');
       }
 
       // Fetch course details & assignments in parallel

@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getStudentAppeals } from '../lib/api/appeals';
 import type { Appeal, BackendAppealStatus, GetStudentAppealsParams } from '../lib/api/types';
 import type { AppealStatus } from '../components/ui/StatusBadge';
+import { getLtiUserId } from '../lib/lti-session';
 
 export interface ProcessedStudentAppeal extends Appeal {
   uiStatus: AppealStatus;
@@ -47,7 +48,7 @@ export function useStudentAppeals(
   optionsOrIsEn: boolean | GetStudentAppealsParams = {},
   isEnParam: boolean = true
 ) {
-  const studentId = import.meta.env.VITE_STUDENT_ID;
+  const studentId = getLtiUserId(import.meta.env.VITE_STUDENT_ID);
   const isBooleanArg = typeof optionsOrIsEn === 'boolean';
   const isEn = isBooleanArg ? optionsOrIsEn : isEnParam;
   const params: GetStudentAppealsParams = isBooleanArg ? {} : optionsOrIsEn;
@@ -56,7 +57,7 @@ export function useStudentAppeals(
     queryKey: ['studentAppeals', studentId, params],
     queryFn: async (): Promise<ProcessedStudentAppeal[]> => {
       if (!studentId) {
-        throw new Error('VITE_STUDENT_ID is not configured in environment variables');
+        throw new Error('Student ID is unavailable');
       }
 
       const appeals = await getStudentAppeals(studentId, params);

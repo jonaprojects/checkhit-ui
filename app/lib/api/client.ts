@@ -1,3 +1,5 @@
+import { getLtiSession } from '../lti-session';
+
 const SERVER_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:3001';
 
 export class ApiError extends Error {
@@ -14,15 +16,20 @@ export class ApiError extends Error {
 
 async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
-  const url = `${SERVER_URL}/api${normalizedEndpoint}`;
+  const url = new URL(`${SERVER_URL}/api${normalizedEndpoint}`);
+  const { ltik } = getLtiSession();
+  if (ltik && !url.searchParams.has('ltik')) {
+    url.searchParams.set('ltik', ltik);
+  }
 
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
     ...(options.headers || {}),
   };
 
-  const response = await fetch(url, {
+  const response = await fetch(url.toString(), {
     ...options,
+    credentials: options.credentials || 'include',
     headers,
   });
 

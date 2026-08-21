@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getAllStudentAssignments } from '../lib/api/courses';
 import type { StudentAssignment, StudentTaskStatus, GetStudentAssignmentsParams } from '../lib/api/types';
 import type { AssignmentStatus as UiAssignmentStatus } from '../components/ui/StatusBadge';
+import { getLtiUserId } from '../lib/lti-session';
 
 export interface ProcessedStudentAssignment extends StudentAssignment {
   uiStatus: UiAssignmentStatus;
@@ -55,7 +56,7 @@ export function useStudentAssignments(
   optionsOrIsEn: boolean | GetStudentAssignmentsParams = {},
   isEnParam: boolean = true
 ) {
-  const studentId = import.meta.env.VITE_STUDENT_ID;
+  const studentId = getLtiUserId(import.meta.env.VITE_STUDENT_ID);
   const isBooleanArg = typeof optionsOrIsEn === 'boolean';
   const isEn = isBooleanArg ? optionsOrIsEn : isEnParam;
   const params: GetStudentAssignmentsParams = isBooleanArg ? {} : optionsOrIsEn;
@@ -64,7 +65,7 @@ export function useStudentAssignments(
     queryKey: ['studentAssignments', studentId, params],
     queryFn: async (): Promise<ProcessedStudentAssignment[]> => {
       if (!studentId) {
-        throw new Error('VITE_STUDENT_ID is not configured in environment variables');
+        throw new Error('Student ID is unavailable');
       }
 
       const assignments = await getAllStudentAssignments(studentId, params);

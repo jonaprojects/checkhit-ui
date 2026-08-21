@@ -1,5 +1,5 @@
 import type { Route } from "./+types/student.assignment";
-import { useParams, Link } from 'react-router';
+import { useParams, useSearchParams, Link } from 'react-router';
 import MainLayout from "../components/MainLayout";
 import StudentAssignmentDetail from "../components/StudentAssignmentDetail";
 import { AssignmentDetailSkeleton } from "../components/ui/Skeleton";
@@ -15,8 +15,11 @@ export function meta({}: Route.MetaArgs) {
 
 export default function StudentAssignmentRoute() {
   const { assignmentId } = useParams();
+  const [searchParams] = useSearchParams();
   const { t, i18n } = useTranslation();
   const isEn = i18n.language.startsWith('en');
+  const ltik = searchParams.get('ltik') || undefined;
+  const userId = searchParams.get('userId') || undefined;
 
   const {
     data: assignment,
@@ -25,7 +28,7 @@ export default function StudentAssignmentRoute() {
     error,
     refetch,
     isFetching,
-  } = useStudentAssignmentDetail(assignmentId, isEn);
+  } = useStudentAssignmentDetail(assignmentId, isEn, { ltik, userId });
 
   return (
     <MainLayout portalName={t('nav.dashboard')} view="student">

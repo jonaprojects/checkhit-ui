@@ -34,6 +34,7 @@ import {
   formatMessageTime,
 } from "../hooks/useMessages";
 import type { MessageItem } from "../lib/api/types";
+import { getLtiUserId } from "../lib/lti-session";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -46,7 +47,7 @@ export default function StudentMessages() {
   const { t, i18n } = useTranslation();
   const isEn = i18n.language.startsWith('en');
 
-  const studentId = import.meta.env.VITE_STUDENT_ID;
+  const studentId = getLtiUserId(import.meta.env.VITE_STUDENT_ID);
 
   // Real Courses Data for student compose modal
   const { data: courses = [], isLoading: isCoursesLoading } = useStudentCourses();

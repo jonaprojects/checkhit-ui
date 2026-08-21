@@ -6,6 +6,7 @@ import { NotificationListSkeleton } from "~/components/ui/Skeleton";
 import { useNotifications, useMarkNotificationAsRead, useMarkAllNotificationsAsRead } from "~/hooks/useNotifications";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router";
+import { getLtiUserId } from "~/lib/lti-session";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -18,7 +19,7 @@ export default function LecturerNotifications() {
   const { t, i18n } = useTranslation();
   const isEn = i18n.language.startsWith('en');
   const navigate = useNavigate();
-  const lecturerId = import.meta.env.VITE_LECTURER_ID;
+  const lecturerId = getLtiUserId(import.meta.env.VITE_LECTURER_ID);
 
   const { data: notifications = [], isLoading, isError, error, refetch, isFetching } = useNotifications(
     lecturerId,

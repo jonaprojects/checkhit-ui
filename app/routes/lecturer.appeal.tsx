@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { useTranslation } from 'react-i18next';
 import { useAppealDetail, useResolveAppeal } from '../hooks/useLecturerAppeals';
+import { getLtiUserId } from '../lib/lti-session';
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -29,7 +30,9 @@ export default function LecturerAppealReviewRoute() {
   const { t, i18n } = useTranslation();
   const isEn = i18n.language.startsWith('en');
   const { appealId } = useParams();
-  const lecturerId = import.meta.env.VITE_LECTURER_ID || '5a205d7f-7084-4f91-ba7c-aeb0b6078256';
+  const lecturerId = getLtiUserId(
+    import.meta.env.VITE_LECTURER_ID || '5a205d7f-7084-4f91-ba7c-aeb0b6078256'
+  );
 
   const {
     data: appeal,

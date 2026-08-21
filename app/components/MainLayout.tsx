@@ -26,6 +26,7 @@ import {
 } from '../hooks/useNotifications';
 import { useUnreadMessageCount } from '../hooks/useMessages';
 import { useCurrentUser } from '../hooks/useCurrentUser';
+import { getLtiUserId } from '../lib/lti-session';
 
 export default function MainLayout({ children, portalName = "פורטל סטודנטים", view }: any) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -40,9 +41,11 @@ export default function MainLayout({ children, portalName = "פורטל סטוד
 
   const isEn = i18n.language.startsWith('en');
 
-  const userId = view === 'lecturer' 
-    ? import.meta.env.VITE_LECTURER_ID 
-    : import.meta.env.VITE_STUDENT_ID;
+  const userId = getLtiUserId(
+    view === 'lecturer'
+      ? import.meta.env.VITE_LECTURER_ID
+      : import.meta.env.VITE_STUDENT_ID
+  );
   const { data: currentUser } = useCurrentUser(view);
 
   // Live Notifications via TanStack Query

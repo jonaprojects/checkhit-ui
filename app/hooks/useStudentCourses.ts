@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getStudentCourses, getStudentUrgentCourses, getCourseAssignments } from '../lib/api/courses';
 import type { Course, Assignment, GetStudentCoursesParams, UrgentCourse } from '../lib/api/types';
 import type { CourseAccent } from '../components/CourseCard';
+import { getLtiUserId } from '../lib/lti-session';
 
 export interface EnrichedStudentCourse extends Course {
   code: string;
@@ -54,13 +55,13 @@ export interface UseStudentCoursesOptions extends GetStudentCoursesParams {
 }
 
 export function useStudentCourses(options: UseStudentCoursesOptions = {}) {
-  const studentId = import.meta.env.VITE_STUDENT_ID;
+  const studentId = getLtiUserId(import.meta.env.VITE_STUDENT_ID);
 
   return useQuery({
     queryKey: ['studentCourses', studentId, options],
     queryFn: async (): Promise<EnrichedStudentCourse[]> => {
       if (!studentId) {
-        throw new Error('VITE_STUDENT_ID is not configured in environment variables');
+        throw new Error('Student ID is unavailable');
       }
 
       // 1. Fetch raw courses (either urgent or standard enrolled)

@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { getStudentGrades } from '../lib/api/courses';
 import type { StudentAssignment } from '../lib/api/types';
+import { getLtiUserId } from '../lib/lti-session';
 
 export interface ProcessedStudentGrade extends StudentAssignment {
   assignmentTitle: string;
@@ -25,13 +26,13 @@ function formatDate(dateStr?: string | null, isEn: boolean = true): string {
 }
 
 export function useStudentGrades(limit: number = 4, isEn: boolean = true) {
-  const studentId = import.meta.env.VITE_STUDENT_ID;
+  const studentId = getLtiUserId(import.meta.env.VITE_STUDENT_ID);
 
   return useQuery({
     queryKey: ['studentGrades', studentId, limit],
     queryFn: async (): Promise<ProcessedStudentGrade[]> => {
       if (!studentId) {
-        throw new Error('VITE_STUDENT_ID is not configured in environment variables');
+        throw new Error('Student ID is unavailable');
       }
 
       const grades = await getStudentGrades(studentId, { limit });

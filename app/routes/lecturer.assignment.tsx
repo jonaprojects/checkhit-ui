@@ -20,7 +20,7 @@ import {
   ExternalLink,
   Award,
 } from 'lucide-react';
-import { Link, useParams } from "react-router";
+import { Link, useParams, useSearchParams } from "react-router";
 import { useTranslation } from 'react-i18next';
 import { Button, LinkButton } from '../components/ui/Button';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../components/ui/Table';
@@ -38,8 +38,10 @@ type FilterTab = 'ALL' | LecturerAssignmentStudentStatus;
 
 export default function LecturerAssignmentRoute() {
   const { assignmentId } = useParams();
+  const [searchParams] = useSearchParams();
   const { t, i18n } = useTranslation();
   const isEn = i18n.language.startsWith('en');
+  const ltik = searchParams.get('ltik') || undefined;
 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilter, setSelectedFilter] = useState<FilterTab>('ALL');
@@ -48,7 +50,8 @@ export default function LecturerAssignmentRoute() {
   const { data, isLoading, isError, error, refetch, isFetching } = useLecturerAssignmentOverview(
     assignmentId,
     {},
-    isEn
+    isEn,
+    ltik
   );
 
   const ChevronBack = isEn ? ChevronLeft : ChevronRight;

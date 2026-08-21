@@ -28,6 +28,7 @@ import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import "./lib/i18n";
+import { captureLtiSession } from "./lib/lti-session";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const { i18n } = useTranslation();
@@ -58,6 +59,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
+  captureLtiSession();
+
   const [queryClient] = useState(
     () =>
       new QueryClient({

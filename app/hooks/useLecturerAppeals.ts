@@ -13,6 +13,9 @@ import type {
   BackendAppealStatus,
   AppealStatus,
 } from '../lib/api/types';
+import { getLtiUserId } from '../lib/lti-session';
+
+const DEV_LECTURER_ID = '5a205d7f-7084-4f91-ba7c-aeb0b6078256';
 
 export interface ProcessedLecturerAppeal extends LecturerAppeal {
   studentName: string;
@@ -70,7 +73,7 @@ export function useLecturerAppeals(
   params: GetLecturerAppealsParams = {},
   isEn: boolean = true
 ) {
-  const lecturerId = import.meta.env.VITE_LECTURER_ID || '5a205d7f-7084-4f91-ba7c-aeb0b6078256';
+  const lecturerId = getLtiUserId(import.meta.env.VITE_LECTURER_ID || DEV_LECTURER_ID);
 
   return useQuery({
     queryKey: ['lecturerAppeals', lecturerId, params, isEn],
@@ -118,7 +121,7 @@ export function useLecturerAppeals(
 }
 
 export function useLecturerAppealsStats() {
-  const lecturerId = import.meta.env.VITE_LECTURER_ID || '5a205d7f-7084-4f91-ba7c-aeb0b6078256';
+  const lecturerId = getLtiUserId(import.meta.env.VITE_LECTURER_ID || DEV_LECTURER_ID);
 
   return useQuery({
     queryKey: ['lecturerAppealsStats', lecturerId],

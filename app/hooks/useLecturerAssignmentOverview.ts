@@ -75,16 +75,17 @@ function calculateRemainingTime(
 export function useLecturerAssignmentOverview(
   assignmentId?: string,
   params: GetLecturerAssignmentOverviewParams = {},
-  isEn: boolean = true
+  isEn: boolean = true,
+  ltik?: string
 ) {
   return useQuery({
-    queryKey: ['lecturerAssignmentOverview', assignmentId, params.status, params.search, isEn],
+    queryKey: ['lecturerAssignmentOverview', assignmentId, params.status, params.search, ltik, isEn],
     queryFn: async (): Promise<EnrichedLecturerAssignmentOverview> => {
       if (!assignmentId) {
         throw new Error('Assignment ID is required');
       }
 
-      const rawData = await getLecturerAssignmentOverview(assignmentId, params);
+      const rawData = await getLecturerAssignmentOverview(assignmentId, params, ltik);
 
       const { label: remainingTimeLabel, isOverdue } = calculateRemainingTime(
         rawData.dueAt,

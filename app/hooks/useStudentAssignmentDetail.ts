@@ -7,6 +7,7 @@ import type {
   AssignmentAppeal,
   StudentAssignmentStatus,
 } from '../lib/api/types';
+import { getLtiUserId } from '../lib/lti-session';
 
 export interface ProcessedSubmissionFile extends SubmissionFile {
   formattedSize: string;
@@ -58,17 +59,22 @@ function formatDate(dateStr?: string | null, isEn: boolean = true): string | nul
   }
 }
 
-export function useStudentAssignmentDetail(assignmentId?: string, isEn: boolean = true) {
-  const studentId = import.meta.env.VITE_STUDENT_ID;
+export function useStudentAssignmentDetail(
+  assignmentId?: string,
+  isEn: boolean = true,
+  ltiSession?: { ltik?: string; userId?: string }
+) {
+  const studentId = ltiSession?.userId || getLtiUserId(import.meta.env.VITE_STUDENT_ID);
+  const ltik = ltiSession?.ltik;
 
   return useQuery({
-    queryKey: ['studentAssignmentDetail', assignmentId, studentId, isEn],
+    queryKey: ['studentAssignmentDetail', assignmentId, studentId, ltik, isEn],
     queryFn: async (): Promise<ProcessedStudentAssignmentDetail> => {
       if (!assignmentId) {
         throw new Error('Assignment ID is required');
       }
 
-      const data = await getStudentAssignmentDetail(assignmentId, studentId);
+      const data = await getStudentAssignmentDetail(assignmentId, studentId, ltik);
 
       const isOverdue = data.dueAt ? new Date() > new Date(data.dueAt) : false;
       const formattedDueDate = formatDate(data.dueAt, isEn) || (isEn ? 'No deadline' : 'ללא מועד הגשה');

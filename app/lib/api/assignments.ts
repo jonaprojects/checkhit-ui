@@ -11,10 +11,17 @@ import type {
  */
 export async function getStudentAssignmentDetail(
   assignmentId: string,
-  studentId?: string
+  studentId?: string,
+  ltik?: string
 ): Promise<StudentAssignmentDetailResponse> {
-  const query = studentId ? `?studentId=${encodeURIComponent(studentId)}` : '';
-  return apiClient.get<StudentAssignmentDetailResponse>(`/assignments/${assignmentId}${query}`);
+  const query = new URLSearchParams();
+  if (studentId) query.set('studentId', studentId);
+  if (ltik) query.set('ltik', ltik);
+
+  const queryString = query.toString();
+  return apiClient.get<StudentAssignmentDetailResponse>(
+    `/assignments/${assignmentId}${queryString ? `?${queryString}` : ''}`
+  );
 }
 
 /**
@@ -23,11 +30,13 @@ export async function getStudentAssignmentDetail(
  */
 export async function getLecturerAssignmentOverview(
   assignmentId: string,
-  params: GetLecturerAssignmentOverviewParams = {}
+  params: GetLecturerAssignmentOverviewParams = {},
+  ltik?: string
 ): Promise<LecturerAssignmentOverviewResponse> {
   const query = new URLSearchParams();
   if (params.search) query.append('search', params.search);
   if (params.status && params.status !== 'ALL') query.append('status', params.status);
+  if (ltik) query.set('ltik', ltik);
 
   const queryString = query.toString();
   return apiClient.get<LecturerAssignmentOverviewResponse>(

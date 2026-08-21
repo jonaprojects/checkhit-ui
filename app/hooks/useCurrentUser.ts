@@ -1,20 +1,22 @@
 import { useQuery } from '@tanstack/react-query';
 import { getLecturer, getStudent } from '../lib/api/users';
 import type { User } from '../lib/api/types';
+import { getLtiUserId } from '../lib/lti-session';
 
 export type CurrentUserView = 'lecturer' | 'student';
 
 export function useCurrentUser(view: CurrentUserView) {
-  const userId =
+  const userId = getLtiUserId(
     view === 'lecturer'
       ? import.meta.env.VITE_LECTURER_ID
-      : import.meta.env.VITE_STUDENT_ID;
+      : import.meta.env.VITE_STUDENT_ID
+  );
 
   return useQuery<User>({
     queryKey: ['currentUser', view, userId],
     queryFn: async () => {
       if (!userId) {
-        throw new Error('User ID is not configured in environment variables');
+        throw new Error('User ID is unavailable');
       }
 
       const profile =

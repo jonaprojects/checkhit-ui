@@ -3,6 +3,7 @@ import { getLecturerCourses, getCourseAssignments } from '../lib/api/courses';
 import type { Course, Assignment } from '../lib/api/types';
 import type { CourseAccent } from '../components/CourseCard';
 import { COURSE_ACCENTS } from './useStudentCourses';
+import { getLtiUserId } from '../lib/lti-session';
 
 export interface EnrichedLecturerCourse extends Course {
   code: string;
@@ -23,13 +24,13 @@ function extractCourseCode(courseName: string, index: number): { code: string; d
 }
 
 export function useLecturerCourses() {
-  const lecturerId = import.meta.env.VITE_LECTURER_ID;
+  const lecturerId = getLtiUserId(import.meta.env.VITE_LECTURER_ID);
 
   return useQuery({
     queryKey: ['lecturerCourses', lecturerId],
     queryFn: async (): Promise<EnrichedLecturerCourse[]> => {
       if (!lecturerId) {
-        throw new Error('VITE_LECTURER_ID is not configured in environment variables');
+        throw new Error('Lecturer ID is unavailable');
       }
 
       // 1. Fetch all courses managed by the lecturer
