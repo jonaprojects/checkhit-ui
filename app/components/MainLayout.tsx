@@ -27,6 +27,7 @@ import {
 import { useUnreadMessageCount } from '../hooks/useMessages';
 import { useCurrentUser } from '../hooks/useCurrentUser';
 import { getLtiUserId } from '../lib/lti-session';
+import { AccountContextError } from './AccountContextError';
 
 export default function MainLayout({ children, portalName = "פורטל סטודנטים", view }: any) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -49,7 +50,7 @@ export default function MainLayout({ children, portalName = "פורטל סטוד
   const { data: currentUser } = useCurrentUser(view);
 
   // Live Notifications via TanStack Query
-  const { data: notifications = [] } = useNotifications(userId, { limit: 5 }, isEn);
+  const { data: notifications = [], isError: isNotificationsError } = useNotifications(userId, { limit: 5 }, isEn);
   const { data: unreadCount = 0 } = useUnreadNotificationCount(userId);
   const { data: unreadMessagesCount = 0 } = useUnreadMessageCount(userId);
   const markAsReadMutation = useMarkNotificationAsRead(userId);
@@ -223,23 +224,33 @@ export default function MainLayout({ children, portalName = "פורטל סטוד
                       )}
                     </div>
                     <div className="max-h-[350px] overflow-y-auto divide-y divide-gray-50">
-                      {notifications.map((notif) => (
-                        <NotificationItem
-                          key={notif.id}
-                          id={notif.id}
-                          title={notif.title}
-                          desc={notif.body}
-                          time={notif.formattedTime}
-                          unread={!notif.isRead}
-                          type={notif.uiType}
-                          variant="compact"
-                          onClick={() => handleNotificationClick(notif.id, notif.isRead, notif.link)}
-                        />
-                      ))}
-                      {notifications.length === 0 && (
+                      {!userId ? (
+                        <AccountContextError view={view} compact />
+                      ) : isNotificationsError ? (
+                        <div role="alert" className="py-8 px-4 text-center text-sm text-red-600 bg-red-50/60">
+                          {t('notifications.errorDesc')}
+                        </div>
+                      ) : (
+                        <>
+                          {notifications.map((notif) => (
+                            <NotificationItem
+                              key={notif.id}
+                              id={notif.id}
+                              title={notif.title}
+                              desc={notif.body}
+                              time={notif.formattedTime}
+                              unread={!notif.isRead}
+                              type={notif.uiType}
+                              variant="compact"
+                              onClick={() => handleNotificationClick(notif.id, notif.isRead, notif.link)}
+                            />
+                          ))}
+                          {notifications.length === 0 && (
                         <div className="py-8 text-center text-sm text-gray-500">
                           {t('notifications.emptyDesc')}
                         </div>
+                          )}
+                        </>
                       )}
                     </div>
                     <div className="border-t border-gray-100 p-2 bg-gray-50/50 text-center">

@@ -30,42 +30,7 @@ export function RequiresAttentionStrip({ className = '', items, isLoading }: Req
     return <RequiresAttentionStripSkeleton />;
   }
 
-  // Default items if none provided
-  const defaultItems: AttentionItem[] = [
-    {
-      id: 'appeals',
-      type: 'appeal',
-      title: t('lecturerDashboard.requiresAttention.pendingAppealsUrgent', { count: 3 }),
-      subtitle: `CS101 · ${isEn ? 'Binary Trees & Recursion' : 'עצים בינאריים ורקורסיה'}`,
-      actionText: t('lecturerDashboard.requiresAttention.resolveNow'),
-      actionHref: '/lecturer/appeals',
-      accentColor: 'rose',
-    },
-    {
-      id: 'ai-grading',
-      type: 'ai-grading',
-      title: t('lecturerDashboard.requiresAttention.aiReadyToPublish', { count: 85 }),
-      subtitle: `CS303 · ${isEn ? 'Lab 1 OOP Design' : 'תרגיל מעבדה 1 תכנות מונחה עצמים'}`,
-      actionText: t('lecturerDashboard.requiresAttention.publishGrades'),
-      actionHref: '/lecturer/courses',
-      accentColor: 'teal',
-    },
-    {
-      id: 'deadline',
-      type: 'deadline',
-      title: t('lecturerDashboard.requiresAttention.upcomingDeadline', {
-        title: isEn ? 'HW2 - BST' : 'תרגיל 2 - עצי חיפוש',
-        hours: 12,
-        count: 18,
-      }),
-      subtitle: `CS101 · ${isEn ? 'Due tonight at 23:59' : 'מועד הגשה הלילה ב-23:59'}`,
-      actionText: t('lecturerDashboard.requiresAttention.sendReminder'),
-      actionHref: '/lecturer/messages',
-      accentColor: 'amber',
-    },
-  ];
-
-  const displayItems = items !== undefined ? items : defaultItems;
+  const displayItems = items ?? [];
 
   const getAccentStyles = (accent: string = 'amber', type?: string) => {
     // If type is specified, match corresponding icon
@@ -123,7 +88,7 @@ export function RequiresAttentionStrip({ className = '', items, isLoading }: Req
         <div className="p-6 rounded-xl bg-emerald-50/60 dark:bg-emerald-950/20 border border-emerald-200/60 dark:border-emerald-900/40 flex items-center gap-3">
           <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
           <p className="text-sm font-medium text-emerald-800 dark:text-emerald-300">
-            {isEn ? 'All caught up! No urgent tasks currently require your attention.' : 'הכל מעודכן! אין משימות דחופות הדורשות את תשומת לבך כרגע.'}
+            {t('lecturerDashboard.requiresAttention.empty')}
           </p>
         </div>
       ) : (

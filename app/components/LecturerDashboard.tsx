@@ -10,6 +10,7 @@ import {
   Scale,
   TrendingUp,
   Bot,
+  RefreshCw,
 } from 'lucide-react';
 import { Card } from './ui/Card';
 import { Link } from 'react-router';
@@ -22,26 +23,26 @@ import { useLecturerDashboard } from '../hooks/useLecturerDashboard';
 import { useCurrentUser } from '../hooks/useCurrentUser';
 import { LecturerMetricSkeleton, CourseCardSkeleton } from './ui/Skeleton';
 import { COURSE_ACCENTS } from '../hooks/useStudentCourses';
+import { ApiError } from '../lib/api/client';
 
 export default function LecturerDashboard() {
   const { t, i18n } = useTranslation();
   const isEn = i18n.language.startsWith('en');
-  const { data: dashboard, isLoading } = useLecturerDashboard();
+  const { data: dashboard, isLoading, isError, error, refetch, isFetching } = useLecturerDashboard();
   const { data: currentUser } = useCurrentUser('lecturer');
   const welcomeName = currentUser?.name?.trim();
 
   const kpis = dashboard?.kpis;
-  const activeCoursesCount = kpis?.activeCourses ?? (isLoading ? '—' : 0);
-  const pendingAppealsCount = kpis?.pendingAppeals ?? (isLoading ? '—' : 0);
-  const readyToPublishCount = kpis?.readyToPublish ?? (isLoading ? '—' : 0);
+  const activeCoursesCount = kpis?.activeCourses ?? '—';
+  const pendingAppealsCount = kpis?.pendingAppeals ?? '—';
+  const readyToPublishCount = kpis?.readyToPublish ?? '—';
   const avgScore =
     kpis?.averageScore != null
       ? Number(kpis.averageScore).toFixed(1)
-      : isLoading
-        ? '—'
-        : '0.0';
+      : '—';
 
-  const recentCourses = dashboard?.recentCourses || [];
+  const recentCourses = dashboard?.recentCourses ?? [];
+  const hasBlockingError = isError && !dashboard;
 
   return (
     <div className="space-y-10 animate-in fade-in duration-500 max-w-6xl mx-auto pb-16">
@@ -88,6 +89,32 @@ export default function LecturerDashboard() {
           </div>
         </div>
       </div>
+
+      {hasBlockingError ? (
+        <DashboardErrorState
+          error={error}
+          isRetrying={isFetching}
+          onRetry={() => refetch()}
+        />
+      ) : (
+        <>
+          {isError && dashboard && (
+            <div
+              role="status"
+              className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
+            >
+              <span>{t('lecturerDashboard.refreshError')}</span>
+              <button
+                type="button"
+                onClick={() => refetch()}
+                disabled={isFetching}
+                className="inline-flex items-center gap-2 font-bold hover:underline disabled:opacity-60 self-start sm:self-auto cursor-pointer"
+              >
+                <RefreshCw size={15} className={isFetching ? 'animate-spin' : ''} />
+                {t('lecturerDashboard.retry')}
+              </button>
+            </div>
+          )}
 
       {/* KPI Metrics Section */}
       {isLoading ? (
@@ -209,12 +236,66 @@ export default function LecturerDashboard() {
           ) : (
             <div className="col-span-full p-8 border border-dashed border-gray-200 dark:border-gray-800 rounded-2xl text-center">
               <p className="text-gray-500 dark:text-gray-400 font-medium">
-                {isEn ? 'No courses found.' : 'לא נמצאו קורסים פעילים.'}
+                {t('lecturerDashboard.noActiveCourses')}
               </p>
             </div>
           )}
         </div>
       </section>
+        </>
+      )}
+    </div>
+  );
+}
+
+function DashboardErrorState({
+  error,
+  isRetrying,
+  onRetry,
+}: {
+  error: Error | null;
+  isRetrying: boolean;
+  onRetry: () => void;
+}) {
+  const { t } = useTranslation();
+
+  let description = t('lecturerDashboard.error.generic');
+  if (error instanceof ApiError) {
+    if (error.status === 401) description = t('lecturerDashboard.error.unauthorized');
+    else if (error.status === 403) description = t('lecturerDashboard.error.forbidden');
+    else if (error.status === 404) description = t('lecturerDashboard.error.notFound');
+    else if (error.status === 429) description = t('lecturerDashboard.error.rateLimited');
+    else if (error.status >= 500) description = t('lecturerDashboard.error.server');
+    else if (error.message) description = error.message;
+  } else if (error instanceof TypeError) {
+    description = t('lecturerDashboard.error.network');
+  }
+
+  return (
+    <div
+      role="alert"
+      className="rounded-2xl border border-red-200 bg-red-50/70 p-8 text-center max-w-2xl mx-auto space-y-4 dark:border-red-900/60 dark:bg-red-950/30"
+    >
+      <div className="w-14 h-14 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto shadow-xs dark:bg-red-950 dark:text-red-300">
+        <AlertCircle size={28} />
+      </div>
+      <div>
+        <h2 className="text-lg font-bold text-red-900 dark:text-red-200">
+          {t('lecturerDashboard.error.title')}
+        </h2>
+        <p className="text-sm text-red-700 dark:text-red-300 mt-1 max-w-lg mx-auto">
+          {description}
+        </p>
+      </div>
+      <button
+        type="button"
+        onClick={onRetry}
+        disabled={isRetrying}
+        className="inline-flex items-center gap-2 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-red-700 disabled:opacity-60 cursor-pointer"
+      >
+        <RefreshCw size={16} className={isRetrying ? 'animate-spin' : ''} />
+        {isRetrying ? t('lecturerDashboard.retrying') : t('lecturerDashboard.retry')}
+      </button>
     </div>
   );
 }

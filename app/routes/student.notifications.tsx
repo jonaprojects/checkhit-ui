@@ -7,6 +7,7 @@ import { useNotifications, useMarkNotificationAsRead, useMarkAllNotificationsAsR
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router";
 import { getLtiUserId } from "~/lib/lti-session";
+import { AccountContextError } from "~/components/AccountContextError";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -20,7 +21,7 @@ export default function StudentNotifications() {
   const navigate = useNavigate();
   const studentId = getLtiUserId(import.meta.env.VITE_STUDENT_ID);
 
-  const { data: notifications = [], isLoading, isError, error, refetch, isFetching } = useNotifications(
+  const { data: notifications = [], isLoading, isError, refetch, isFetching } = useNotifications(
     studentId,
     undefined,
     isEn
@@ -55,7 +56,7 @@ export default function StudentNotifications() {
             </h1>
             <p className="text-gray-500 mt-2 text-lg">{t('notifications.studentSubtitle')}</p>
           </div>
-          <div className="flex items-center gap-3">
+          {studentId && <div className="flex items-center gap-3">
             <button
               onClick={() => refetch()}
               disabled={isFetching}
@@ -74,8 +75,13 @@ export default function StudentNotifications() {
                 {t('notifications.markAllRead')}
               </button>
             )}
-          </div>
+          </div>}
         </header>
+
+        {!studentId ? (
+          <AccountContextError view="student" />
+        ) : (
+          <>
 
         {/* Shimmer Loading Skeleton */}
         {isLoading && <NotificationListSkeleton count={4} />}
@@ -87,17 +93,17 @@ export default function StudentNotifications() {
               <AlertCircle size={28} />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-red-900">Failed to load notifications</h3>
+              <h3 className="text-lg font-bold text-red-900">{t('notifications.errorTitle')}</h3>
               <p className="text-sm text-red-700 mt-1 max-w-md mx-auto">
-                {error instanceof Error ? error.message : 'An error occurred while fetching notifications.'}
+                {t('notifications.errorDesc')}
               </p>
             </div>
             <button
               onClick={() => refetch()}
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-sm font-bold transition-colors shadow-sm cursor-pointer"
             >
-              <RefreshCw size={16} />
-              <span>Try Again</span>
+              <RefreshCw size={16} className={isFetching ? 'animate-spin' : ''} />
+              <span>{t('notifications.retry')}</span>
             </button>
           </div>
         )}
@@ -131,6 +137,8 @@ export default function StudentNotifications() {
               </div>
             )}
           </div>
+        )}
+          </>
         )}
       </div>
     </MainLayout>

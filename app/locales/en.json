@@ -28,6 +28,12 @@
       "returnToMoodle": "Return to Moodle",
       "userId": "User ID"
     },
+    "accountContext": {
+      "studentTitle": "Student account not recognized",
+      "studentDesc": "We couldn’t identify your student account. Return to Moodle and open Check Hit again.",
+      "lecturerTitle": "Lecturer account not recognized",
+      "lecturerDesc": "We couldn’t identify your lecturer account. Return to Moodle and open Check Hit again."
+    },
     "dashboard": {
       "welcome": "Hello, {{name}}",
       "welcomeFallback": "Hello",
@@ -101,24 +107,45 @@
     "dashboard": {
       "welcome": "Hello, {{name}}",
       "welcomeFallback": "Hello",
-      "subtitle": "Here is an overview of your academic status for today",
+      "subtitle": "Here is your academic overview, upcoming deadlines, and recent performance.",
       "myAssignments": "My Assignments",
       "upcomingAssignments": "Upcoming Assignments",
       "allAssignments": "All Assignments",
-      "recentCourses": "Recent Courses",
+      "recentCourses": "Recent and urgent courses",
       "allCourses": "All Courses",
       "toSubmit": "To Submit",
       "view": "View",
       "recentGrades": "Recent Grades",
       "allGrades": "All Grades",
-      "appealsInProgress": "Appeals In Progress"
+      "appealsInProgress": "Appeals in progress",
+      "viewCalendar": "View Calendar",
+      "noUpcomingAssignments": "No upcoming assignments due",
+      "allCaughtUp": "You have no active assignments awaiting submission.",
+      "showingUpcoming": "Showing {{count}} upcoming assignments",
+      "noGrades": "No graded assignments yet.",
+      "allAppeals": "All Appeals",
+      "noAppeals": "No appeals in progress",
+      "noAppealsDesc": "You have no grade appeals awaiting review.",
+      "pendingLecturerReview": "Pending lecturer review",
+      "noCourses": "No enrolled courses require attention right now.",
+      "assignmentUnavailable": "Assignment details unavailable",
+      "courseDetailsUnavailable": "Course details unavailable",
+      "profileError": "Your profile details could not be refreshed. The rest of the dashboard is still available.",
+      "assignmentsError": "Upcoming assignments could not be loaded.",
+      "gradesError": "Recent grades could not be loaded.",
+      "appealsError": "Appeal information could not be loaded.",
+      "coursesError": "Your courses could not be loaded.",
+      "sessionErrorTitle": "Student account not recognized",
+      "sessionErrorDesc": "We couldn’t identify your student account. Return to Moodle and open Check Hit again.",
+      "retry": "Try Again",
+      "retrying": "Trying again..."
     },
     "lecturerDashboard": {
       "welcome": "Hello, {{name}}",
       "welcomeFallback": "Hello",
       "subtitle": "Here is an overview of your academic status for today.",
       "activeCourses": "Active Courses",
-      "semester": "Fall Semester 2026",
+      "semester": "Current teaching term",
       "appealsToReview": "Appeals to Review",
       "pendingReview": "Pending your review",
       "studentsAtRisk": "Students at Risk",
@@ -140,6 +167,20 @@
       "appealsSubtitle": "Resolve pending student appeals",
       "allCourses": "All Courses",
       "viewAll": "View all",
+      "retry": "Try Again",
+      "retrying": "Trying again...",
+      "refreshError": "The latest dashboard update could not be loaded. Showing the most recently available data.",
+      "noActiveCourses": "No active courses yet.",
+      "error": {
+        "title": "Dashboard unavailable",
+        "generic": "We could not load your dashboard. Please try again.",
+        "network": "We could not reach the server. Check your connection and try again.",
+        "unauthorized": "Your session has expired. Return to Moodle and launch Check Hit again.",
+        "forbidden": "You do not have permission to view this lecturer dashboard.",
+        "notFound": "Dashboard data is not available for this lecturer.",
+        "rateLimited": "Too many requests were sent. Wait a moment and try again.",
+        "server": "The server could not load the dashboard right now. Please try again shortly."
+      },
       "requiresAttention": {
         "title": "Requires Your Attention",
         "subtitle": "Actionable priority items awaiting lecturer response",
@@ -148,7 +189,8 @@
         "upcomingDeadline": "'{{title}}' closes in {{hours}}h ({{count}} students not yet submitted)",
         "resolveNow": "Resolve Now",
         "publishGrades": "Publish Grades",
-        "sendReminder": "Send Reminder"
+        "sendReminder": "Send Reminder",
+        "empty": "You’re all caught up. No urgent tasks need your attention."
       },
       "gradeDistribution": {
         "title": "Grade Distribution Curve",
@@ -163,7 +205,8 @@
         "range70_79": "70-79 (Good)",
         "range60_69": "60-69 (Passing)",
         "rangeBelow60": "<60 (Failing)",
-        "fairnessNote": "Healthy bell curve observed. No grade factoring required."
+        "fairnessNote": "Healthy bell curve observed. No grade factoring required.",
+        "empty": "No grade data is available yet."
       },
       "assignmentTracker": {
         "title": "Assignment Evaluation Progress",
@@ -173,7 +216,8 @@
         "submitted": "Submitted (Pending)",
         "missing": "Missing / Overdue",
         "totalSubmissions": "Total",
-        "viewAssignment": "View Assignment"
+        "viewAssignment": "View Assignment",
+        "empty": "No active assignment evaluation data is available."
       },
       "assignmentsOverview": "Assignments Overview",
       "assignmentsProgress": "Track the progress of AI checking",
@@ -183,9 +227,12 @@
       "closeExpanded": "Close Full View"
     },
     "courses": {
-      "myCourses": "My Courses",
-      "myCoursesDesc": "List of courses you are enrolled in for the current semester",
-      "assignments": "assignments",
+    "myCourses": "My Courses",
+    "myCoursesDesc": "List of courses you are enrolled in for the current semester",
+    "noInstructor": "No instructor assigned",
+    "emptyTitle": "You’re not enrolled in any courses yet",
+    "emptyDesc": "Courses you enroll in through Moodle will appear here.",
+    "assignments": "assignments",
       "toSubmit": "to submit",
       "manageCourses": "Manage Courses",
       "manageCoursesDesc": "List of active courses you are teaching this semester",
@@ -196,6 +243,11 @@
       "activeAssignments": "Active Assignments",
       "noCoursesTitle": "No courses found",
       "noCoursesDesc": "You have not created or been assigned to any courses yet.",
+      "errorTitle": "Couldn’t load your courses",
+      "errorDesc": "We couldn’t retrieve your courses from the server. Please try again.",
+      "sessionErrorTitle": "Lecturer account not recognized",
+      "sessionErrorDesc": "We couldn’t identify your lecturer account. Return to Moodle and open Check Hit again.",
+      "retry": "Try Again",
       "coursePlaceholder1": "Data Structures & Algorithms",
       "coursePlaceholder2": "Computer Networks",
       "coursePlaceholder3": "Object Oriented Programming",
@@ -463,7 +515,10 @@
       "markAllRead": "Mark all as read",
       "viewAll": "View all notifications",
       "emptyTitle": "No new notifications",
-      "emptyDesc": "You currently have no pending messages or updates."
+      "emptyDesc": "You currently have no pending messages or updates.",
+      "errorTitle": "Couldn’t load notifications",
+      "errorDesc": "Notifications could not be retrieved from the server. Please try again.",
+      "retry": "Try Again"
     },
     "createCourse": {
       "metaTitle": "Create New Course | Check Hit",

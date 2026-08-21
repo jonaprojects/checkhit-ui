@@ -48,9 +48,11 @@ export function CourseCard({
         <div className={`w-11 h-11 rounded-xl ${accent.bg} ${accent.text} flex items-center justify-center ${accent.groupHoverBg} group-hover:text-white transition-all shadow-2xs`}>
           <GraduationCap size={22} />
         </div>
-        <span className={`${accent.bg} ${accent.text} px-2.5 py-1 rounded-lg text-xs font-black tracking-wider border border-white/60 shadow-2xs`}>
-          {code}
-        </span>
+        {code && (
+          <span className={`${accent.bg} ${accent.text} px-2.5 py-1 rounded-lg text-xs font-black tracking-wider border border-white/60 shadow-2xs`}>
+            {code}
+          </span>
+        )}
       </div>
       
       <h2 className="text-lg font-black text-gray-900 dark:text-white mb-4 group-hover:text-[#00857e] dark:group-hover:text-teal-300 transition-colors leading-snug line-clamp-1">{name}</h2>

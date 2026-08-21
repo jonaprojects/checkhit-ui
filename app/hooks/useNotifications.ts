@@ -8,6 +8,7 @@ import {
 } from '../lib/api/notifications';
 import type { Notification, NotificationCategory } from '../lib/api/types';
 import type { NotificationType } from '../components/ui/NotificationItem';
+import { UserContextUnavailableError, shouldRetryUserQuery } from '../lib/query-errors';
 
 export interface ProcessedNotification extends Notification {
   uiType: NotificationType;
@@ -74,7 +75,7 @@ export function useNotifications(
     queryKey: ['notifications', userId, params],
     queryFn: async (): Promise<ProcessedNotification[]> => {
       if (!userId) {
-        return [];
+        throw new UserContextUnavailableError();
       }
       const notifications = await getUserNotifications(userId, params);
       return notifications.map((n) => ({
@@ -83,7 +84,7 @@ export function useNotifications(
         formattedTime: formatRelativeTime(n.createdAt, isEn),
       }));
     },
-    enabled: Boolean(userId),
+    retry: shouldRetryUserQuery,
     staleTime: 30000,
   });
 }

@@ -35,6 +35,7 @@ import {
 } from "../hooks/useMessages";
 import type { MessageItem } from "../lib/api/types";
 import { getLtiUserId } from "../lib/lti-session";
+import { AccountContextError } from "../components/AccountContextError";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -206,6 +207,23 @@ export default function StudentMessages() {
 
   const activeMessage = messageDetail || messages.find((m) => m.id === selectedMessageId);
   const unreadDirectCount = messages.filter((m) => !m.isRead && m.targetType === 'DIRECT').length;
+
+  if (!studentId) {
+    return (
+      <MainLayout portalName={t('nav.dashboard')} view="student">
+        <div className="space-y-8 animate-in fade-in duration-500 max-w-6xl mx-auto pb-12">
+          <header className="border-b border-gray-200 pb-6">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 flex items-center gap-3">
+              <Mail className="text-[#00857e]" size={30} />
+              {t('messages.title')}
+            </h1>
+            <p className="text-gray-500 mt-1 text-sm sm:text-base">{t('messages.subtitle')}</p>
+          </header>
+          <AccountContextError view="student" />
+        </div>
+      </MainLayout>
+    );
+  }
 
   return (
     <MainLayout portalName={t('nav.dashboard')} view="student">

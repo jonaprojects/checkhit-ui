@@ -28,6 +28,12 @@
       "returnToMoodle": "חזרה למודל",
       "userId": "מספר זיהוי"
     },
+    "accountContext": {
+      "studentTitle": "חשבון הסטודנט לא זוהה",
+      "studentDesc": "לא הצלחנו לזהות את חשבון הסטודנט שלך. יש לחזור ל-Moodle ולפתוח מחדש את Check Hit.",
+      "lecturerTitle": "חשבון המרצה לא זוהה",
+      "lecturerDesc": "לא הצלחנו לזהות את חשבון המרצה שלך. יש לחזור ל-Moodle ולפתוח מחדש את Check Hit."
+    },
     "dashboard": {
       "welcome": "שלום, {{name}}",
       "welcomeFallback": "שלום",
@@ -101,24 +107,45 @@
     "dashboard": {
       "welcome": "שלום, {{name}}",
       "welcomeFallback": "שלום",
-      "subtitle": "לפניך תמונת מצב אקדמית להיום",
+      "subtitle": "סקירה כללית של המטלות הקרובות, הציונים והקורסים שלך.",
       "myAssignments": "המטלות שלי",
       "upcomingAssignments": "מטלות קרובות",
       "allAssignments": "כל המטלות",
-      "recentCourses": "קורסים אחרונים",
+      "recentCourses": "קורסים עדכניים ודחופים",
       "allCourses": "כל הקורסים",
       "toSubmit": "להגשה",
       "view": "צפייה",
       "recentGrades": "ציונים אחרונים",
       "allGrades": "כל הציונים",
-      "appealsInProgress": "ערעורים בטיפול"
+      "appealsInProgress": "ערעורים בטיפול",
+      "viewCalendar": "צפייה בלוח השנה",
+      "noUpcomingAssignments": "אין מטלות קרובות להגשה",
+      "allCaughtUp": "אין לך מטלות פעילות הממתינות להגשה.",
+      "showingUpcoming": "מוצגות {{count}} מטלות קרובות להגשה",
+      "noGrades": "עדיין אין מטלות שקיבלו ציון.",
+      "allAppeals": "כל הערעורים",
+      "noAppeals": "אין ערעורים בטיפול",
+      "noAppealsDesc": "אין לך ערעורי ציונים הממתינים לבדיקה.",
+      "pendingLecturerReview": "ממתין לבדיקת מרצה",
+      "noCourses": "אין כרגע קורסים רשומים הדורשים תשומת לב.",
+      "assignmentUnavailable": "פרטי המטלה אינם זמינים",
+      "courseDetailsUnavailable": "פרטי הקורס אינם זמינים",
+      "profileError": "לא ניתן לעדכן את פרטי הפרופיל. שאר לוח הבקרה עדיין זמין.",
+      "assignmentsError": "לא ניתן לטעון את המטלות הקרובות.",
+      "gradesError": "לא ניתן לטעון את הציונים האחרונים.",
+      "appealsError": "לא ניתן לטעון את פרטי הערעורים.",
+      "coursesError": "לא ניתן לטעון את הקורסים שלך.",
+      "sessionErrorTitle": "חשבון הסטודנט לא זוהה",
+      "sessionErrorDesc": "לא הצלחנו לזהות את חשבון הסטודנט שלך. יש לחזור ל-Moodle ולפתוח מחדש את Check Hit.",
+      "retry": "נסה שוב",
+      "retrying": "מנסה שוב..."
     },
     "lecturerDashboard": {
       "welcome": "שלום, {{name}}",
       "welcomeFallback": "שלום",
       "subtitle": "הנה סקירת המצב האקדמי העדכנית שלך להיום.",
       "activeCourses": "קורסים פעילים",
-      "semester": "סמסטר א' תשפ״ו",
+      "semester": "סמסטר הוראה נוכחי",
       "appealsToReview": "ערעורים להחלטה",
       "pendingReview": "ממתינים לבדיקתך",
       "studentsAtRisk": "סטודנטים בסיכון",
@@ -140,6 +167,20 @@
       "appealsSubtitle": "מענה לפניות וערעורי סטודנטים",
       "allCourses": "הקורסים שלי",
       "viewAll": "צפייה בכולם",
+      "retry": "נסה שוב",
+      "retrying": "מנסה שוב...",
+      "refreshError": "לא ניתן לטעון את עדכון לוח הבקרה האחרון. מוצגים הנתונים האחרונים הזמינים.",
+      "noActiveCourses": "אין עדיין קורסים פעילים.",
+      "error": {
+        "title": "לוח הבקרה אינו זמין",
+        "generic": "לא ניתן לטעון את לוח הבקרה. נסה שוב.",
+        "network": "לא ניתן להתחבר לשרת. בדוק את החיבור ונסה שוב.",
+        "unauthorized": "תוקף ההפעלה פג. חזור ל-Moodle והפעל שוב את Check Hit.",
+        "forbidden": "אין לך הרשאה לצפות בלוח הבקרה של המרצה.",
+        "notFound": "נתוני לוח הבקרה אינם זמינים עבור מרצה זה.",
+        "rateLimited": "נשלחו בקשות רבות מדי. המתן מעט ונסה שוב.",
+        "server": "השרת אינו יכול לטעון את לוח הבקרה כעת. נסה שוב בעוד זמן קצר."
+      },
       "requiresAttention": {
         "title": "דורש טיפול והחלטה",
         "subtitle": "משימות אקדמיות דחופות הממתינות לפעולתך",
@@ -148,7 +189,8 @@
         "upcomingDeadline": "מועד ההגשה של '{{title}}' נסגר בעוד {{hours}} שעות ({{count}} טרם הגישו)",
         "resolveNow": "לטפל עכשיו",
         "publishGrades": "פרסם ציונים",
-        "sendReminder": "שלח תזכורת"
+        "sendReminder": "שלח תזכורת",
+        "empty": "הכול מעודכן. אין משימות דחופות הדורשות את תשומת לבך."
       },
       "gradeDistribution": {
         "title": "התפלגות ציונים",
@@ -163,7 +205,8 @@
         "range70_79": "70-79 (טוב)",
         "range60_69": "60-69 (עובר)",
         "rangeBelow60": "<60 (נכשל)",
-        "fairnessNote": "התפלגות פעמון תקינה. לא נדרש פקטור."
+        "fairnessNote": "התפלגות פעמון תקינה. לא נדרש פקטור.",
+        "empty": "עדיין אין נתוני ציונים להצגה."
       },
       "assignmentTracker": {
         "title": "קצב בדיקה והתקדמות מטלות",
@@ -173,7 +216,8 @@
         "submitted": "הוגש (ממתין לבדיקה)",
         "missing": "טרם הוגש / באיחור",
         "totalSubmissions": "סה״כ",
-        "viewAssignment": "צפה במטלה"
+        "viewAssignment": "צפה במטלה",
+        "empty": "אין נתוני בדיקה של מטלות פעילות להצגה."
       },
       "assignmentsOverview": "סטטוס בדיקות",
       "assignmentsProgress": "מעקב אחר התקדמות הבדיקה",
@@ -183,9 +227,12 @@
       "closeExpanded": "סגור תצוגה מורחבת"
     },
     "courses": {
-      "myCourses": "הקורסים שלי",
-      "myCoursesDesc": "רשימת הקורסים אליהם אתה רשום בסמסטר הנוכחי",
-      "assignments": "מטלות",
+    "myCourses": "הקורסים שלי",
+    "myCoursesDesc": "רשימת הקורסים אליהם אתה רשום בסמסטר הנוכחי",
+    "noInstructor": "לא שובץ מרצה",
+    "emptyTitle": "עדיין אינך רשום לקורסים",
+    "emptyDesc": "קורסים שאליהם תירשם דרך Moodle יופיעו כאן.",
+    "assignments": "מטלות",
       "toSubmit": "להגשה",
       "manageCourses": "ניהול קורסים",
       "manageCoursesDesc": "רשימת הקורסים הפעילים שאתה מלמד בסמסטר הנוכחי",
@@ -196,6 +243,11 @@
       "activeAssignments": "מטלות פעילות",
       "noCoursesTitle": "לא נמצאו קורסים",
       "noCoursesDesc": "עדיין לא יצרת או שובצת לקורסים כלשהם בסמסטר זה.",
+      "errorTitle": "לא ניתן לטעון את הקורסים שלך",
+      "errorDesc": "לא הצלחנו לקבל את רשימת הקורסים מהשרת. אפשר לנסות שוב.",
+      "sessionErrorTitle": "חשבון המרצה לא זוהה",
+      "sessionErrorDesc": "לא הצלחנו לזהות את חשבון המרצה שלך. יש לחזור ל-Moodle ולפתוח מחדש את Check Hit.",
+      "retry": "נסה שוב",
       "coursePlaceholder1": "מבני נתונים ואלגוריתמים",
       "coursePlaceholder2": "רשתות תקשורת",
       "coursePlaceholder3": "תכנות מונחה עצמים",
@@ -463,7 +515,10 @@
       "markAllRead": "סמן הכל כנקרא",
       "viewAll": "הצג את כל ההתראות",
       "emptyTitle": "אין התראות חדשות",
-      "emptyDesc": "כרגע אין לך הודעות או עדכונים שממתינים לך."
+      "emptyDesc": "כרגע אין לך הודעות או עדכונים שממתינים לך.",
+      "errorTitle": "לא ניתן לטעון את ההתראות",
+      "errorDesc": "לא ניתן לקבל את ההתראות מהשרת. אפשר לנסות שוב.",
+      "retry": "נסה שוב"
     },
     "createCourse": {
       "metaTitle": "יצירת קורס חדש | Check Hit",

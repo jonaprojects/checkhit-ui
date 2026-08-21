@@ -15,6 +15,7 @@ import type {
   MessageItem,
   MessagesListResponse,
 } from '../lib/api/types';
+import { UserContextUnavailableError, shouldRetryUserQuery } from '../lib/query-errors';
 
 /**
  * Format relative time or localized date for message item display.
@@ -63,11 +64,11 @@ export function useMessages(userId?: string, params?: Partial<GetMessagesParams>
     queryKey: ['messages', userId, params],
     queryFn: async () => {
       if (!userId) {
-        return { messages: [], total: 0, unreadCount: 0 };
+        throw new UserContextUnavailableError();
       }
       return getMessages({ userId, ...params });
     },
-    enabled: Boolean(userId),
+    retry: shouldRetryUserQuery,
     staleTime: 15000,
   });
 }

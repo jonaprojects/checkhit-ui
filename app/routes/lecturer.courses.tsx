@@ -4,7 +4,7 @@ import { Users, BookOpen, ChevronLeft, Plus, CheckCircle2, AlertCircle, RefreshC
 import { CourseCard } from '../components/CourseCard';
 import { LinkButton, Button } from '../components/ui/Button';
 import { CourseGridSkeleton } from '../components/ui/Skeleton';
-import { useLecturerCourses } from '../hooks/useLecturerCourses';
+import { LecturerContextUnavailableError, useLecturerCourses } from '../hooks/useLecturerCourses';
 import { useTranslation } from 'react-i18next';
 
 export function meta({}: Route.MetaArgs) {
@@ -17,6 +17,7 @@ export default function LecturerCoursesRoute() {
   const { t, i18n } = useTranslation();
   const isEn = i18n.language.startsWith('en');
   const { data: courses, isLoading, isError, error, refetch, isFetching } = useLecturerCourses();
+  const isMissingLecturerContext = error instanceof LecturerContextUnavailableError;
 
   return (
     <MainLayout portalName={t('nav.dashboard')} view="lecturer">
@@ -62,19 +63,24 @@ export default function LecturerCoursesRoute() {
               <AlertCircle size={28} />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-red-900">{t('courses.errorTitle')}</h3>
+              <h3 className="text-lg font-bold text-red-900">
+                {t(isMissingLecturerContext ? 'courses.sessionErrorTitle' : 'courses.errorTitle')}
+              </h3>
               <p className="text-sm text-red-700 mt-1 max-w-md mx-auto">
-                {error instanceof Error ? error.message : t('courses.errorDesc')}
+                {t(isMissingLecturerContext ? 'courses.sessionErrorDesc' : 'courses.errorDesc')}
               </p>
             </div>
-            <Button
-              onClick={() => refetch()}
-              variant="danger"
-              className="inline-flex items-center gap-2"
-            >
-              <RefreshCw size={16} />
-              <span>{t('courses.retry')}</span>
-            </Button>
+            {!isMissingLecturerContext && (
+              <Button
+                onClick={() => refetch()}
+                disabled={isFetching}
+                variant="danger"
+                className="inline-flex items-center gap-2"
+              >
+                <RefreshCw size={16} className={isFetching ? 'animate-spin' : ''} />
+                <span>{t('courses.retry')}</span>
+              </Button>
+            )}
           </div>
         )}
 
