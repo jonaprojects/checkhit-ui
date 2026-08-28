@@ -28,7 +28,12 @@ import { useUnreadMessageCount } from '../hooks/useMessages';
 import { useCurrentUser } from '../hooks/useCurrentUser';
 import { getLtiUserId } from '../lib/lti-session';
 
-export default function MainLayout({ children, portalName = "פורטל סטודנטים", view }: any) {
+export default function MainLayout({
+  children,
+  portalName = "פורטל סטודנטים",
+  view,
+  documentScroll = false,
+}: any) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -68,6 +73,36 @@ export default function MainLayout({ children, portalName = "פורטל סטוד
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    if (!documentScroll || window.parent === window) return;
+
+    let animationFrame = 0;
+    const requestParentResize = () => {
+      window.cancelAnimationFrame(animationFrame);
+      animationFrame = window.requestAnimationFrame(() => {
+        const height = Math.max(
+          document.body.scrollHeight,
+          document.documentElement.scrollHeight,
+        );
+        window.parent.postMessage(
+          JSON.stringify({ subject: 'lti.frameResize', height: height + 24 }),
+          '*',
+        );
+      });
+    };
+
+    const resizeObserver = new ResizeObserver(requestParentResize);
+    resizeObserver.observe(document.body);
+    window.addEventListener('resize', requestParentResize);
+    requestParentResize();
+
+    return () => {
+      window.cancelAnimationFrame(animationFrame);
+      resizeObserver.disconnect();
+      window.removeEventListener('resize', requestParentResize);
+    };
+  }, [documentScroll]);
 
   const handleNotificationClick = (notifId: string, isRead: boolean, link?: string | null) => {
     if (!isRead) {
@@ -109,7 +144,7 @@ export default function MainLayout({ children, portalName = "פורטל סטוד
   };
 
   return (
-    <div className="h-screen overflow-hidden bg-gray-50 flex text-gray-800 font-sans text-start">
+    <div className={`${documentScroll ? 'min-h-screen overflow-visible' : 'h-screen overflow-hidden'} bg-gray-50 flex text-gray-800 font-sans text-start`}>
       {/* Mobile Sidebar Overlay */}
       {sidebarOpen && (
         <div 
@@ -170,7 +205,7 @@ export default function MainLayout({ children, portalName = "פורטל סטוד
       </aside>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col h-full overflow-hidden">
+      <div className={`flex-1 flex flex-col ${documentScroll ? 'min-h-screen' : 'h-full overflow-hidden'}`}>
         {/* Header */}
         <header className="bg-white shadow-sm h-20 flex items-center justify-between px-4 lg:px-8 z-30 relative">
           <div className="flex items-center gap-4 lg:hidden">
@@ -288,7 +323,7 @@ export default function MainLayout({ children, portalName = "פורטל סטוד
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-x-hidden overflow-y-auto p-4 lg:p-8">
+        <main className={`flex-1 overflow-x-hidden p-4 lg:p-8 ${documentScroll ? 'overflow-y-visible' : 'overflow-y-auto'}`}>
           <div className="max-w-7xl mx-auto">
             {children}
           </div>

@@ -63,7 +63,7 @@ export default function LecturerDashboard() {
           {/* Quick Action Shortcuts */}
           <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
             <Link
-              to="/lecturer/assignment/new"
+              to="/lecturer/courses"
               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#00857e] hover:bg-[#006e68] text-white font-bold text-sm transition-all shadow-sm hover:shadow-md cursor-pointer hover:-translate-y-0.5"
             >
               <Plus size={18} />
