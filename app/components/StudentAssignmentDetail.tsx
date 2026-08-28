@@ -18,11 +18,31 @@ import {
   ExternalLink,
   ShieldCheck,
   AlertTriangle,
+  Save,
+  LoaderCircle,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { StatusBadge } from './ui/StatusBadge';
 import type { ProcessedStudentAssignmentDetail, ProcessedSubmissionFile } from '../hooks/useStudentAssignmentDetail';
 import type { AppealStatus } from '../lib/api/types';
+import {
+  useSaveStudentSubmissionDraft,
+  useSubmitStudentAssignment,
+} from '../hooks/useStudentSubmission';
+import { validateSubmissionFile } from '../lib/submission-validation';
+import { ApiError } from '../lib/api/client';
+import type { TFunction } from 'i18next';
+
+function getSubmissionErrorMessage(error: unknown, t: TFunction): string {
+  if (error instanceof ApiError) {
+    if (error.status === 409) return t('assignmentDetail.errors.alreadySubmitted');
+    if (error.status === 413) return t('assignmentDetail.errors.fileTooLarge');
+    if (error.status === 401 || error.status === 403) return t('assignmentDetail.errors.unauthorized');
+    if (error.status >= 500) return t('assignmentDetail.errors.server');
+  }
+  if (error instanceof TypeError) return t('assignmentDetail.errors.network');
+  return t('assignmentDetail.errors.generic');
+}
 
 interface StudentAssignmentDetailProps {
   assignment: ProcessedStudentAssignmentDetail;
@@ -50,16 +70,77 @@ export default function StudentAssignmentDetail({ assignment }: StudentAssignmen
     appeal,
   } = assignment;
 
-  // Local demo / interactive fallback state if student uploads on the client
   const [localSubmissionFile, setLocalSubmissionFile] = useState<File | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
-  const [localSuccessSubmitted, setLocalSuccessSubmitted] = useState(false);
+  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const saveDraftMutation = useSaveStudentSubmissionDraft();
+  const submitMutation = useSubmitStudentAssignment();
 
   const isGraded = studentStatus === 'GRADED' && Boolean(submission?.evaluation);
   const isSubmittedNotGraded =
-    localSuccessSubmitted ||
-    (studentStatus === 'SUBMITTED' && (!submission?.evaluation || submission.evaluation.status !== 'COMPLETED'));
+    submission?.status === 'SUBMITTED' &&
+    (!submission.evaluation || submission.evaluation.status !== 'COMPLETED');
   const isNotSubmitted = !isGraded && !isSubmittedNotGraded;
+  const draftSubmission = submission?.status === 'DRAFT' ? submission : null;
+  const busyAction = saveDraftMutation.isPending
+    ? 'draft'
+    : submitMutation.isPending
+      ? 'submit'
+      : null;
+
+  const validateSelectedFile = () => {
+    if (!localSubmissionFile) return true;
+    const validationError = validateSubmissionFile(localSubmissionFile);
+    if (!validationError) return true;
+
+    setFeedback({
+      type: 'error',
+      message: t(`assignmentDetail.fileValidation.${validationError}`),
+    });
+    return false;
+  };
+
+  const handleSaveDraft = async () => {
+    if (!localSubmissionFile) {
+      setFeedback({ type: 'error', message: t('assignmentDetail.fileValidation.draftRequiresFile') });
+      return;
+    }
+    if (!validateSelectedFile()) return;
+
+    setFeedback(null);
+    try {
+      await saveDraftMutation.mutateAsync({
+        assignmentId,
+        submissionId: draftSubmission?.id,
+        file: localSubmissionFile,
+      });
+      setLocalSubmissionFile(null);
+      setFeedback({ type: 'success', message: t('assignmentDetail.draftSaved') });
+    } catch (error) {
+      setFeedback({ type: 'error', message: getSubmissionErrorMessage(error, t) });
+    }
+  };
+
+  const handleSubmit = async () => {
+    const hasExistingDraftFile = Boolean(draftSubmission?.files.length);
+    if (!localSubmissionFile && !hasExistingDraftFile) {
+      setFeedback({ type: 'error', message: t('assignmentDetail.fileValidation.required') });
+      return;
+    }
+    if (!validateSelectedFile()) return;
+
+    setFeedback(null);
+    try {
+      await submitMutation.mutateAsync({
+        assignmentId,
+        submissionId: draftSubmission?.id,
+        file: localSubmissionFile || undefined,
+      });
+      setLocalSubmissionFile(null);
+      setFeedback({ type: 'success', message: t('assignmentDetail.submissionAccepted') });
+    } catch (error) {
+      setFeedback({ type: 'error', message: getSubmissionErrorMessage(error, t) });
+    }
+  };
 
   // Map API status to StatusBadge status
   const badgeStatus = isGraded
@@ -173,6 +254,20 @@ export default function StudentAssignmentDetail({ assignment }: StudentAssignmen
 
         {/* State-dependent Dynamic UI */}
         <div className="p-6 md:p-8 bg-gray-50/30 dark:bg-[#121c1a]/50">
+          {feedback && (
+            <div
+              role={feedback.type === 'error' ? 'alert' : 'status'}
+              className={`mb-5 flex items-start gap-3 rounded-xl border px-4 py-3 text-sm font-medium ${
+                feedback.type === 'error'
+                  ? 'border-red-200 bg-red-50 text-red-700 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-300'
+                  : 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/60 dark:bg-emerald-950/30 dark:text-emerald-300'
+              }`}
+            >
+              {feedback.type === 'error' ? <AlertCircle size={18} /> : <CheckCircle2 size={18} />}
+              <span>{feedback.message}</span>
+            </div>
+          )}
+
           {isGraded && submission && (
             <GradedView
               assignment={assignment}
@@ -180,7 +275,6 @@ export default function StudentAssignmentDetail({ assignment }: StudentAssignmen
               appeal={appeal}
               isEn={isEn}
               onReset={() => {
-                setLocalSuccessSubmitted(false);
                 setLocalSubmissionFile(null);
               }}
             />
@@ -191,7 +285,6 @@ export default function StudentAssignmentDetail({ assignment }: StudentAssignmen
               submission={submission}
               localFile={localSubmissionFile}
               isEn={isEn}
-              onSimulateGraded={() => setLocalSuccessSubmitted(false)}
             />
           )}
 
@@ -199,13 +292,12 @@ export default function StudentAssignmentDetail({ assignment }: StudentAssignmen
             <NotSubmittedView
               selectedFile={localSubmissionFile}
               setSelectedFile={setLocalSubmissionFile}
-              isUploading={isUploading}
-              onSubmit={async () => {
-                setIsUploading(true);
-                await new Promise((resolve) => setTimeout(resolve, 800));
-                setIsUploading(false);
-                setLocalSuccessSubmitted(true);
-              }}
+              existingFiles={draftSubmission?.files || []}
+              isDraft={Boolean(draftSubmission)}
+              busyAction={busyAction}
+              onSaveDraft={handleSaveDraft}
+              onSubmit={handleSubmit}
+              onFileRejected={(message) => setFeedback({ type: 'error', message })}
               isOverdue={isOverdue}
             />
           )}
@@ -221,16 +313,24 @@ export default function StudentAssignmentDetail({ assignment }: StudentAssignmen
 interface NotSubmittedViewProps {
   selectedFile: File | null;
   setSelectedFile: (file: File | null) => void;
-  isUploading: boolean;
+  existingFiles: ProcessedSubmissionFile[];
+  isDraft: boolean;
+  busyAction: 'draft' | 'submit' | null;
+  onSaveDraft: () => void;
   onSubmit: () => void;
+  onFileRejected: (message: string) => void;
   isOverdue: boolean;
 }
 
 function NotSubmittedView({
   selectedFile,
   setSelectedFile,
-  isUploading,
+  existingFiles,
+  isDraft,
+  busyAction,
+  onSaveDraft,
   onSubmit,
+  onFileRejected,
   isOverdue,
 }: NotSubmittedViewProps) {
   const { t } = useTranslation();
@@ -239,6 +339,11 @@ function NotSubmittedView({
 
   const handleFileSelection = (file?: File) => {
     if (file) {
+      const validationError = validateSubmissionFile(file);
+      if (validationError) {
+        onFileRejected(t(`assignmentDetail.fileValidation.${validationError}`));
+        return;
+      }
       setSelectedFile(file);
     }
   };
@@ -267,10 +372,26 @@ function NotSubmittedView({
     }
   };
 
-  if (selectedFile) {
+  if (selectedFile || isDraft) {
     return (
       <div className="flex flex-col items-center justify-center p-8 border border-gray-200 dark:border-gray-800 rounded-xl bg-white dark:bg-[#17211f] shadow-sm max-w-lg mx-auto">
-        <div className="flex items-center gap-4 bg-gray-50 dark:bg-gray-800/60 w-full p-4 rounded-lg border border-gray-100 dark:border-gray-800 mb-6">
+        <input
+          type="file"
+          className="hidden"
+          ref={fileInputRef}
+          onChange={onFileInputChange}
+          accept=".pdf,.md,.zip"
+        />
+
+        {isDraft && (
+          <div className="mb-4 w-full rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-300">
+            <p className="font-bold">{t('assignmentDetail.draftTitle')}</p>
+            <p className="mt-0.5 text-xs">{t('assignmentDetail.draftDesc')}</p>
+          </div>
+        )}
+
+        {selectedFile ? (
+          <div className="flex items-center gap-4 bg-gray-50 dark:bg-gray-800/60 w-full p-4 rounded-lg border border-gray-100 dark:border-gray-800 mb-6">
           <div className="w-12 h-12 bg-teal-50 dark:bg-teal-950/60 text-[#00857e] dark:text-teal-300 rounded-full flex items-center justify-center shrink-0">
             <FileIcon size={24} />
           </div>
@@ -285,11 +406,33 @@ function NotSubmittedView({
           <button
             onClick={() => setSelectedFile(null)}
             className="text-sm text-red-500 hover:text-red-700 dark:text-red-400 font-medium px-3 py-1.5 bg-red-50 dark:bg-red-950/50 hover:bg-red-100 dark:hover:bg-red-900/60 rounded-md transition-colors whitespace-nowrap cursor-pointer"
-            disabled={isUploading}
+            disabled={Boolean(busyAction)}
           >
             {t('assignmentDetail.removeFile')}
           </button>
-        </div>
+          </div>
+        ) : (
+          <div className="w-full space-y-2 mb-6">
+            {existingFiles.map((file) => (
+              <div key={file.id} className="flex items-center gap-3 rounded-lg border border-gray-100 bg-gray-50 p-3 dark:border-gray-800 dark:bg-gray-800/60">
+                <FileIcon size={20} className="shrink-0 text-[#00857e] dark:text-teal-300" />
+                <div className="min-w-0 text-start">
+                  <p className="truncate text-sm font-bold text-gray-800 dark:text-gray-200" dir="ltr">{file.name}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">{file.formattedSize}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          disabled={Boolean(busyAction)}
+          className="mb-4 text-sm font-bold text-[#00857e] hover:underline disabled:opacity-50 dark:text-teal-300"
+        >
+          {selectedFile || existingFiles.length ? t('assignmentDetail.replaceFile') : t('assignmentDetail.chooseFile')}
+        </button>
 
         {isOverdue && (
           <div className="mb-4 flex items-center gap-2 text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 px-3 py-2 rounded-lg w-full">
@@ -298,13 +441,26 @@ function NotSubmittedView({
           </div>
         )}
 
-        <button
-          onClick={onSubmit}
-          className="w-full bg-[#00857e] dark:bg-teal-600 text-white px-8 py-3 rounded-lg font-bold shadow-sm hover:bg-teal-700 dark:hover:bg-teal-500 transition-colors disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
-          disabled={isUploading}
-        >
-          {isUploading ? t('assignmentDetail.uploading') : t('assignmentDetail.submit')}
-        </button>
+        <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
+          <button
+            type="button"
+            onClick={onSaveDraft}
+            className="flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-5 py-3 font-bold text-gray-700 shadow-xs transition-colors hover:bg-gray-50 disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
+            disabled={Boolean(busyAction) || !selectedFile}
+          >
+            {busyAction === 'draft' ? <LoaderCircle size={17} className="animate-spin" /> : <Save size={17} />}
+            {busyAction === 'draft' ? t('assignmentDetail.savingDraft') : t('assignmentDetail.saveDraft')}
+          </button>
+          <button
+            type="button"
+            onClick={onSubmit}
+            className="flex items-center justify-center gap-2 rounded-lg bg-[#00857e] px-5 py-3 font-bold text-white shadow-sm transition-colors hover:bg-teal-700 disabled:opacity-50 dark:bg-teal-600 dark:hover:bg-teal-500"
+            disabled={Boolean(busyAction)}
+          >
+            {busyAction === 'submit' && <LoaderCircle size={17} className="animate-spin" />}
+            {busyAction === 'submit' ? t('assignmentDetail.uploading') : t('assignmentDetail.submit')}
+          </button>
+        </div>
       </div>
     );
   }
@@ -326,7 +482,7 @@ function NotSubmittedView({
         className="hidden"
         ref={fileInputRef}
         onChange={onFileInputChange}
-        accept=".pdf,.md,.zip,.docx"
+        accept=".pdf,.md,.zip"
       />
       <div
         className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 transition-colors ${

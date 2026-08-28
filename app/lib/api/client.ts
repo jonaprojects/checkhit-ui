@@ -5,13 +5,29 @@ const SERVER_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:3001';
 export class ApiError extends Error {
   status: number;
   data: unknown;
+  retryAfterMs?: number;
 
-  constructor(message: string, status: number, data?: unknown) {
+  constructor(message: string, status: number, data?: unknown, retryAfterMs?: number) {
     super(message);
     this.name = 'ApiError';
     this.status = status;
     this.data = data;
+    this.retryAfterMs = retryAfterMs;
   }
+}
+
+function parseRetryAfter(value: string | null): number | undefined {
+  if (!value) return undefined;
+
+  const seconds = Number(value);
+  if (Number.isFinite(seconds) && seconds >= 0) {
+    return seconds * 1000;
+  }
+
+  const retryAt = Date.parse(value);
+  if (Number.isNaN(retryAt)) return undefined;
+
+  return Math.max(0, retryAt - Date.now());
 }
 
 async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
@@ -22,10 +38,11 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
     url.searchParams.set('ltik', ltik);
   }
 
-  const headers: HeadersInit = {
-    'Content-Type': 'application/json',
-    ...(options.headers || {}),
-  };
+  const headers = new Headers(options.headers);
+  const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
+  if (!isFormData && !headers.has('Content-Type')) {
+    headers.set('Content-Type', 'application/json');
+  }
 
   const response = await fetch(url.toString(), {
     ...options,
@@ -46,7 +63,12 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
       // Non-JSON error response
     }
 
-    throw new ApiError(errorMessage, response.status, errorData);
+    throw new ApiError(
+      errorMessage,
+      response.status,
+      errorData,
+      parseRetryAfter(response.headers.get('Retry-After'))
+    );
   }
 
   // Handle 204 No Content
@@ -57,25 +79,31 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
   return response.json() as Promise<T>;
 }
 
+function serializeBody(body: unknown): BodyInit | undefined {
+  if (body === undefined) return undefined;
+  if (typeof FormData !== 'undefined' && body instanceof FormData) return body;
+  return JSON.stringify(body);
+}
+
 export const apiClient = {
   get: <T>(endpoint: string, options?: RequestInit) => request<T>(endpoint, { ...options, method: 'GET' }),
   post: <T>(endpoint: string, body?: unknown, options?: RequestInit) =>
     request<T>(endpoint, {
       ...options,
       method: 'POST',
-      body: body !== undefined ? JSON.stringify(body) : undefined,
+      body: serializeBody(body),
     }),
   put: <T>(endpoint: string, body?: unknown, options?: RequestInit) =>
     request<T>(endpoint, {
       ...options,
       method: 'PUT',
-      body: body !== undefined ? JSON.stringify(body) : undefined,
+      body: serializeBody(body),
     }),
   patch: <T>(endpoint: string, body?: unknown, options?: RequestInit) =>
     request<T>(endpoint, {
       ...options,
       method: 'PATCH',
-      body: body !== undefined ? JSON.stringify(body) : undefined,
+      body: serializeBody(body),
     }),
   delete: <T>(endpoint: string, options?: RequestInit) => request<T>(endpoint, { ...options, method: 'DELETE' }),
 };

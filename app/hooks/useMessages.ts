@@ -15,7 +15,11 @@ import type {
   MessageItem,
   MessagesListResponse,
 } from '../lib/api/types';
-import { UserContextUnavailableError, shouldRetryUserQuery } from '../lib/query-errors';
+import {
+  isRetryableQueryError,
+  UserContextUnavailableError,
+  shouldRetryUserQuery,
+} from '../lib/query-errors';
 
 /**
  * Format relative time or localized date for message item display.
@@ -198,6 +202,7 @@ export function useUnreadMessageCount(userId?: string) {
       return res.unreadCount;
     },
     enabled: Boolean(userId),
-    refetchInterval: 30000,
+    refetchInterval: (query) =>
+      query.state.error && !isRetryableQueryError(query.state.error) ? false : 30000,
   });
 }

@@ -410,6 +410,28 @@
       "removeFile": "Remove file",
       "uploading": "Uploading...",
       "submit": "Submit assignment",
+      "saveDraft": "Save draft",
+      "savingDraft": "Saving draft...",
+      "draftTitle": "Draft submission",
+      "draftDesc": "Your draft is saved on the server. You can replace the file or submit it for grading.",
+      "draftSaved": "Your draft was saved successfully.",
+      "submissionAccepted": "Your assignment was submitted successfully and accepted for grading.",
+      "replaceFile": "Replace file",
+      "fileValidation": {
+        "required": "Choose a file before submitting the assignment.",
+        "draftRequiresFile": "Choose a new file before saving the draft.",
+        "empty": "The selected file is empty. Choose a file that contains data.",
+        "unsupported": "Unsupported file type. Choose a PDF, ZIP, or Markdown file.",
+        "tooLarge": "The selected file exceeds the 50 MB limit."
+      },
+      "errors": {
+        "generic": "We couldn’t save your submission. Please try again.",
+        "network": "Couldn’t connect to the server. Check your connection and try again.",
+        "server": "The server couldn’t process your submission right now. Please try again shortly.",
+        "unauthorized": "Your session doesn’t allow this submission. Reopen Check Hit from Moodle and try again.",
+        "alreadySubmitted": "This draft has already been submitted and can no longer be changed.",
+        "fileTooLarge": "The server rejected the file because it is too large."
+      },
       "dragFiles": "Drag files here or click to upload",
       "fileRules": "You can upload PDF, ZIP, or Markdown files up to 50MB. The system will automatically scan and evaluate after submission.",
       "chooseFile": "Choose file to submit",

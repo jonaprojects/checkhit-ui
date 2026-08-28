@@ -8,7 +8,11 @@ import {
 } from '../lib/api/notifications';
 import type { Notification, NotificationCategory } from '../lib/api/types';
 import type { NotificationType } from '../components/ui/NotificationItem';
-import { UserContextUnavailableError, shouldRetryUserQuery } from '../lib/query-errors';
+import {
+  isRetryableQueryError,
+  UserContextUnavailableError,
+  shouldRetryUserQuery,
+} from '../lib/query-errors';
 
 export interface ProcessedNotification extends Notification {
   uiType: NotificationType;
@@ -98,7 +102,8 @@ export function useUnreadNotificationCount(userId?: string) {
       return res.unreadCount;
     },
     enabled: Boolean(userId),
-    refetchInterval: 30000, // Background poll every 30s
+    refetchInterval: (query) =>
+      query.state.error && !isRetryableQueryError(query.state.error) ? false : 30000,
   });
 }
 

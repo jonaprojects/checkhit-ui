@@ -29,6 +29,7 @@ import { useTranslation } from "react-i18next";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import "./lib/i18n";
 import { captureLtiSession } from "./lib/lti-session";
+import { queryRetryDelay, shouldRetryQuery } from "./lib/query-errors";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const { i18n } = useTranslation();
@@ -68,7 +69,8 @@ export default function App() {
           queries: {
             staleTime: 1000 * 60 * 5, // 5 minutes
             gcTime: 1000 * 60 * 30, // 30 minutes
-            retry: 1,
+            retry: shouldRetryQuery,
+            retryDelay: queryRetryDelay,
             refetchOnWindowFocus: false,
           },
         },
