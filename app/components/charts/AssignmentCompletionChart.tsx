@@ -20,59 +20,15 @@ export interface AssignmentCompletionChartProps {
   isLoading?: boolean;
 }
 
-const DEFAULT_PROGRESS_DATA: AssignmentCompletionItem[] = [
-  {
-    assignmentId: '1',
-    name: 'HW1 - Recursion',
-    code: 'CS101',
-    graded: 95,
-    aiChecking: 12,
-    submitted: 8,
-    missing: 5,
-    total: 120,
-  },
-  {
-    assignmentId: '2',
-    name: 'HW2 - BST Trees',
-    code: 'CS101',
-    graded: 45,
-    aiChecking: 48,
-    submitted: 18,
-    missing: 9,
-    total: 120,
-  },
-  {
-    assignmentId: '3',
-    name: 'Lab 1 - OOP Design',
-    code: 'CS303',
-    graded: 72,
-    aiChecking: 8,
-    submitted: 3,
-    missing: 2,
-    total: 85,
-  },
-  {
-    assignmentId: '4',
-    name: 'Midterm Project',
-    code: 'CS303',
-    graded: 10,
-    aiChecking: 35,
-    submitted: 32,
-    missing: 8,
-    total: 85,
-  },
-];
-
 export function AssignmentCompletionChart({ completionData, isLoading }: AssignmentCompletionChartProps) {
-  const { t, i18n } = useTranslation();
-  const isEn = i18n.language.startsWith('en');
+  const { t } = useTranslation();
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   if (isLoading) {
     return <DashboardChartSkeleton />;
   }
 
-  const chartData = completionData !== undefined ? completionData : []
+  const chartData = completionData ?? [];
 
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
@@ -151,7 +107,7 @@ export function AssignmentCompletionChart({ completionData, isLoading }: Assignm
         <div className="h-64 flex flex-col items-center justify-center border border-dashed border-gray-200 dark:border-gray-800 rounded-xl p-6 text-center space-y-2 mt-2">
           <CheckCircle2 className="w-8 h-8 text-gray-400" />
           <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-            {isEn ? 'No active assignment pipeline data' : 'אין נתוני הגשות פעילים כרגע'}
+            {t('lecturerDashboard.assignmentTracker.empty')}
           </p>
         </div>
       );

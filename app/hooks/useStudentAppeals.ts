@@ -3,6 +3,7 @@ import { getStudentAppeals } from '../lib/api/appeals';
 import type { Appeal, BackendAppealStatus, GetStudentAppealsParams } from '../lib/api/types';
 import type { AppealStatus } from '../components/ui/StatusBadge';
 import { getLtiUserId } from '../lib/lti-session';
+import { StudentContextUnavailableError, shouldRetryStudentQuery } from '../lib/query-errors';
 
 export interface ProcessedStudentAppeal extends Appeal {
   uiStatus: AppealStatus;
@@ -57,7 +58,7 @@ export function useStudentAppeals(
     queryKey: ['studentAppeals', studentId, params],
     queryFn: async (): Promise<ProcessedStudentAppeal[]> => {
       if (!studentId) {
-        throw new Error('Student ID is unavailable');
+        throw new StudentContextUnavailableError();
       }
 
       const appeals = await getStudentAppeals(studentId, params);
@@ -66,7 +67,7 @@ export function useStudentAppeals(
         const uiStatus = mapAppealStatus(appeal.status);
         const assignment = appeal.submission?.assignment;
         const assignmentId = assignment?.id || appeal.submissionId;
-        const assignmentTitle = assignment?.name || (isEn ? 'Assignment Appeal' : 'ערעור על מטלה');
+        const assignmentTitle = assignment?.name || '';
         const courseName = assignment?.course?.name || '';
         const originalGrade = appeal.evaluation?.score ?? null;
         
@@ -90,6 +91,6 @@ export function useStudentAppeals(
         };
       });
     },
-    enabled: Boolean(studentId),
+    retry: shouldRetryStudentQuery,
   });
 }

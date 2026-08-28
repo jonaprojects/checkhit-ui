@@ -3,6 +3,7 @@ import { getAllStudentAssignments } from '../lib/api/courses';
 import type { StudentAssignment, StudentTaskStatus, GetStudentAssignmentsParams } from '../lib/api/types';
 import type { AssignmentStatus as UiAssignmentStatus } from '../components/ui/StatusBadge';
 import { getLtiUserId } from '../lib/lti-session';
+import { StudentContextUnavailableError, shouldRetryStudentQuery } from '../lib/query-errors';
 
 export interface ProcessedStudentAssignment extends StudentAssignment {
   uiStatus: UiAssignmentStatus;
@@ -65,7 +66,7 @@ export function useStudentAssignments(
     queryKey: ['studentAssignments', studentId, params],
     queryFn: async (): Promise<ProcessedStudentAssignment[]> => {
       if (!studentId) {
-        throw new Error('Student ID is unavailable');
+        throw new StudentContextUnavailableError();
       }
 
       const assignments = await getAllStudentAssignments(studentId, params);
@@ -86,6 +87,6 @@ export function useStudentAssignments(
         };
       });
     },
-    enabled: Boolean(studentId),
+    retry: shouldRetryStudentQuery,
   });
 }

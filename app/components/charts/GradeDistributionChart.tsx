@@ -28,25 +28,6 @@ const DEFAULT_BUCKET_COLORS: Record<string, { color: string; darkColor: string }
   range90_100: { color: '#10b981', darkColor: '#34d399' },
 };
 
-const DEFAULT_COURSES_DATA: Record<string, CourseGradeStats> = {
-  all: {
-    courseId: 'all',
-    courseName: 'All Courses',
-    code: 'ALL',
-    average: 83.6,
-    median: 85.0,
-    passRate: 94.2,
-    totalStudents: 235,
-    data: [
-      { rangeKey: 'rangeBelow60', label: '<60', count: 14, color: '#f43f5e', darkColor: '#fb7185' },
-      { rangeKey: 'range60_69', label: '60-69', count: 28, color: '#f59e0b', darkColor: '#fbbf24' },
-      { rangeKey: 'range70_79', label: '70-79', count: 52, color: '#3b82f6', darkColor: '#60a5fa' },
-      { rangeKey: 'range80_89', label: '80-89', count: 86, color: '#0d9488', darkColor: '#2dd4bf' },
-      { rangeKey: 'range90_100', label: '90-100', count: 55, color: '#10b981', darkColor: '#34d399' },
-    ],
-  },
-};
-
 export function GradeDistributionChart({ distributionData, isLoading }: GradeDistributionChartProps) {
   const { t, i18n } = useTranslation();
   const isEn = i18n.language.startsWith('en');
@@ -57,7 +38,7 @@ export function GradeDistributionChart({ distributionData, isLoading }: GradeDis
     return <DashboardChartSkeleton />;
   }
 
-  // Build lookup dictionary from distributionData or fallback
+  // Build the lookup only from server-provided data.
   const courseOptions: { id: string; label: string }[] = [];
   const statsMap: Record<string, CourseGradeStats> = {};
 
@@ -77,15 +58,37 @@ export function GradeDistributionChart({ distributionData, isLoading }: GradeDis
         statsMap[id] = c;
       });
     }
-  } else {
-    courseOptions.push({
-      id: 'all',
-      label: t('lecturerDashboard.gradeDistribution.allCourses'),
-    });
-    Object.assign(statsMap, DEFAULT_COURSES_DATA);
   }
 
-  const currentStats: CourseGradeStats = statsMap[selectedCourse] || statsMap.all || DEFAULT_COURSES_DATA.all;
+  const fallbackCourseId = courseOptions[0]?.id;
+  const selectedCourseId = statsMap[selectedCourse] ? selectedCourse : fallbackCourseId;
+  const currentStats = selectedCourseId ? statsMap[selectedCourseId] : undefined;
+
+  if (!currentStats || currentStats.totalStudents === 0 || currentStats.data.length === 0) {
+    return (
+      <div className="bg-white dark:bg-[#17211f] rounded-2xl border border-gray-200 dark:border-[#263330] p-6 shadow-xs transition-colors">
+        <div className="flex items-center gap-2.5 mb-4">
+          <div className="p-2 rounded-xl bg-teal-50 dark:bg-teal-950/60 text-[#00857e] dark:text-teal-300 shrink-0">
+            <BarChart3 size={20} />
+          </div>
+          <div className="min-w-0">
+            <h3 className="text-xl font-extrabold text-gray-900 dark:text-white">
+              {t('lecturerDashboard.gradeDistribution.title')}
+            </h3>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+              {t('lecturerDashboard.gradeDistribution.subtitle')}
+            </p>
+          </div>
+        </div>
+        <div className="h-64 flex flex-col items-center justify-center border border-dashed border-gray-200 dark:border-gray-800 rounded-xl p-6 text-center">
+          <BarChart3 className="w-8 h-8 text-gray-400 mb-2" />
+          <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+            {t('lecturerDashboard.gradeDistribution.empty')}
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   // Ensure bucket colors are populated
   const chartBuckets: GradeDistributionBucket[] = (currentStats.data || []).map((bucket) => {
@@ -179,7 +182,7 @@ export function GradeDistributionChart({ distributionData, isLoading }: GradeDis
       />
       <select
         aria-label={t('lecturerDashboard.gradeDistribution.allCourses')}
-        value={selectedCourse}
+        value={selectedCourseId}
         onChange={(e) => setSelectedCourse(e.target.value)}
         className="w-full ps-9.5 pe-9 py-2 bg-gray-50 dark:bg-gray-900/90 border border-gray-200 dark:border-gray-700/80 hover:border-gray-300 dark:hover:border-gray-600 text-gray-800 dark:text-white rounded-xl text-xs font-bold focus:outline-none focus:ring-2 focus:ring-teal-500 cursor-pointer transition-all shadow-2xs appearance-none"
       >

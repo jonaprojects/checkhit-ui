@@ -15,6 +15,13 @@ export interface EnrichedLecturerCourse extends Course {
   accent: CourseAccent;
 }
 
+export class LecturerContextUnavailableError extends Error {
+  constructor() {
+    super('Lecturer context is unavailable');
+    this.name = 'LecturerContextUnavailableError';
+  }
+}
+
 function extractCourseCode(courseName: string, index: number): { code: string; displayTitle: string } {
   const match = courseName.match(/^([A-Za-z0-9\-_]+):\s*(.+)$/);
   if (match) {
@@ -30,7 +37,7 @@ export function useLecturerCourses() {
     queryKey: ['lecturerCourses', lecturerId],
     queryFn: async (): Promise<EnrichedLecturerCourse[]> => {
       if (!lecturerId) {
-        throw new Error('Lecturer ID is unavailable');
+        throw new LecturerContextUnavailableError();
       }
 
       // 1. Fetch all courses managed by the lecturer

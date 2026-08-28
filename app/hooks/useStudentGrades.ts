@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getStudentGrades } from '../lib/api/courses';
 import type { StudentAssignment } from '../lib/api/types';
 import { getLtiUserId } from '../lib/lti-session';
+import { StudentContextUnavailableError, shouldRetryStudentQuery } from '../lib/query-errors';
 
 export interface ProcessedStudentGrade extends StudentAssignment {
   assignmentTitle: string;
@@ -32,15 +33,19 @@ export function useStudentGrades(limit: number = 4, isEn: boolean = true) {
     queryKey: ['studentGrades', studentId, limit],
     queryFn: async (): Promise<ProcessedStudentGrade[]> => {
       if (!studentId) {
-        throw new Error('Student ID is unavailable');
+        throw new StudentContextUnavailableError();
       }
 
       const grades = await getStudentGrades(studentId, { limit });
 
       return grades.map((item) => {
         const evaluation = item.submission?.evaluation;
-        const score = evaluation?.score ?? 0;
-        const maxScore = evaluation?.maxScore ?? item.maxScore ?? 100;
+        if (evaluation?.score == null) {
+          throw new Error('A graded assignment is missing its evaluation score');
+        }
+
+        const score = evaluation.score;
+        const maxScore = evaluation.maxScore ?? item.maxScore;
         const courseName = item.course?.name || '';
         const gradedDate = item.submission?.submittedAt || item.updatedAt;
         const formattedDate = formatDate(gradedDate, isEn);
@@ -56,6 +61,6 @@ export function useStudentGrades(limit: number = 4, isEn: boolean = true) {
         };
       });
     },
-    enabled: Boolean(studentId),
+    retry: shouldRetryStudentQuery,
   });
 }

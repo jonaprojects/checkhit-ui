@@ -3,6 +3,7 @@ import { getStudentCourses, getStudentUrgentCourses, getCourseAssignments } from
 import type { Course, Assignment, GetStudentCoursesParams, UrgentCourse } from '../lib/api/types';
 import type { CourseAccent } from '../components/CourseCard';
 import { getLtiUserId } from '../lib/lti-session';
+import { StudentContextUnavailableError, shouldRetryStudentQuery } from '../lib/query-errors';
 
 export interface EnrichedStudentCourse extends Course {
   code: string;
@@ -24,12 +25,12 @@ export const COURSE_ACCENTS: CourseAccent[] = [
   { bg: 'bg-amber-50', text: 'text-amber-700', groupHoverBg: 'group-hover:bg-amber-600', borderHover: 'hover:border-amber-300' },
 ];
 
-function extractCourseCode(courseName: string, index: number): { code: string; displayTitle: string } {
+function extractCourseCode(courseName: string): { code: string; displayTitle: string } {
   const match = courseName.match(/^([A-Za-z0-9\-_]+):\s*(.+)$/);
   if (match) {
     return { code: match[1], displayTitle: match[2] };
   }
-  return { code: `CS${100 + (index + 1) * 10}`, displayTitle: courseName };
+  return { code: '', displayTitle: courseName };
 }
 
 function getInstructorNames(course: Course): string {
@@ -61,7 +62,7 @@ export function useStudentCourses(options: UseStudentCoursesOptions = {}) {
     queryKey: ['studentCourses', studentId, options],
     queryFn: async (): Promise<EnrichedStudentCourse[]> => {
       if (!studentId) {
-        throw new Error('Student ID is unavailable');
+        throw new StudentContextUnavailableError();
       }
 
       // 1. Fetch raw courses (either urgent or standard enrolled)
@@ -75,17 +76,15 @@ export function useStudentCourses(options: UseStudentCoursesOptions = {}) {
       // 2. Fetch assignments for each course in parallel to get live counts
       const enrichedCourses = await Promise.all(
         rawCourses.map(async (course, idx) => {
-          let assignments: Assignment[] = [];
-          try {
-            assignments = await getCourseAssignments(course.id);
-          } catch {
-            assignments = [];
-          }
+          const reportedOpenAssignments = (course as UrgentCourse).openAssignmentsCount;
+          const assignments: Assignment[] = reportedOpenAssignments == null
+            ? await getCourseAssignments(course.id)
+            : [];
 
-          const { code, displayTitle } = extractCourseCode(course.name, idx);
+          const { code, displayTitle } = extractCourseCode(course.name);
           const instructorName = getInstructorNames(course);
           const instructorId = getInstructorId(course);
-          const activeAssignments = (course as UrgentCourse).openAssignmentsCount ?? assignments.filter(
+          const activeAssignments = reportedOpenAssignments ?? assignments.filter(
             (a) => a.status === 'PUBLISHED'
           ).length;
 
@@ -107,6 +106,6 @@ export function useStudentCourses(options: UseStudentCoursesOptions = {}) {
 
       return enrichedCourses;
     },
-    enabled: Boolean(studentId),
+    retry: shouldRetryStudentQuery,
   });
 }
