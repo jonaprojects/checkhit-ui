@@ -100,11 +100,15 @@ export function GradeDistributionChart({ distributionData, isLoading }: GradeDis
     };
   });
 
+  const studentsTotal =
+    chartBuckets.reduce((sum, bucket) => sum + (bucket.count || 0), 0) ||
+    currentStats.totalStudents ||
+    1;
+
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
-      const total = currentStats.totalStudents || 1;
-      const pct = Math.round((data.count / total) * 100);
+      const pct = Math.round((data.count / studentsTotal) * 100);
       return (
         <div className="bg-white dark:bg-[#17211f] border border-gray-200 dark:border-gray-800 rounded-xl shadow-lg p-3 text-start min-w-[140px]">
           <div className="flex items-center gap-2 mb-1">

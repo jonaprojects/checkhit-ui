@@ -24,11 +24,12 @@ import {
 import { useTranslation } from 'react-i18next';
 import { StatusBadge } from './ui/StatusBadge';
 import type { ProcessedStudentAssignmentDetail, ProcessedSubmissionFile } from '../hooks/useStudentAssignmentDetail';
-import type { AppealStatus } from '../lib/api/types';
+import type { AppealStatus, EvaluationQuestionResult } from '../lib/api/types';
 import {
   useSaveStudentSubmissionDraft,
   useSubmitStudentAssignment,
 } from '../hooks/useStudentSubmission';
+import { useEvaluationDetail } from '../hooks/useEvaluationDetail';
 import { validateSubmissionFile } from '../lib/submission-validation';
 import { ApiError } from '../lib/api/client';
 import type { TFunction } from 'i18next';
@@ -525,6 +526,9 @@ function CheckingView({ submission, localFile, isEn }: CheckingViewProps) {
 
   const files = submission?.files || [];
   const submittedDate = submission?.formattedSubmittedAt;
+  const evaluationStatus = submission?.evaluation?.status;
+  const isPending = !evaluationStatus || evaluationStatus === 'PENDING';
+  const isFailed = evaluationStatus === 'FAILED';
 
   return (
     <div className="space-y-6">
@@ -539,15 +543,29 @@ function CheckingView({ submission, localFile, isEn }: CheckingViewProps) {
             </div>
           </div>
           <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-6 mb-2">
-            {t('assignmentDetail.aiChecking')}
+            {isFailed
+              ? t('assignmentDetail.evaluationFailed')
+              : isPending
+                ? t('assignmentDetail.evaluationPending')
+                : t('assignmentDetail.aiChecking')}
           </h3>
           <p className="text-gray-500 dark:text-gray-400 max-w-md leading-relaxed text-sm">
-            {t('assignmentDetail.aiCheckingDesc')}
+            {isFailed
+              ? t('assignmentDetail.evaluationFailedDesc')
+              : isPending
+                ? t('assignmentDetail.evaluationPendingDesc')
+                : t('assignmentDetail.aiCheckingDesc')}
           </p>
 
-          <div className="w-full max-w-xs bg-gray-100 dark:bg-gray-800 h-2 rounded-full mt-6 overflow-hidden">
-            <div className="bg-[#E8B43F] h-full w-2/3 rounded-full animate-pulse transition-all duration-1000"></div>
-          </div>
+          {!isFailed && (
+            <div className="w-full max-w-xs bg-gray-100 dark:bg-gray-800 h-2 rounded-full mt-6 overflow-hidden">
+              <div
+                className={`bg-[#E8B43F] h-full rounded-full animate-pulse transition-all duration-1000 ${
+                  isPending ? 'w-1/3' : 'w-2/3'
+                }`}
+              ></div>
+            </div>
+          )}
 
           {submittedDate && (
             <p className="text-xs text-gray-400 dark:text-gray-400 mt-4 flex items-center gap-1.5">
@@ -636,6 +654,10 @@ function GradedView({ assignment, submission, appeal, isEn, onReset }: GradedVie
   const score = evaluation?.score ?? 0;
   const maxScore = evaluation?.maxScore || assignment.maxScore || 100;
   const files = submission.files || [];
+  const evaluationDetail = useEvaluationDetail(evaluation?.id);
+  const questionResults = [...(evaluationDetail.data?.questionResults ?? [])].sort(
+    (a, b) => (a.orderIndex ?? Number.MAX_SAFE_INTEGER) - (b.orderIndex ?? Number.MAX_SAFE_INTEGER)
+  );
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -710,6 +732,53 @@ function GradedView({ assignment, submission, appeal, isEn, onReset }: GradedVie
               </div>
             )}
           </div>
+
+          <section className="space-y-4" aria-labelledby="question-results-heading">
+            <div>
+              <h4
+                id="question-results-heading"
+                className="text-xl font-bold text-gray-900 dark:text-gray-100"
+              >
+                {t('assignmentDetail.questionResults')}
+              </h4>
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                {t('assignmentDetail.questionResultsDesc')}
+              </p>
+            </div>
+
+            {evaluationDetail.isLoading && (
+              <div className="flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white p-6 text-sm text-gray-500 dark:border-[#263330] dark:bg-[#17211f] dark:text-gray-400">
+                <LoaderCircle size={18} className="animate-spin text-[#00857e] dark:text-teal-400" />
+                {t('assignmentDetail.loadingQuestionResults')}
+              </div>
+            )}
+
+            {evaluationDetail.isError && (
+              <div className="rounded-xl border border-red-200 bg-red-50 p-5 text-sm text-red-700 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-300">
+                <div className="flex items-start gap-2">
+                  <AlertCircle size={18} className="mt-0.5 shrink-0" />
+                  <span>{t('assignmentDetail.questionResultsError')}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => evaluationDetail.refetch()}
+                  className="mt-3 font-bold underline underline-offset-2"
+                >
+                  {t('assignmentDetail.retry')}
+                </button>
+              </div>
+            )}
+
+            {evaluationDetail.isSuccess && questionResults.length === 0 && (
+              <div className="rounded-xl border border-gray-200 bg-white p-5 text-sm text-gray-500 dark:border-[#263330] dark:bg-[#17211f] dark:text-gray-400">
+                {t('assignmentDetail.noQuestionResults')}
+              </div>
+            )}
+
+            {questionResults.map((result, index) => (
+              <QuestionResultCard key={result.id} result={result} fallbackNumber={index + 1} />
+            ))}
+          </section>
         </div>
 
         {/* Action Sidebar */}
@@ -782,6 +851,85 @@ function GradedView({ assignment, submission, appeal, isEn, onReset }: GradedVie
         </div>
       </div>
     </div>
+  );
+}
+
+function QuestionResultCard({
+  result,
+  fallbackNumber,
+}: {
+  result: EvaluationQuestionResult;
+  fallbackNumber: number;
+}) {
+  const { t } = useTranslation();
+  const questionLabel =
+    result.questionKey || t('assignmentDetail.questionNumber', { number: fallbackNumber });
+
+  return (
+    <article className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xs dark:border-[#263330] dark:bg-[#17211f]">
+      <div className="flex flex-wrap items-start justify-between gap-3 border-b border-gray-100 px-5 py-4 dark:border-gray-800">
+        <div className="min-w-0 flex-1">
+          <div className="mb-2 flex flex-wrap items-center gap-2">
+            <span className="rounded-md bg-teal-50 px-2.5 py-1 text-xs font-bold text-[#00857e] dark:bg-teal-950/60 dark:text-teal-300">
+              {questionLabel}
+            </span>
+            {!result.isAnswered && (
+              <span className="rounded-md bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-700 dark:bg-amber-950/50 dark:text-amber-300">
+                {t('assignmentDetail.unanswered')}
+              </span>
+            )}
+            {!result.countsTowardTotal && (
+              <span className="rounded-md bg-gray-100 px-2.5 py-1 text-xs font-bold text-gray-600 dark:bg-gray-800 dark:text-gray-300">
+                {t('assignmentDetail.notCounted')}
+              </span>
+            )}
+          </div>
+          {result.prompt && (
+            <p className="whitespace-pre-line text-sm font-semibold leading-relaxed text-gray-800 dark:text-gray-200">
+              {result.prompt}
+            </p>
+          )}
+        </div>
+        <div className="shrink-0 rounded-lg bg-gray-50 px-4 py-2 text-center dark:bg-gray-800/70">
+          <span className="text-xl font-black text-gray-900 dark:text-white">{result.score}</span>
+          <span className="text-sm font-bold text-gray-400">/{result.maxScore}</span>
+          <span className="ms-1 text-xs text-gray-500 dark:text-gray-400">
+            {t('assignmentDetail.points')}
+          </span>
+        </div>
+      </div>
+
+      <div className="space-y-4 px-5 py-4">
+        {result.feedback && (
+          <div>
+            <h5 className="mb-1.5 text-xs font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+              {t('assignmentDetail.questionFeedback')}
+            </h5>
+            <p className="whitespace-pre-line text-sm leading-relaxed text-gray-700 dark:text-gray-300">
+              {result.feedback}
+            </p>
+          </div>
+        )}
+
+        {result.evidence && (
+          <div className="rounded-lg border border-teal-100 bg-teal-50/60 p-3 dark:border-teal-900/50 dark:bg-teal-950/20">
+            <h5 className="mb-1 text-xs font-bold text-[#00857e] dark:text-teal-300">
+              {t('assignmentDetail.evidence')}
+            </h5>
+            <p className="whitespace-pre-line text-sm italic leading-relaxed text-gray-700 dark:text-gray-300">
+              “{result.evidence}”
+            </p>
+          </div>
+        )}
+
+        {!result.countsTowardTotal && result.selectionReason && (
+          <p className="flex items-start gap-2 text-xs text-gray-500 dark:text-gray-400">
+            <Info size={14} className="mt-0.5 shrink-0" />
+            <span>{result.selectionReason}</span>
+          </p>
+        )}
+      </div>
+    </article>
   );
 }
 

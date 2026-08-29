@@ -30,6 +30,12 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import "./lib/i18n";
 import { captureLtiSession } from "./lib/lti-session";
 import { queryRetryDelay, shouldRetryQuery } from "./lib/query-errors";
+import { useEvaluationRealtime } from "./hooks/useEvaluationRealtime";
+
+function EvaluationRealtimeSync() {
+  useEvaluationRealtime();
+  return null;
+}
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const { i18n } = useTranslation();
@@ -79,6 +85,7 @@ export default function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <EvaluationRealtimeSync />
       <Outlet />
     </QueryClientProvider>
   );

@@ -286,6 +286,32 @@ export interface AssignmentEvaluation {
   evaluatedAt: string | null;
 }
 
+export interface EvaluationQuestionResult {
+  id: string;
+  questionId: string;
+  questionKey: string | null;
+  orderIndex: number | null;
+  prompt: string | null;
+  score: number;
+  maxScore: number;
+  isAnswered: boolean;
+  countsTowardTotal: boolean;
+  selectionReason: string | null;
+  feedback: string | null;
+  evidence: string | null;
+  confidence: number | null;
+}
+
+export interface EvaluationDetail {
+  id: string;
+  submissionId: string;
+  status: EvaluationStatus;
+  score: number | null;
+  maxScore: number;
+  feedback: string | null;
+  questionResults: EvaluationQuestionResult[];
+}
+
 export interface AssignmentSubmission {
   id: string;
   attemptNumber: number;
