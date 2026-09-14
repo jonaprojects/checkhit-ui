@@ -1,5 +1,8 @@
 import { apiClient } from './client';
 import type { Notification } from './types';
+import { getLtiSession } from '../lti-session';
+
+const SERVER_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:3001';
 
 export interface GetNotificationsParams {
   unreadOnly?: boolean;
@@ -13,6 +16,16 @@ export interface UnreadCountResponse {
 export interface MarkAllReadResponse {
   success: boolean;
   updatedCount: number;
+}
+
+export function getNotificationStreamUrl(userId: string): string {
+  const url = new URL(
+    `/api/users/${encodeURIComponent(userId)}/notifications/stream`,
+    SERVER_URL
+  );
+  const { ltik } = getLtiSession();
+  if (ltik) url.searchParams.set('ltik', ltik);
+  return url.toString();
 }
 
 /**

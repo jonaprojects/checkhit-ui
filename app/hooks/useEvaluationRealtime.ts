@@ -90,9 +90,14 @@ export function useEvaluationRealtime(): void {
         void queryClient.invalidateQueries({
           queryKey: ['evaluationDetail', event.evaluationId],
         });
-        void queryClient.invalidateQueries({
-          queryKey: ['studentAssignmentDetail', event.assignmentId],
-        });
+        // PENDING and PROCESSING are already applied from the ordered WebSocket
+        // stream. Refetching here can let an older HTTP response overwrite the
+        // newer live status. Once grading finishes, refetch the full result.
+        if (event.status === 'COMPLETED') {
+          void queryClient.invalidateQueries({
+            queryKey: ['studentAssignmentDetail', event.assignmentId],
+          });
+        }
         void queryClient.invalidateQueries({
           queryKey: ['lecturerAssignmentOverview', event.assignmentId],
         });
