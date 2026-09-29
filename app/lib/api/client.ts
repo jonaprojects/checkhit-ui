@@ -79,6 +79,32 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
   return response.json() as Promise<T>;
 }
 
+async function download(endpoint: string): Promise<{ blob: Blob; filename: string }> {
+  const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  const url = new URL(`${SERVER_URL}/api${normalizedEndpoint}`);
+  const { ltik } = getLtiSession();
+  if (ltik) url.searchParams.set('ltik', ltik);
+
+  const response = await fetch(url.toString(), { credentials: 'include' });
+  if (!response.ok) {
+    let message = `Download failed with status ${response.status}`;
+    try {
+      const data = await response.json();
+      if (typeof data?.message === 'string') message = data.message;
+    } catch {
+      // The download endpoint may return a non-JSON proxy error.
+    }
+    throw new ApiError(message, response.status);
+  }
+
+  const disposition = response.headers.get('Content-Disposition') || '';
+  const encodedName = disposition.match(/filename\*=UTF-8''([^;]+)/i)?.[1];
+  return {
+    blob: await response.blob(),
+    filename: encodedName ? decodeURIComponent(encodedName) : 'appeal-evidence.pdf',
+  };
+}
+
 function serializeBody(body: unknown): BodyInit | undefined {
   if (body === undefined) return undefined;
   if (typeof FormData !== 'undefined' && body instanceof FormData) return body;
@@ -106,4 +132,5 @@ export const apiClient = {
       body: serializeBody(body),
     }),
   delete: <T>(endpoint: string, options?: RequestInit) => request<T>(endpoint, { ...options, method: 'DELETE' }),
+  download,
 };

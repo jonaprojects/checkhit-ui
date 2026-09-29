@@ -1,23 +1,21 @@
 import type { Route } from "./+types/lecturer.appeal";
 import MainLayout from "../components/MainLayout";
 import { Link, useParams } from "react-router";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from '../components/ui/Button';
 import {
   ChevronRight,
   ChevronLeft,
   FileText,
   Download,
-  Eye,
   Bot,
-  Sparkles,
   CheckCircle2,
   AlertCircle,
   RefreshCw,
-  Award,
 } from "lucide-react";
 import { useTranslation } from 'react-i18next';
-import { useAppealDetail, useResolveAppeal } from '../hooks/useLecturerAppeals';
+import { useAppealDetail, useClaimAppeal, useResolveAppeal } from '../hooks/useLecturerAppeals';
+import { downloadAppealEvidence } from '../lib/api/appeals';
 import { getLtiUserId } from '../lib/lti-session';
 
 export function meta({}: Route.MetaArgs) {
@@ -43,9 +41,9 @@ export default function LecturerAppealReviewRoute() {
   } = useAppealDetail(appealId, isEn);
 
   const resolveMutation = useResolveAppeal();
+  const claimMutation = useClaimAppeal();
+  const claimStarted = useRef(false);
 
-  // AI Assistant State: 'idle' | 'analyzing' | 'done'
-  const [aiState, setAiState] = useState<'idle' | 'analyzing' | 'done'>('idle');
   const [newGrade, setNewGrade] = useState<number | string>('');
   const [lecturerFeedback, setLecturerFeedback] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -54,41 +52,36 @@ export default function LecturerAppealReviewRoute() {
   // Sync state when appeal data arrives
   useEffect(() => {
     if (appeal) {
-      const originalScore = appeal.evaluation?.score ?? 0;
-      setNewGrade(originalScore);
+      setNewGrade(appeal.resultEvaluation?.score ?? appeal.evaluation?.score ?? 0);
       if (appeal.resolution) {
         setLecturerFeedback(appeal.resolution);
       }
     }
   }, [appeal]);
 
+  useEffect(() => {
+    if (!appealId || appeal?.status !== 'SUBMITTED' || claimStarted.current) return;
+    claimStarted.current = true;
+    claimMutation.mutate(appealId);
+  }, [appeal?.status, appealId]);
+
   const originalGrade = appeal?.evaluation?.score ?? 0;
   const maxScore = appeal?.evaluation?.maxScore ?? 100;
 
-  const handleAiAnalysis = () => {
-    setAiState('analyzing');
-    setTimeout(() => {
-      setAiState('done');
-    }, 2000);
-  };
-
-  const handleApplyAiRecommendation = () => {
-    const recommended = Math.min(originalGrade + 10, maxScore);
-    setNewGrade(recommended);
-    setLecturerFeedback(
-      isEn
-        ? "After a comprehensive AI-assisted re-evaluation of your claim and code implementation, full credit is awarded for the discussed section. The grade has been updated accordingly."
-        : "לאחר בדיקה חוזרת בעזרת ה-AI של טענתך והמימוש בקוד, הניקוד המלא הוענק עבור הסעיף הנדון. הציון עודכן בהתאם."
-    );
-  };
-
-  const handleResolve = async (decisionStatus: 'ACCEPTED' | 'REJECTED') => {
+  const handleResolve = async (
+    decisionStatus: 'ACCEPTED' | 'REJECTED',
+    resolutionOverride?: string,
+  ) => {
     if (!appealId) return;
     setSubmissionError(null);
 
-    const gradeToSend = decisionStatus === 'REJECTED' ? originalGrade : Number(newGrade);
+    const gradeToSend = decisionStatus === 'ACCEPTED' ? Number(newGrade) : undefined;
+    if (decisionStatus === 'ACCEPTED' && (!Number.isFinite(gradeToSend) || gradeToSend! < 0 || gradeToSend! > maxScore)) {
+      setSubmissionError(isEn ? `The revised grade must be between 0 and ${maxScore}.` : `הציון המתוקן חייב להיות בין 0 ל-${maxScore}.`);
+      return;
+    }
     const feedbackToSend =
-      lecturerFeedback.trim() ||
+      resolutionOverride || lecturerFeedback.trim() ||
       (decisionStatus === 'REJECTED'
         ? (isEn ? "The appeal was reviewed and rejected. Original evaluation stands." : "הערעור נבדק ונדחה. ההערכה המקורית נשארת בעינה.")
         : (isEn ? "The appeal was accepted and grade updated." : "הערעור התקבל והציון עודכן."));
@@ -99,7 +92,6 @@ export default function LecturerAppealReviewRoute() {
         data: {
           status: decisionStatus,
           resolution: feedbackToSend,
-          reviewerId: lecturerId,
           newScore: gradeToSend,
         },
       });
@@ -112,6 +104,15 @@ export default function LecturerAppealReviewRoute() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     handleResolve('ACCEPTED');
+  };
+
+  const handleEvidenceDownload = async (fileId: string) => {
+    setSubmissionError(null);
+    try {
+      if (appealId) await downloadAppealEvidence(appealId, fileId);
+    } catch (err) {
+      setSubmissionError(err instanceof Error ? err.message : (isEn ? 'Failed to download evidence.' : 'הורדת האסמכתא נכשלה.'));
+    }
   };
 
   if (isSubmitted) {
@@ -192,6 +193,9 @@ export default function LecturerAppealReviewRoute() {
   const isPending = appeal.uiStatus === 'pending';
   const isAccepted = appeal.uiStatus === 'accepted';
   const isRejected = appeal.uiStatus === 'rejected';
+  const canResolve = appeal.status === 'UNDER_REVIEW' && appeal.reviewerId === lecturerId;
+  const claimedByOther = appeal.status === 'UNDER_REVIEW' && appeal.reviewerId !== lecturerId;
+  const claimError = claimMutation.error instanceof Error ? claimMutation.error.message : null;
 
   return (
     <MainLayout portalName={isEn ? "Lecturer Portal" : "פורטל מרצים"} view="lecturer">
@@ -271,6 +275,11 @@ export default function LecturerAppealReviewRoute() {
                 </h2>
               </div>
               <div className="p-6">
+                {appeal.category && (
+                  <p className="text-xs font-bold uppercase tracking-wide text-[#00857e] dark:text-teal-300 mb-3">
+                    {appeal.category.replace('_', ' ')}
+                  </p>
+                )}
                 <p className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
                   {appeal.reason || (isEn ? 'No specific justification provided by student.' : 'לא צוין נימוק מפורט על ידי הסטודנט.')}
                 </p>
@@ -297,24 +306,23 @@ export default function LecturerAppealReviewRoute() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-bold text-gray-800 dark:text-gray-200 truncate" dir="ltr">
-                          {file.name || file.filename || `File ${idx + 1}`}
+                          {file.name || `File ${idx + 1}`}
                         </p>
                         <p className="text-xs text-gray-500 dark:text-gray-400">
-                          {file.sizeBytes || file.fileSize
-                            ? `${Math.round(((file.sizeBytes || file.fileSize) as number) / 1024)} KB`
+                          {file.sizeBytes
+                            ? `${Math.round(file.sizeBytes / 1024)} KB`
                             : 'Attachment'}
                         </p>
                       </div>
-                      {(file.downloadUrl || file.fileUrl) && (
-                        <a
-                          href={file.downloadUrl || file.fileUrl}
-                          target="_blank"
-                          rel="noreferrer"
+                      {file.downloadUrl && (
+                        <button
+                          type="button"
+                          onClick={() => handleEvidenceDownload(file.fileId)}
                           className="p-1.5 text-gray-500 hover:text-[#00857e] dark:text-gray-400 dark:hover:text-teal-300 rounded-lg"
                           title={t('appealReview.download')}
                         >
                           <Download size={16} />
-                        </a>
+                        </button>
                       )}
                     </div>
                   ))}
@@ -344,81 +352,8 @@ export default function LecturerAppealReviewRoute() {
             </section>
           </div>
 
-          {/* RIGHT COLUMN: AI Assessment & Decision Form */}
+          {/* RIGHT COLUMN: Decision Form */}
           <div className="space-y-6">
-            {/* AI Assistant Card */}
-            <div className="bg-gradient-to-b from-teal-50/80 to-white dark:from-teal-950/30 dark:to-[#17211f] rounded-2xl border border-teal-200/70 dark:border-teal-800/50 shadow-2xs overflow-hidden relative">
-              <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-[#00857e] to-[#E8B43F]"></div>
-              <div className="p-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <Sparkles size={20} className="text-[#E8B43F]" />
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                    {t('appealReview.aiAssessmentTitle')}
-                  </h3>
-                </div>
-
-                {aiState === 'idle' && (
-                  <>
-                    <p className="text-sm text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">
-                      {t('appealReview.aiScanIdleDesc')}
-                    </p>
-                    <button
-                      onClick={handleAiAnalysis}
-                      className="w-full bg-white dark:bg-gray-800/80 border border-[#00857e] dark:border-teal-400 text-[#00857e] dark:text-teal-300 hover:bg-teal-50 dark:hover:bg-teal-950/60 py-2.5 rounded-xl font-bold transition-all shadow-2xs cursor-pointer flex items-center justify-center gap-2"
-                    >
-                      <Bot size={18} />
-                      {t('appealReview.aiScanBtn')}
-                    </button>
-                  </>
-                )}
-
-                {aiState === 'analyzing' && (
-                  <div className="flex flex-col items-center py-6">
-                    <div className="relative">
-                      <Bot size={40} className="text-[#00857e] dark:text-teal-300 animate-pulse relative z-10" />
-                      <div className="absolute inset-0 bg-[#E8B43F] rounded-full blur-xl opacity-40 animate-pulse"></div>
-                    </div>
-                    <p className="text-sm font-bold text-gray-800 dark:text-gray-200 mt-4 mb-1">
-                      {t('appealReview.aiScanningTitle')}
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {t('appealReview.aiScanningDesc')}
-                    </p>
-                  </div>
-                )}
-
-                {aiState === 'done' && (
-                  <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-                    <div className="bg-white dark:bg-gray-800/90 rounded-xl border border-teal-100 dark:border-teal-900/60 p-4 mb-4 shadow-2xs">
-                      <p className="text-sm text-gray-700 dark:text-gray-300 mb-3 leading-relaxed">
-                        <strong className="text-gray-900 dark:text-white">{t('appealReview.aiConclusionTitle')}</strong>{' '}
-                        {isEn
-                          ? "The student's claim is valid. Re-evaluation of the submission indicates proper algorithmic implementation. Recommended score adjustment: +10 pts."
-                          : "טענת הסטודנט מוצדקת. בדיקה חוזרת של הקובץ מצביעה על מימוש נכון של האלגוריתם. תוספת ניקוד מומלצת: 10+ נק'."}
-                      </p>
-                      <div className="flex items-center justify-between bg-green-50 dark:bg-green-950/50 px-3 py-2 rounded-lg border border-green-100 dark:border-green-800">
-                        <span className="text-sm font-bold text-green-800 dark:text-green-300">
-                          {t('appealReview.aiRecommendation')}
-                        </span>
-                        <span className="text-lg font-black text-green-700 dark:text-green-400">
-                          +10 {t('appealReview.aiPoints')}
-                        </span>
-                      </div>
-                    </div>
-                    <Button
-                      onClick={handleApplyAiRecommendation}
-                      variant="primary"
-                      size="md"
-                      className="w-full !rounded-xl"
-                    >
-                      <CheckCircle2 size={18} />
-                      {t('appealReview.aiApplyBtn')}
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </div>
-
             {/* Manual Decision Form */}
             <form
               onSubmit={handleSubmit}
@@ -430,9 +365,29 @@ export default function LecturerAppealReviewRoute() {
                 </h3>
               </div>
               <div className="p-6 space-y-6">
-                {submissionError && (
+                {(submissionError || claimError) && (
                   <div className="p-3 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 text-red-700 dark:text-red-300 text-xs">
-                    {submissionError}
+                    {submissionError || claimError}
+                  </div>
+                )}
+                {claimedByOther && (
+                  <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 text-amber-700 dark:text-amber-300 text-xs">
+                    {isEn ? 'Another lecturer has already claimed this appeal.' : 'מרצה אחר כבר שייך את הערעור אליו.'}
+                  </div>
+                )}
+                {claimMutation.isPending && (
+                  <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 text-amber-700 dark:text-amber-300 text-xs">
+                    {isEn ? 'Claiming this appeal for review…' : 'הערעור משויך אליך לבדיקה…'}
+                  </div>
+                )}
+                {!isPending && (
+                  <div className="p-3 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-sm">
+                    <strong>{isEn ? 'Decision recorded.' : 'ההחלטה נשמרה.'}</strong>
+                    {appeal.resultEvaluation && (
+                      <span className="block mt-1">
+                        {isEn ? 'Revised grade' : 'ציון מתוקן'}: {appeal.resultEvaluation.score}/{appeal.resultEvaluation.maxScore}
+                      </span>
+                    )}
                   </div>
                 )}
 
@@ -447,6 +402,7 @@ export default function LecturerAppealReviewRoute() {
                       max={maxScore}
                       value={newGrade}
                       onChange={(e) => setNewGrade(e.target.value)}
+                      disabled={!canResolve}
                       className="w-24 text-center font-bold text-xl border border-gray-300 dark:border-gray-700 rounded-xl p-2.5 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#00857e] focus:outline-none"
                     />
                     <span className="text-gray-500 dark:text-gray-400 font-bold">/ {maxScore}</span>
@@ -473,6 +429,8 @@ export default function LecturerAppealReviewRoute() {
                     rows={4}
                     value={lecturerFeedback}
                     onChange={(e) => setLecturerFeedback(e.target.value)}
+                    maxLength={5000}
+                    disabled={!canResolve}
                     className="w-full border border-gray-300 dark:border-gray-700 rounded-xl p-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#00857e] focus:outline-none text-sm resize-none"
                     placeholder={t('appealReview.feedbackPlaceholder')}
                   ></textarea>
@@ -484,7 +442,7 @@ export default function LecturerAppealReviewRoute() {
                     variant="primary"
                     size="lg"
                     className="w-full !rounded-xl"
-                    disabled={resolveMutation.isPending}
+                    disabled={!canResolve || resolveMutation.isPending}
                   >
                     {resolveMutation.isPending
                       ? t('appealReview.savingBtn')
@@ -495,15 +453,15 @@ export default function LecturerAppealReviewRoute() {
                     variant="outline"
                     size="lg"
                     className="w-full !rounded-xl text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/40 border-gray-200 dark:border-gray-700 hover:border-red-200"
-                    disabled={resolveMutation.isPending}
+                    disabled={!canResolve || resolveMutation.isPending}
                     onClick={() => {
-                      setNewGrade(originalGrade);
-                      setLecturerFeedback(
+                      const rejection =
                         isEn
                           ? "After a thorough review of your appeal claims, the implementation does not meet the necessary criteria. The original grade stands."
-                          : "לאחר בדיקה מעמיקה של טענותיך, המימוש אינו עומד בקריטריונים הנדרשים. הציון המקורי נותר בעינו."
-                      );
-                      handleResolve('REJECTED');
+                          : "לאחר בדיקה מעמיקה של טענותיך, המימוש אינו עומד בקריטריונים הנדרשים. הציון המקורי נותר בעינו.";
+                      setNewGrade(originalGrade);
+                      setLecturerFeedback(rejection);
+                      handleResolve('REJECTED', rejection);
                     }}
                   >
                     {t('appealReview.rejectAppealBtn')}
