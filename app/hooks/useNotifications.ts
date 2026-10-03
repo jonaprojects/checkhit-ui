@@ -1,5 +1,7 @@
+import { useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
+  getNotificationStreamUrl,
   getUserNotifications,
   getUnreadNotificationCount,
   markNotificationAsRead,
@@ -105,6 +107,34 @@ export function useUnreadNotificationCount(userId?: string) {
     refetchInterval: (query) =>
       query.state.error && !isRetryableQueryError(query.state.error) ? false : 30000,
   });
+}
+
+export function useNotificationRealtime(userId?: string): void {
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (!userId || typeof EventSource === 'undefined') return;
+
+    const eventSource = new EventSource(getNotificationStreamUrl(userId), {
+      withCredentials: true,
+    });
+
+    const refreshNotifications = () => {
+      void queryClient.invalidateQueries({
+        queryKey: ['notifications', userId],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: ['unreadNotificationsCount', userId],
+      });
+    };
+
+    eventSource.addEventListener('connected', refreshNotifications);
+    eventSource.addEventListener('notification', refreshNotifications);
+    eventSource.addEventListener('notification-read', refreshNotifications);
+    eventSource.addEventListener('notifications-read-all', refreshNotifications);
+
+    return () => eventSource.close();
+  }, [queryClient, userId]);
 }
 
 export function useMarkNotificationAsRead(userId?: string) {

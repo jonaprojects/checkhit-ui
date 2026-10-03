@@ -20,6 +20,7 @@ import { useTranslation } from 'react-i18next';
 import { LanguageToggle } from './ui/LanguageToggle';
 import { 
   useNotifications, 
+  useNotificationRealtime,
   useUnreadNotificationCount, 
   useMarkNotificationAsRead, 
   useMarkAllNotificationsAsRead 
@@ -55,8 +56,13 @@ export default function MainLayout({
   const { data: currentUser } = useCurrentUser(view);
 
   // Live Notifications via TanStack Query
-  const { data: notifications = [], isError: isNotificationsError } = useNotifications(userId, { limit: 5 }, isEn);
+  const {
+    data: notifications = [],
+    isError: isNotificationsError,
+    refetch: refetchNotifications,
+  } = useNotifications(userId, { limit: 5 }, isEn);
   const { data: unreadCount = 0 } = useUnreadNotificationCount(userId);
+  useNotificationRealtime(userId);
   const { data: unreadMessagesCount = 0 } = useUnreadMessageCount(userId);
   const markAsReadMutation = useMarkNotificationAsRead(userId);
   const markAllAsReadMutation = useMarkAllNotificationsAsRead(userId);
@@ -230,6 +236,7 @@ export default function MainLayout({
               <div className="relative" ref={notificationRef}>
                 <button 
                   onClick={() => {
+                    if (!isNotificationsOpen) void refetchNotifications();
                     setIsNotificationsOpen(!isNotificationsOpen);
                     if (isProfileOpen) setIsProfileOpen(false);
                   }}
