@@ -2,7 +2,8 @@ export type UserRole = 'STUDENT' | 'LECTURER';
 export type LecturerPermission = 'OWNER' | 'EDITOR';
 export type AssignmentStatus = 'DRAFT' | 'PUBLISHED' | 'CLOSED' | 'ARCHIVED';
 export type StudentTaskStatus = 'NOT_STARTED' | 'DRAFT' | 'SUBMITTED' | 'EVALUATING' | 'GRADED' | 'OVERDUE' | 'APPEAL' | 'COMPLETED';
-export type BackendAppealStatus = 'SUBMITTED' | 'IN_REVIEW' | 'ACCEPTED' | 'REJECTED' | 'RESOLVED' | 'PENDING';
+export type BackendAppealStatus = 'SUBMITTED' | 'UNDER_REVIEW' | 'ACCEPTED' | 'REJECTED' | 'CANCELLED';
+export type AppealCategory = 'grading_error' | 'misunderstanding' | 'technical' | 'other';
 export type NotificationCategory = 'ASSIGNMENT' | 'GRADE' | 'APPEAL' | 'WARNING' | 'SYSTEM' | 'INFO';
 
 export interface User {
@@ -87,29 +88,29 @@ export interface StudentAssignment extends Assignment {
 }
 
 export interface AppealFileItem {
-  appealId: string;
+  id: string;
   fileId: string;
-  file?: {
-    id: string;
-    originalName: string;
-    mimeType: string;
-    sizeBytes: number;
-    s3Key?: string;
-  };
+  name: string;
+  mimeType: string;
+  sizeBytes: number;
+  downloadUrl: string;
 }
 
 export interface Appeal {
   id: string;
   submissionId: string;
   evaluationId?: string | null;
+  resultEvaluationId?: string | null;
   studentId: string;
   reviewerId?: string | null;
   reason: string;
+  category?: AppealCategory | null;
   status: BackendAppealStatus;
   resolution?: string | null;
   resolvedAt?: string | null;
   submission?: Submission | null;
   evaluation?: Evaluation | null;
+  resultEvaluation?: Evaluation | null;
   reviewer?: {
     userId: string;
     user?: User;
@@ -394,9 +395,11 @@ export interface LecturerAppeal {
   id: string;
   submissionId: string;
   evaluationId: string;
+  resultEvaluationId?: string | null;
   studentId: string;
   reviewerId?: string | null;
   reason: string;
+  category?: AppealCategory | null;
   status: AppealStatus | BackendAppealStatus;
   resolution?: string | null;
   resolvedAt?: string | null;
@@ -404,8 +407,9 @@ export interface LecturerAppeal {
   student: LecturerAppealStudent;
   submission: LecturerAppealSubmission;
   evaluation: AssignmentEvaluation;
+  resultEvaluation?: AssignmentEvaluation | null;
   reviewer?: LecturerAppealReviewer | null;
-  files?: SubmissionFile[];
+  files?: AppealFileItem[];
 }
 
 export interface LecturerAppealsStats {
@@ -422,9 +426,8 @@ export interface GetLecturerAppealsParams {
 }
 
 export interface ResolveAppealDto {
-  status: 'ACCEPTED' | 'REJECTED' | 'UNDER_REVIEW' | 'SUBMITTED' | string;
+  status: 'ACCEPTED' | 'REJECTED';
   resolution: string;
-  reviewerId?: string;
   newScore?: number;
 }
 

@@ -6,12 +6,14 @@ import type {
   LecturerAppealsStats,
   GetLecturerAppealsParams,
   ResolveAppealDto,
+  AppealCategory,
 } from './types';
 
 export interface CreateAppealInput {
   submissionId: string;
   reason: string;
-  fileIds?: string[];
+  category?: AppealCategory;
+  file?: File | null;
 }
 
 /**
@@ -68,17 +70,38 @@ export async function getAppealById(appealId: string): Promise<LecturerAppeal> {
  * Resolve an appeal and update score and resolution comment.
  */
 export async function resolveAppeal(appealId: string, data: ResolveAppealDto): Promise<LecturerAppeal> {
-  try {
-    return await apiClient.patch<LecturerAppeal>(`/appeals/${appealId}`, data);
-  } catch (error) {
-    // If server mounts the alias endpoint:
-    return await apiClient.patch<LecturerAppeal>(`/appeals/${appealId}/resolve`, data);
-  }
+  return apiClient.patch<LecturerAppeal>(`/appeals/${appealId}`, data);
+}
+
+export async function claimAppeal(appealId: string): Promise<LecturerAppeal> {
+  return apiClient.patch<LecturerAppeal>(`/appeals/${appealId}/claim`, {});
 }
 
 /**
  * Submit a new appeal for a submission (student).
  */
 export async function createAppeal(data: CreateAppealInput): Promise<Appeal> {
-  return apiClient.post<Appeal>('/appeals', data);
+  const formData = new FormData();
+  formData.set('submissionId', data.submissionId);
+  formData.set('reason', data.reason);
+  if (data.category) formData.set('category', data.category);
+  if (data.file) formData.set('file', data.file);
+  return apiClient.post<Appeal>('/appeals', formData);
+}
+
+export async function downloadAppealEvidence(
+  appealId: string,
+  fileId: string,
+): Promise<void> {
+  const { blob, filename } = await apiClient.download(
+    `/appeals/${appealId}/evidence/${fileId}`,
+  );
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.download = filename;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  URL.revokeObjectURL(url);
 }

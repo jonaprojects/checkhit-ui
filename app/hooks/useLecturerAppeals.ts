@@ -3,6 +3,7 @@ import {
   getLecturerAppeals,
   getLecturerAppealsStats,
   getAppealById,
+  claimAppeal,
   resolveAppeal,
 } from '../lib/api/appeals';
 import type {
@@ -34,12 +35,10 @@ function mapStatusToUi(status: AppealStatus | BackendAppealStatus | string): 'pe
       return 'accepted';
     case 'REJECTED':
       return 'rejected';
-    case 'RESOLVED':
+    case 'CANCELLED':
       return 'resolved';
     case 'SUBMITTED':
     case 'UNDER_REVIEW':
-    case 'IN_REVIEW':
-    case 'PENDING':
     default:
       return 'pending';
   }
@@ -195,6 +194,22 @@ export function useResolveAppeal() {
       queryClient.invalidateQueries({ queryKey: ['lecturerAppealsStats'] });
       queryClient.invalidateQueries({ queryKey: ['appealDetail', variables.appealId] });
       queryClient.invalidateQueries({ queryKey: ['studentAppeals'] });
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+      queryClient.invalidateQueries({ queryKey: ['unreadNotificationsCount'] });
+    },
+  });
+}
+
+export function useClaimAppeal() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (appealId: string) => claimAppeal(appealId),
+    onSuccess: (_, appealId) => {
+      queryClient.invalidateQueries({ queryKey: ['appealDetail', appealId] });
+      queryClient.invalidateQueries({ queryKey: ['lecturerAppeals'] });
+      queryClient.invalidateQueries({ queryKey: ['lecturerAppealsStats'] });
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
     },
   });
 }

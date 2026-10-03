@@ -21,11 +21,10 @@ function mapAppealStatus(status: BackendAppealStatus): AppealStatus {
       return 'accepted';
     case 'REJECTED':
       return 'rejected';
-    case 'RESOLVED':
+    case 'CANCELLED':
       return 'resolved';
     case 'SUBMITTED':
-    case 'IN_REVIEW':
-    case 'PENDING':
+    case 'UNDER_REVIEW':
     default:
       return 'pending';
   }
@@ -71,11 +70,7 @@ export function useStudentAppeals(
         const courseName = assignment?.course?.name || '';
         const originalGrade = appeal.evaluation?.score ?? null;
         
-        // If resolution or evaluation updated the grade
-        let newGrade: number | null = null;
-        if (uiStatus === 'accepted' && appeal.evaluation?.score !== undefined) {
-          newGrade = appeal.evaluation.score;
-        }
+        const newGrade = appeal.resultEvaluation?.score ?? null;
 
         const formattedDate = formatDate(appeal.createdAt, isEn);
 
