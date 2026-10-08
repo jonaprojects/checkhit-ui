@@ -53,7 +53,7 @@ export function useLecturerCourse(courseId?: string, isEn: boolean = true) {
       // Fetch course details & assignments in parallel
       const [courseData, assignmentsData] = await Promise.all([
         getCourseById(courseId),
-        getCourseAssignments(courseId).catch(() => [] as Assignment[]),
+        getCourseAssignments(courseId),
       ]);
 
       const { code, displayTitle } = extractCourseCode(courseData.name);

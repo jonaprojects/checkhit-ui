@@ -12,7 +12,7 @@ import {
   Upload,
   X,
 } from "lucide-react";
-import { Link, useParams, useSearchParams } from "react-router";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router";
 import type { Route } from "./+types/lecturer.assignment.new";
 import MainLayout from "../components/MainLayout";
 import {
@@ -75,6 +75,7 @@ export function meta({}: Route.MetaArgs) {
 export default function LecturerAssignmentNewRoute() {
   const { courseId } = useParams();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submissionStage, setSubmissionStage] = useState("");
@@ -270,6 +271,11 @@ export default function LecturerAssignmentNewRoute() {
 
       setSubmissionStage("מחבר את המטלה ל-Moodle...");
       const deepLinkForm = await generateDeeplink(assignment.id, ltik);
+
+      if (deepLinkForm === null) {
+        navigate(`/lecturer/assignments/${assignment.id}`);
+        return;
+      }
 
       // ltijs returns an auto-submitting HTML form that completes the flow in Moodle.
       document.open();

@@ -52,6 +52,17 @@ const buildAuthenticatedUrl = (path: string, ltik: string): string => {
   return url.toString();
 };
 
+export class LtiApiError extends Error {
+  constructor(
+    message: string,
+    readonly status: number,
+    readonly code?: string,
+  ) {
+    super(message);
+    this.name = "LtiApiError";
+  }
+}
+
 const request = async (
   path: string,
   ltik: string,
@@ -65,17 +76,24 @@ const request = async (
   if (!response.ok) {
     const responseText = await response.text();
     let message = responseText || "API request failed.";
+    let code: string | undefined;
 
     try {
-      const data = JSON.parse(responseText) as { message?: unknown };
+      const data = JSON.parse(responseText) as {
+        message?: unknown;
+        code?: unknown;
+      };
       if (typeof data.message === "string") {
         message = data.message;
+      }
+      if (typeof data.code === "string") {
+        code = data.code;
       }
     } catch {
       // Preserve non-JSON server errors.
     }
 
-    throw new Error(message);
+    throw new LtiApiError(message, response.status, code);
   }
 
   return response;
@@ -136,15 +154,22 @@ export const getQuestionImportStatus = async (
   return (await response.json()) as QuestionImportStatus;
 };
 
+/** Resolves to null when the current launch is not a Moodle deep-linking request. */
 export const generateDeeplink = async (
   taskId: string,
   ltik: string,
-): Promise<string> => {
-  const response = await request("/api/generate-deeplink", ltik, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ taskId }),
-  });
-
-  return response.text();
+): Promise<string | null> => {
+  try {
+    const response = await request("/api/generate-deeplink", ltik, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ taskId }),
+    });
+    return response.text();
+  } catch (error) {
+    if (error instanceof LtiApiError && error.code === "NOT_DEEP_LINKING_LAUNCH") {
+      return null;
+    }
+    throw error;
+  }
 };

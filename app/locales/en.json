@@ -421,8 +421,8 @@
         "required": "Choose a file before submitting the assignment.",
         "draftRequiresFile": "Choose a new file before saving the draft.",
         "empty": "The selected file is empty. Choose a file that contains data.",
-        "unsupported": "Unsupported file type. Choose a PDF, ZIP, or Markdown file.",
-        "tooLarge": "The selected file exceeds the 50 MB limit."
+        "unsupported": "Unsupported file type. Choose a PDF, DOCX, or TXT file.",
+        "tooLarge": "The selected file exceeds the 20 MB limit."
       },
       "errors": {
         "generic": "We couldn’t save your submission. Please try again.",
@@ -430,10 +430,18 @@
         "server": "The server couldn’t process your submission right now. Please try again shortly.",
         "unauthorized": "Your session doesn’t allow this submission. Reopen Check Hit from Moodle and try again.",
         "alreadySubmitted": "This draft has already been submitted and can no longer be changed.",
-        "fileTooLarge": "The server rejected the file because it is too large."
+        "fileTooLarge": "The server rejected the file because it is too large.",
+        "deadlinePassed": "The submission deadline has passed, so new submissions are no longer accepted.",
+        "assignmentClosed": "This assignment is closed for submissions.",
+        "notOpen": "This assignment is not open for submissions yet.",
+        "appealInProgress": "You can resubmit only after your appeal has been reviewed.",
+        "draftExists": "You already have a saved draft for this assignment. Continue that draft instead.",
+        "gradingInProgress": "Your previous attempt is still being evaluated. You can resubmit once it is graded.",
+        "downloadFailed": "The file couldn’t be downloaded. Please try again."
       },
+      "submissionUnavailable": "Submissions are closed",
       "dragFiles": "Drag files here or click to upload",
-      "fileRules": "You can upload PDF, ZIP, or Markdown files up to 50MB. The system will automatically scan and evaluate after submission.",
+      "fileRules": "You can upload PDF, DOCX, or TXT files up to 20MB. The system will automatically scan and evaluate after submission.",
       "chooseFile": "Choose file to submit",
       "evaluationPending": "Your evaluation is queued",
       "evaluationPendingDesc": "Your submission is waiting for the automated evaluator to begin.",
@@ -447,6 +455,7 @@
       "finalGrade": "Final grade",
       "evalDetails": "Evaluation details",
       "aiFeedback": "Evaluation Feedback",
+      "noFeedback": "No written feedback was provided for this evaluation.",
       "questionResults": "Results by question",
       "questionResultsDesc": "Review the score and feedback awarded for each question.",
       "loadingQuestionResults": "Loading question results...",

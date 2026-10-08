@@ -79,7 +79,10 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
   return response.json() as Promise<T>;
 }
 
-async function download(endpoint: string): Promise<{ blob: Blob; filename: string }> {
+async function download(
+  endpoint: string,
+  fallbackFilename = 'appeal-evidence.pdf',
+): Promise<{ blob: Blob; filename: string }> {
   const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
   const url = new URL(`${SERVER_URL}/api${normalizedEndpoint}`);
   const { ltik } = getLtiSession();
@@ -101,7 +104,7 @@ async function download(endpoint: string): Promise<{ blob: Blob; filename: strin
   const encodedName = disposition.match(/filename\*=UTF-8''([^;]+)/i)?.[1];
   return {
     blob: await response.blob(),
-    filename: encodedName ? decodeURIComponent(encodedName) : 'appeal-evidence.pdf',
+    filename: encodedName ? decodeURIComponent(encodedName) : fallbackFilename,
   };
 }
 

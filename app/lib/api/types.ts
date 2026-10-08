@@ -339,7 +339,7 @@ export interface StudentAssignmentDetailResponse {
   type: string;
   evaluationInstructions: string;
   maxScore: number;
-  status: 'DRAFT' | 'PUBLISHED' | 'CLOSED';
+  status: 'DRAFT' | 'PUBLISHED' | 'CLOSED' | 'ARCHIVED';
   startAt: string | null;
   dueAt: string | null;
   createdAt: string;

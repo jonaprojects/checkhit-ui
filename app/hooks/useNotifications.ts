@@ -21,6 +21,28 @@ export interface ProcessedNotification extends Notification {
   formattedTime: string;
 }
 
+export function getNotificationDestination(
+  notification: Notification,
+): string | null | undefined {
+  const legacyMessageId = notification.link?.match(/^\/messages\/([^/?#]+)$/)?.[1];
+  if (legacyMessageId) {
+    const portal =
+      typeof window !== 'undefined' && window.location.pathname.startsWith('/lecturer')
+        ? 'lecturer'
+        : 'student';
+    return `/${portal}/messages?message=${legacyMessageId}`;
+  }
+
+  if (!notification.link?.startsWith('/student/appeals/')) {
+    return notification.link;
+  }
+
+  const assignmentId = notification.metadata?.assignmentId;
+  return typeof assignmentId === 'string'
+    ? `/student/assignments/${assignmentId}`
+    : '/student/appeals';
+}
+
 export function mapNotificationCategory(category: NotificationCategory): NotificationType {
   switch (category) {
     case 'ASSIGNMENT':
@@ -86,6 +108,7 @@ export function useNotifications(
       const notifications = await getUserNotifications(userId, params);
       return notifications.map((n) => ({
         ...n,
+        link: getNotificationDestination(n),
         uiType: mapNotificationCategory(n.category),
         formattedTime: formatRelativeTime(n.createdAt, isEn),
       }));
@@ -128,8 +151,35 @@ export function useNotificationRealtime(userId?: string): void {
       });
     };
 
+    const handleNotification = (event: Event) => {
+      refreshNotifications();
+
+      try {
+        const notification = JSON.parse(
+          (event as MessageEvent<string>).data,
+        ) as Notification;
+        if (notification.category !== 'APPEAL') return;
+
+        const assignmentId = notification.metadata?.assignmentId;
+        void queryClient.invalidateQueries({ queryKey: ['studentAppeals'] });
+        void queryClient.invalidateQueries({ queryKey: ['studentAssignments'] });
+        void queryClient.invalidateQueries({ queryKey: ['studentDashboard'] });
+        void queryClient.invalidateQueries({
+          queryKey:
+            typeof assignmentId === 'string'
+              ? ['studentAssignmentDetail', assignmentId]
+              : ['studentAssignmentDetail'],
+        });
+      } catch {
+        void queryClient.invalidateQueries({ queryKey: ['studentAppeals'] });
+        void queryClient.invalidateQueries({
+          queryKey: ['studentAssignmentDetail'],
+        });
+      }
+    };
+
     eventSource.addEventListener('connected', refreshNotifications);
-    eventSource.addEventListener('notification', refreshNotifications);
+    eventSource.addEventListener('notification', handleNotification);
     eventSource.addEventListener('notification-read', refreshNotifications);
     eventSource.addEventListener('notifications-read-all', refreshNotifications);
 

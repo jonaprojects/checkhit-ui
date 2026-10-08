@@ -1,6 +1,7 @@
 import type { Route } from "./+types/lecturer.messages";
 import MainLayout from "../components/MainLayout";
 import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router";
 import { 
   Search, 
   Mail, 
@@ -106,6 +107,14 @@ export default function LecturerMessages() {
   });
 
   const messages: MessageItem[] = messagesData?.messages || [];
+  const [searchParams] = useSearchParams();
+  const linkedMessageId = searchParams.get("message");
+
+  useEffect(() => {
+    if (!linkedMessageId) return;
+    setSelectedMessageId(linkedMessageId);
+    setIsMobileDetailOpen(true);
+  }, [linkedMessageId]);
 
   // Automatically select first message if none selected
   useEffect(() => {
@@ -123,6 +132,12 @@ export default function LecturerMessages() {
   const sendMessageMutation = useSendMessage(lecturerId);
   const sendReplyMutation = useSendReply(lecturerId);
   const markAsReadMutation = useMarkMessageAsRead(lecturerId);
+
+  useEffect(() => {
+    if (messageDetail && messageDetail.id === linkedMessageId && !messageDetail.isRead) {
+      markAsReadMutation.mutate({ messageId: messageDetail.id, isRead: true });
+    }
+  }, [messageDetail?.id, messageDetail?.isRead, linkedMessageId]);
   const archiveMutation = useArchiveMessage(lecturerId);
   const deleteMutation = useDeleteMessage(lecturerId);
 

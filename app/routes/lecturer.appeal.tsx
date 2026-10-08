@@ -68,10 +68,7 @@ export default function LecturerAppealReviewRoute() {
   const originalGrade = appeal?.evaluation?.score ?? 0;
   const maxScore = appeal?.evaluation?.maxScore ?? 100;
 
-  const handleResolve = async (
-    decisionStatus: 'ACCEPTED' | 'REJECTED',
-    resolutionOverride?: string,
-  ) => {
+  const handleResolve = async (decisionStatus: 'ACCEPTED' | 'REJECTED') => {
     if (!appealId) return;
     setSubmissionError(null);
 
@@ -81,7 +78,7 @@ export default function LecturerAppealReviewRoute() {
       return;
     }
     const feedbackToSend =
-      resolutionOverride || lecturerFeedback.trim() ||
+      lecturerFeedback.trim() ||
       (decisionStatus === 'REJECTED'
         ? (isEn ? "The appeal was reviewed and rejected. Original evaluation stands." : "הערעור נבדק ונדחה. ההערכה המקורית נשארת בעינה.")
         : (isEn ? "The appeal was accepted and grade updated." : "הערעור התקבל והציון עודכן."));
@@ -455,13 +452,8 @@ export default function LecturerAppealReviewRoute() {
                     className="w-full !rounded-xl text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/40 border-gray-200 dark:border-gray-700 hover:border-red-200"
                     disabled={!canResolve || resolveMutation.isPending}
                     onClick={() => {
-                      const rejection =
-                        isEn
-                          ? "After a thorough review of your appeal claims, the implementation does not meet the necessary criteria. The original grade stands."
-                          : "לאחר בדיקה מעמיקה של טענותיך, המימוש אינו עומד בקריטריונים הנדרשים. הציון המקורי נותר בעינו.";
                       setNewGrade(originalGrade);
-                      setLecturerFeedback(rejection);
-                      handleResolve('REJECTED', rejection);
+                      handleResolve('REJECTED');
                     }}
                   >
                     {t('appealReview.rejectAppealBtn')}

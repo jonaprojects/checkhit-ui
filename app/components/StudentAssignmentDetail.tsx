@@ -30,14 +30,35 @@ import {
   useSubmitStudentAssignment,
 } from '../hooks/useStudentSubmission';
 import { useEvaluationDetail } from '../hooks/useEvaluationDetail';
-import { validateSubmissionFile } from '../lib/submission-validation';
+import { SUBMISSION_FILE_ACCEPT, validateSubmissionFile } from '../lib/submission-validation';
+import {
+  getSubmissionErrorKey,
+  getSubmissionUnavailableReason,
+  isAppealInProgress,
+  type SubmissionUnavailableReason,
+} from '../lib/submission-availability';
 import { ApiError } from '../lib/api/client';
+import { downloadSubmissionFile } from '../lib/api/submissions';
 import type { TFunction } from 'i18next';
+
+const UNAVAILABLE_REASON_KEYS: Record<SubmissionUnavailableReason, string> = {
+  closed: 'assignmentDetail.errors.assignmentClosed',
+  notOpen: 'assignmentDetail.errors.notOpen',
+  deadlinePassed: 'assignmentDetail.errors.deadlinePassed',
+};
 
 function getSubmissionErrorMessage(error: unknown, t: TFunction): string {
   if (error instanceof ApiError) {
+    const code =
+      error.data && typeof error.data === 'object' && 'code' in error.data
+        ? (error.data as { code?: unknown }).code
+        : undefined;
+    const codeKey = getSubmissionErrorKey(code);
+    if (codeKey) return t(codeKey);
     if (error.status === 409) return t('assignmentDetail.errors.alreadySubmitted');
-    if (error.status === 413) return t('assignmentDetail.errors.fileTooLarge');
+    if (error.status === 413 || code === 'LIMIT_FILE_SIZE') {
+      return t('assignmentDetail.errors.fileTooLarge');
+    }
     if (error.status === 401 || error.status === 403) return t('assignmentDetail.errors.unauthorized');
     if (error.status >= 500) return t('assignmentDetail.errors.server');
   }
@@ -73,15 +94,26 @@ export default function StudentAssignmentDetail({ assignment }: StudentAssignmen
 
   const [localSubmissionFile, setLocalSubmissionFile] = useState<File | null>(null);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [isResubmitting, setIsResubmitting] = useState(false);
   const saveDraftMutation = useSaveStudentSubmissionDraft();
   const submitMutation = useSubmitStudentAssignment();
 
-  const isGraded = studentStatus === 'GRADED' && Boolean(submission?.evaluation);
+  const isGraded =
+    !isResubmitting && studentStatus === 'GRADED' && Boolean(submission?.evaluation);
   const isSubmittedNotGraded =
+    !isResubmitting &&
     submission?.status === 'SUBMITTED' &&
     (!submission.evaluation || submission.evaluation.status !== 'COMPLETED');
   const isNotSubmitted = !isGraded && !isSubmittedNotGraded;
   const draftSubmission = submission?.status === 'DRAFT' ? submission : null;
+  const unavailableReason = getSubmissionUnavailableReason(assignment);
+  const resubmitBlockedMessage = unavailableReason
+    ? t(UNAVAILABLE_REASON_KEYS[unavailableReason])
+    : isAppealInProgress(appeal?.status)
+      ? t('assignmentDetail.errors.appealInProgress')
+      : null;
+  const showDownloadError = () =>
+    setFeedback({ type: 'error', message: t('assignmentDetail.errors.downloadFailed') });
   const busyAction = saveDraftMutation.isPending
     ? 'draft'
     : submitMutation.isPending
@@ -137,6 +169,7 @@ export default function StudentAssignmentDetail({ assignment }: StudentAssignmen
         file: localSubmissionFile || undefined,
       });
       setLocalSubmissionFile(null);
+      setIsResubmitting(false);
       setFeedback({ type: 'success', message: t('assignmentDetail.submissionAccepted') });
     } catch (error) {
       setFeedback({ type: 'error', message: getSubmissionErrorMessage(error, t) });
@@ -275,8 +308,12 @@ export default function StudentAssignmentDetail({ assignment }: StudentAssignmen
               submission={submission}
               appeal={appeal}
               isEn={isEn}
+              resubmitBlockedMessage={resubmitBlockedMessage}
+              onDownloadError={showDownloadError}
               onReset={() => {
                 setLocalSubmissionFile(null);
+                setFeedback(null);
+                setIsResubmitting(true);
               }}
             />
           )}
@@ -286,20 +323,34 @@ export default function StudentAssignmentDetail({ assignment }: StudentAssignmen
               submission={submission}
               localFile={localSubmissionFile}
               isEn={isEn}
+              onDownloadError={showDownloadError}
             />
           )}
 
-          {isNotSubmitted && (
+          {isNotSubmitted && unavailableReason && (
+            <div
+              role="status"
+              className="flex flex-col items-center gap-3 rounded-xl border border-amber-200 bg-amber-50 p-8 text-center text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-300"
+            >
+              <AlertTriangle size={28} className="shrink-0" />
+              <p className="font-bold">{t('assignmentDetail.submissionUnavailable')}</p>
+              <p className="text-sm">{t(UNAVAILABLE_REASON_KEYS[unavailableReason])}</p>
+            </div>
+          )}
+
+          {isNotSubmitted && !unavailableReason && (
             <NotSubmittedView
               selectedFile={localSubmissionFile}
-              setSelectedFile={setLocalSubmissionFile}
+              setSelectedFile={(file) => {
+                setLocalSubmissionFile(file);
+                setFeedback(null);
+              }}
               existingFiles={draftSubmission?.files || []}
               isDraft={Boolean(draftSubmission)}
               busyAction={busyAction}
               onSaveDraft={handleSaveDraft}
               onSubmit={handleSubmit}
               onFileRejected={(message) => setFeedback({ type: 'error', message })}
-              isOverdue={isOverdue}
             />
           )}
         </div>
@@ -320,7 +371,6 @@ interface NotSubmittedViewProps {
   onSaveDraft: () => void;
   onSubmit: () => void;
   onFileRejected: (message: string) => void;
-  isOverdue: boolean;
 }
 
 function NotSubmittedView({
@@ -332,7 +382,6 @@ function NotSubmittedView({
   onSaveDraft,
   onSubmit,
   onFileRejected,
-  isOverdue,
 }: NotSubmittedViewProps) {
   const { t } = useTranslation();
   const [isDragging, setIsDragging] = useState(false);
@@ -381,7 +430,7 @@ function NotSubmittedView({
           className="hidden"
           ref={fileInputRef}
           onChange={onFileInputChange}
-          accept=".pdf,.md,.zip"
+          accept={SUBMISSION_FILE_ACCEPT}
         />
 
         {isDraft && (
@@ -435,13 +484,6 @@ function NotSubmittedView({
           {selectedFile || existingFiles.length ? t('assignmentDetail.replaceFile') : t('assignmentDetail.chooseFile')}
         </button>
 
-        {isOverdue && (
-          <div className="mb-4 flex items-center gap-2 text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 px-3 py-2 rounded-lg w-full">
-            <AlertTriangle size={16} className="shrink-0" />
-            <span>{t('assignmentDetail.overdueWarning')}</span>
-          </div>
-        )}
-
         <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
           <button
             type="button"
@@ -483,7 +525,7 @@ function NotSubmittedView({
         className="hidden"
         ref={fileInputRef}
         onChange={onFileInputChange}
-        accept=".pdf,.md,.zip"
+        accept={SUBMISSION_FILE_ACCEPT}
       />
       <div
         className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 transition-colors ${
@@ -514,14 +556,54 @@ function NotSubmittedView({
 /**
  * 2. SUBMITTED / CHECKING VIEW (Awaiting grading or in processing)
  */
+function FileDownloadButton({
+  submissionId,
+  file,
+  onError,
+}: {
+  submissionId: string;
+  file: ProcessedSubmissionFile;
+  onError: () => void;
+}) {
+  const { t } = useTranslation();
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  if (!file.downloadUrl) return null;
+
+  const handleDownload = async () => {
+    setIsDownloading(true);
+    try {
+      await downloadSubmissionFile(submissionId, file.id, file.name);
+    } catch {
+      onError();
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={handleDownload}
+      disabled={isDownloading}
+      title={t('assignmentDetail.download')}
+      aria-label={`${t('assignmentDetail.download')} ${file.name ?? ''}`.trim()}
+      className="shrink-0 p-2 text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 transition-colors disabled:opacity-50 cursor-pointer"
+    >
+      {isDownloading ? <LoaderCircle size={16} className="animate-spin" /> : <Download size={16} />}
+    </button>
+  );
+}
+
 interface CheckingViewProps {
   submission: ProcessedStudentAssignmentDetail['submission'];
   localFile: File | null;
   isEn: boolean;
+  onDownloadError: () => void;
   onSimulateGraded?: () => void;
 }
 
-function CheckingView({ submission, localFile, isEn }: CheckingViewProps) {
+function CheckingView({ submission, localFile, isEn, onDownloadError }: CheckingViewProps) {
   const { t } = useTranslation();
 
   const files = submission?.files || [];
@@ -602,15 +684,8 @@ function CheckingView({ submission, localFile, isEn }: CheckingViewProps) {
                     <p className="text-xs text-gray-400">{file.formattedSize}</p>
                   </div>
                 </div>
-                {file.downloadUrl && (
-                  <a
-                    href={file.downloadUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="p-2 text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
-                  >
-                    <Download size={16} />
-                  </a>
+                {submission && (
+                  <FileDownloadButton submissionId={submission.id} file={file} onError={onDownloadError} />
                 )}
               </div>
             ))}
@@ -645,10 +720,20 @@ interface GradedViewProps {
   submission: NonNullable<ProcessedStudentAssignmentDetail['submission']>;
   appeal: ProcessedStudentAssignmentDetail['appeal'];
   isEn: boolean;
+  resubmitBlockedMessage: string | null;
+  onDownloadError: () => void;
   onReset: () => void;
 }
 
-function GradedView({ assignment, submission, appeal, isEn, onReset }: GradedViewProps) {
+function GradedView({
+  assignment,
+  submission,
+  appeal,
+  isEn,
+  resubmitBlockedMessage,
+  onDownloadError,
+  onReset,
+}: GradedViewProps) {
   const { t } = useTranslation();
   const evaluation = submission.evaluation;
   const score = evaluation?.score ?? 0;
@@ -712,24 +797,9 @@ function GradedView({ assignment, submission, appeal, isEn, onReset }: GradedVie
                 {evaluation.feedback}
               </div>
             ) : (
-              <div className="space-y-3">
-                <FeedbackItem
-                  type="positive"
-                  text={
-                    isEn
-                      ? 'The implementation meets all core functional requirements and edge cases.'
-                      : 'המימוש עומד בכל דרישות הפונקציונליות ומקרי הקצה.'
-                  }
-                />
-                <FeedbackItem
-                  type="positive"
-                  text={
-                    isEn
-                      ? 'Clean code structure with appropriate naming conventions.'
-                      : 'מבנה קוד נקי ותקני עם שמות משתנים ברורים.'
-                  }
-                />
-              </div>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                {t('assignmentDetail.noFeedback')}
+              </p>
             )}
           </div>
 
@@ -809,7 +879,10 @@ function GradedView({ assignment, submission, appeal, isEn, onReset }: GradedVie
                     <span className="font-medium text-gray-700 dark:text-gray-300 truncate max-w-[140px]" dir="ltr">
                       {file.name}
                     </span>
-                    <span className="text-gray-400">{file.formattedSize}</span>
+                    <span className="flex items-center gap-1 text-gray-400">
+                      {file.formattedSize}
+                      <FileDownloadButton submissionId={submission.id} file={file} onError={onDownloadError} />
+                    </span>
                   </div>
                 ))}
               </div>
@@ -842,12 +915,18 @@ function GradedView({ assignment, submission, appeal, isEn, onReset }: GradedVie
             </div>
           )}
 
-          <button
-            onClick={onReset}
-            className="w-full text-center text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 py-1.5 transition-colors cursor-pointer"
-          >
-            {t('assignmentDetail.resubmitPrac')}
-          </button>
+          {resubmitBlockedMessage ? (
+            <p className="text-center text-xs text-gray-500 dark:text-gray-400 py-1.5">
+              {resubmitBlockedMessage}
+            </p>
+          ) : (
+            <button
+              onClick={onReset}
+              className="w-full text-center text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 py-1.5 transition-colors cursor-pointer"
+            >
+              {t('assignmentDetail.resubmitPrac')}
+            </button>
+          )}
         </div>
       </div>
     </div>
@@ -1004,38 +1083,6 @@ function AppealStatusCard({
           <p className="text-xs text-gray-800 dark:text-gray-200 leading-relaxed">{appeal.resolution}</p>
         </div>
       )}
-    </div>
-  );
-}
-
-function FeedbackItem({ type, text }: { type: 'positive' | 'warning' | 'negative'; text: string }) {
-  const styles = {
-    positive: {
-      bg: 'bg-green-50/80 dark:bg-green-950/30',
-      border: 'border-green-200/80 dark:border-green-900/50',
-      text: 'text-green-800 dark:text-green-300',
-      icon: <CheckCircle2 size={18} className="text-green-600 dark:text-green-400 mt-0.5 shrink-0" />,
-    },
-    warning: {
-      bg: 'bg-yellow-50/80 dark:bg-yellow-950/30',
-      border: 'border-yellow-200/80 dark:border-yellow-900/50',
-      text: 'text-yellow-800 dark:text-yellow-300',
-      icon: <AlertCircle size={18} className="text-yellow-600 dark:text-yellow-400 mt-0.5 shrink-0" />,
-    },
-    negative: {
-      bg: 'bg-red-50/80 dark:bg-red-950/30',
-      border: 'border-red-200/80 dark:border-red-900/50',
-      text: 'text-red-800 dark:text-red-300',
-      icon: <AlertCircle size={18} className="text-red-600 dark:text-red-400 mt-0.5 shrink-0" />,
-    },
-  };
-
-  const style = styles[type];
-
-  return (
-    <div className={`p-3.5 rounded-lg border ${style.bg} ${style.border} flex items-start gap-3`}>
-      {style.icon}
-      <p className={`text-sm font-medium ${style.text}`}>{text}</p>
     </div>
   );
 }

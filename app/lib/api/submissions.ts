@@ -30,3 +30,22 @@ export function updateDraftSubmission(
 export function submitDraftSubmission(submissionId: string): Promise<AssignmentSubmission> {
   return apiClient.post<AssignmentSubmission>(`/submissions/${submissionId}/submit`);
 }
+
+export async function downloadSubmissionFile(
+  submissionId: string,
+  fileId: string,
+  fallbackFilename = 'submission',
+): Promise<void> {
+  const { blob, filename } = await apiClient.download(
+    `/submissions/${submissionId}/files/${fileId}`,
+    fallbackFilename,
+  );
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.download = filename;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  URL.revokeObjectURL(url);
+}

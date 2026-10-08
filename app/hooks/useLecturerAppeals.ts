@@ -192,6 +192,10 @@ export function useResolveAppeal() {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['lecturerAppeals'] });
       queryClient.invalidateQueries({ queryKey: ['lecturerAppealsStats'] });
+      queryClient.invalidateQueries({ queryKey: ['lecturerCourses'] });
+      queryClient.invalidateQueries({ queryKey: ['lecturerAssignmentOverview'] });
+      queryClient.invalidateQueries({ queryKey: ['lecturerDashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['evaluationDetail'] });
       queryClient.invalidateQueries({ queryKey: ['appealDetail', variables.appealId] });
       queryClient.invalidateQueries({ queryKey: ['studentAppeals'] });
       queryClient.invalidateQueries({ queryKey: ['notifications'] });

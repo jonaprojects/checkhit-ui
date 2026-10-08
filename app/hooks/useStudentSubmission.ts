@@ -39,7 +39,7 @@ export function useSaveStudentSubmissionDraft() {
       submissionId
         ? updateDraftSubmission(submissionId, { files: [file] }, true)
         : createAssignmentSubmission(assignmentId, { files: [file] }, false),
-    onSuccess: (_submission, variables) => invalidate(variables.assignmentId),
+    onSettled: (_submission, _error, variables) => invalidate(variables.assignmentId),
   });
 }
 
@@ -58,6 +58,6 @@ export function useSubmitStudentAssignment() {
       }
       return submitDraftSubmission(submissionId);
     },
-    onSuccess: (_submission, variables) => invalidate(variables.assignmentId),
+    onSettled: (_submission, _error, variables) => invalidate(variables.assignmentId),
   });
 }

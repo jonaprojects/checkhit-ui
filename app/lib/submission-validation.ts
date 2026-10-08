@@ -1,6 +1,9 @@
-export const MAX_SUBMISSION_FILE_SIZE = 50 * 1024 * 1024;
+// Mirrors the server upload policy (MAX_UPLOAD_BYTES default and upload-mime.ts).
+export const MAX_SUBMISSION_FILE_SIZE = 20 * 1024 * 1024;
 
-const ALLOWED_EXTENSIONS = new Set(['pdf', 'zip', 'md']);
+const ALLOWED_EXTENSIONS = new Set(['pdf', 'docx', 'txt']);
+
+export const SUBMISSION_FILE_ACCEPT = '.pdf,.docx,.txt';
 
 export type SubmissionFileValidationError = 'empty' | 'unsupported' | 'tooLarge';
 

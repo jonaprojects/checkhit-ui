@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { getLecturerCourses, getCourseAssignments } from '../lib/api/courses';
+import { getLecturerAppeals } from '../lib/api/appeals';
 import type { Course, Assignment } from '../lib/api/types';
 import type { CourseAccent } from '../components/CourseCard';
 import { COURSE_ACCENTS } from './useStudentCourses';
@@ -40,8 +41,18 @@ export function useLecturerCourses() {
         throw new LecturerContextUnavailableError();
       }
 
-      // 1. Fetch all courses managed by the lecturer
-      const rawCourses = await getLecturerCourses(lecturerId);
+      // 1. Fetch all courses managed by the lecturer, plus their appeals for open counts
+      const [rawCourses, appeals] = await Promise.all([
+        getLecturerCourses(lecturerId),
+        getLecturerAppeals(lecturerId),
+      ]);
+      const pendingAppealsByCourse = new Map<string, number>();
+      for (const appeal of appeals) {
+        if (appeal.status !== 'SUBMITTED' && appeal.status !== 'UNDER_REVIEW') continue;
+        const courseId = appeal.submission?.assignment?.courseId;
+        if (!courseId) continue;
+        pendingAppealsByCourse.set(courseId, (pendingAppealsByCourse.get(courseId) ?? 0) + 1);
+      }
 
       // 2. Fetch assignments for each course in parallel to get live assignment metrics
       const enrichedCourses = await Promise.all(
@@ -67,7 +78,7 @@ export function useLecturerCourses() {
             assignmentsCount: assignments.length,
             activeAssignments,
             studentsCount: course.studentsCount ?? 0,
-            pendingAppeals: 0,
+            pendingAppeals: pendingAppealsByCourse.get(course.id) ?? 0,
             accent,
           };
         })
