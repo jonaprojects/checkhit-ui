@@ -24,6 +24,24 @@ export async function getStudentAssignmentDetail(
   );
 }
 
+export async function downloadAssignmentFile(
+  assignmentId: string,
+  fallbackFilename = 'assignment',
+): Promise<void> {
+  const { blob, filename } = await apiClient.download(
+    `/assignments/${assignmentId}/file`,
+    fallbackFilename,
+  );
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.download = filename;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  URL.revokeObjectURL(url);
+}
+
 /**
  * Fetch complete lecturer overview for an assignment including metadata,
  * KPI statistics, and the full enrolled student submissions roster.

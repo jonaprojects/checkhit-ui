@@ -397,6 +397,7 @@
     },
     "assignmentDetail": {
       "instructions": "Assignment Instructions",
+      "assignmentFile": "Assignment file",
       "evalInstructions": "Evaluation Instructions",
       "dueDate": "Due date:",
       "startDate": "Start date:",

@@ -397,6 +397,7 @@
     },
     "assignmentDetail": {
       "instructions": "הנחיות המטלה",
+      "assignmentFile": "קובץ המטלה",
       "evalInstructions": "הנחיות הערכה ובדיקה",
       "dueDate": "מועד הגשה:",
       "startDate": "תאריך פתיחה:",

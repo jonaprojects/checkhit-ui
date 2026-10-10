@@ -13,7 +13,8 @@ export interface ProcessedSubmissionFile extends SubmissionFile {
   formattedSize: string;
 }
 
-export interface ProcessedStudentAssignmentDetail extends Omit<StudentAssignmentDetailResponse, 'submission'> {
+export interface ProcessedStudentAssignmentDetail extends Omit<StudentAssignmentDetailResponse, 'submission' | 'assignmentFile'> {
+  assignmentFile: ProcessedSubmissionFile | null;
   formattedDueDate: string;
   isOverdue: boolean;
   formattedStartDate?: string | null;
@@ -119,6 +120,9 @@ export function useStudentAssignmentDetail(
 
       return {
         ...data,
+        assignmentFile: data.assignmentFile
+          ? { ...data.assignmentFile, formattedSize: formatBytes(data.assignmentFile.sizeBytes) }
+          : null,
         formattedDueDate,
         isOverdue,
         formattedStartDate,

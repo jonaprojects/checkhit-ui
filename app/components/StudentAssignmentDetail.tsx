@@ -39,6 +39,7 @@ import {
 } from '../lib/submission-availability';
 import { ApiError } from '../lib/api/client';
 import { downloadSubmissionFile } from '../lib/api/submissions';
+import { downloadAssignmentFile } from '../lib/api/assignments';
 import type { TFunction } from 'i18next';
 
 const UNAVAILABLE_REASON_KEYS: Record<SubmissionUnavailableReason, string> = {
@@ -90,6 +91,7 @@ export default function StudentAssignmentDetail({ assignment }: StudentAssignmen
     studentStatus,
     submission,
     appeal,
+    assignmentFile,
   } = assignment;
 
   const [localSubmissionFile, setLocalSubmissionFile] = useState<File | null>(null);
@@ -242,6 +244,14 @@ export default function StudentAssignmentDetail({ assignment }: StudentAssignmen
             {description || (isEn ? 'No instructions provided.' : 'לא הוזנו הנחיות למטלה זו.')}
           </div>
 
+          {assignmentFile && (
+            <AssignmentFileCard
+              assignmentId={assignmentId}
+              file={assignmentFile}
+              onError={showDownloadError}
+            />
+          )}
+
           {/* Evaluation Instructions / Rubric Note if exists */}
           {evaluationInstructions && (
             <div className="mb-6 p-4 rounded-xl bg-teal-50/50 dark:bg-teal-950/20 border border-teal-100 dark:border-teal-900/40">
@@ -355,6 +365,56 @@ export default function StudentAssignmentDetail({ assignment }: StudentAssignmen
           )}
         </div>
       </div>
+    </div>
+  );
+}
+
+function AssignmentFileCard({
+  assignmentId,
+  file,
+  onError,
+}: {
+  assignmentId: string;
+  file: ProcessedSubmissionFile;
+  onError: () => void;
+}) {
+  const { t } = useTranslation();
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  const handleDownload = async () => {
+    setIsDownloading(true);
+    try {
+      await downloadAssignmentFile(assignmentId, file.name);
+    } catch {
+      onError();
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  return (
+    <div className="mb-6 flex flex-wrap items-center gap-4 rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-700/60 dark:bg-gray-800/60">
+      <div className="w-11 h-11 bg-teal-50 dark:bg-teal-950/60 text-[#00857e] dark:text-teal-300 rounded-lg flex items-center justify-center shrink-0">
+        <FileIcon size={22} />
+      </div>
+      <div className="min-w-0 flex-1 text-start">
+        <p className="text-xs font-bold text-[#00857e] dark:text-teal-300">
+          {t('assignmentDetail.assignmentFile')}
+        </p>
+        <p className="truncate text-sm font-semibold text-gray-800 dark:text-gray-200" dir="ltr">
+          {file.name}
+        </p>
+        <p className="text-xs text-gray-500 dark:text-gray-400">{file.formattedSize}</p>
+      </div>
+      <button
+        type="button"
+        onClick={handleDownload}
+        disabled={isDownloading}
+        className="flex items-center gap-2 rounded-lg bg-[#00857e] px-4 py-2 text-sm font-bold text-white shadow-sm transition-colors hover:bg-teal-700 disabled:opacity-50 dark:bg-teal-600 dark:hover:bg-teal-500 cursor-pointer"
+      >
+        {isDownloading ? <LoaderCircle size={16} className="animate-spin" /> : <Download size={16} />}
+        {t('assignmentDetail.download')}
+      </button>
     </div>
   );
 }

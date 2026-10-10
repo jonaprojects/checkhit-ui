@@ -348,6 +348,7 @@ export interface StudentAssignmentDetailResponse {
   studentStatus: StudentAssignmentStatus;
   submission: AssignmentSubmission | null;
   appeal: AssignmentAppeal | null;
+  assignmentFile?: SubmissionFile | null;
 }
 
 export interface LecturerAppealStudent {
